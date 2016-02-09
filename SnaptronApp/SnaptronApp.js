@@ -1,23 +1,14 @@
+Meteor.queriesDB = new Mongo.Collection("queries");
+
 if (Meteor.isClient) {
-    // counter starts at 0
-    Session.setDefault('counter', 0);
-
-    Template.hello.helpers({
-        counter: function () {
-            return Session.get('counter');
-        }
-    });
-
-    Template.hello.events({
+    Template.test.events({
         'click button': function () {
-            // increment the counter when button is clicked
-            Session.set('counter', Session.get('counter') + 1);
+            Meteor.call("getIdForQuery", "chr6:1-1000000|samples_count=5|");
         }
     });
 }
 
 if (Meteor.isServer) {
     Meteor.startup(function () {
-        // code to run on server at startup
     });
 }
