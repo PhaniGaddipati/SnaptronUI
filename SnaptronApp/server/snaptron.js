@@ -47,7 +47,7 @@ Meteor.methods({
                     console.error("Failed to cache result for query\"" + queryStr + "\" into DB.");
                     console.error(err);
                 } else {
-                    console.log("Cached result for query\"" + queryStr + "\" into DB --> " + cachedResult._id);
+                    console.log("Cached result for query\"" + queryStr + "\" into DB --> " + _id);
                 }
             });
             return _id;
