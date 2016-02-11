@@ -1,4 +1,8 @@
 if (Meteor.isClient) {
+    Meteor.startup(function () {
+        Session.setDefault("loading", false);
+    });
+
     Template.querybar.events({
         "click .submit": function (event, template) {
             event.preventDefault();
@@ -20,7 +24,10 @@ if (Meteor.isClient) {
     });
 
     function handleSubmitQuery(queryStr) {
-        console.log("Query submit: " + queryStr);
-        Meteor.call("getIdForQuery", queryStr);
+        if (!Session.get("loading")) {
+            Session.set("loading", true);
+            console.log("Query submit: " + queryStr);
+            Meteor.call("getIdForQuery", queryStr);
+        }
     }
 }

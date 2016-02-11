@@ -21,7 +21,6 @@ Meteor.methods({
     getIdForQuery: function (queryStr) {
         check(queryStr, String);
         this.unblock();
-
         var cachedResult = Meteor.queriesDB.findOne({"query": queryStr});
         if (cachedResult) {
             if ((new Date() - cachedResult.date) > CACHE_VALID_DURATION) {
