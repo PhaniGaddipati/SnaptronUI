@@ -27,7 +27,7 @@ if (Meteor.isClient) {
         if (!Session.get("loading")) {
             Session.set("loading", true);
             console.log("Query submit: " + queryStr);
-            Meteor.call("getIdForQuery", queryStr);
+            Meteor.call("loadQueryResults", queryStr);
         }
     }
 }
