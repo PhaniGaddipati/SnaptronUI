@@ -39,7 +39,7 @@ Meteor.methods({
             Meteor.queriesDB.insert({
                 "_id": _id,
                 "query": queryStr,
-                "content": response.content,
+                "content": LZString.compress(response.content),
                 "date": new Date()
             }, function (err, result) {
                 if (err) {
