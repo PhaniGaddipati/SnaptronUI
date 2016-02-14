@@ -7,85 +7,37 @@
 const URL = "http://stingray.cs.jhu.edu:8443/snaptron/?rquery=";
 
 /**
- * Max time in ms thata cached query is valid
+ * The column that is the junction id in the raw TSV.
  * @type {number}
  */
-const CACHE_VALID_DURATION = 86400000;
+const SNAPTRON_ID_COL = 1;
 
 Meteor.methods({
 
     /**
-     * Loads the results for the given query into
-     * the 'currData' collection
-     *
-     * TODO: Make it an async method with callback
-     *
-     * @param queryStr
-     */
-    loadQueryResults: function (queryStr) {
-        var cachedID = Meteor.call("getIdForQuery", queryStr);
-        if (cachedID != null) {
-            //Clear old data
-            Meteor.currData.remove({});
-
-            //Build new data
-            var cachedResponse = Meteor.queriesDB.findOne({"_id": cachedID});
-            var rawTSV = LZString.decompressFromUint8Array(cachedResponse.content);
-            var lines = rawTSV.split("\n");
-            var headers = lines[0].split("\t");
-            var numJncts = 0;
-            for (var i = 1; i < lines.length; i++) {
-                // Ignore empty lines
-                if (lines[i] && 0 !== lines[i].length) {
-                    var elems = lines[i].split("\t");
-                    var document = {};
-                    // Match header column to the data
-                    for (var col = 0; col < headers.length; col++) {
-                        document[headers[col]] = elems[col];
-                    }
-                    Meteor.currData.insert(document);
-                    numJncts++;
-                }
-            }
-
-            // Attach metadata
-            var metaData = {
-                "tag": "metadata",
-                "query": cachedResponse.query,
-                "date": cachedResponse.date,
-                "num": numJncts
-            };
-            Meteor.currData.insert(metaData);
-        }
-    },
-
-    /**
      * Queries the snaptron server, or returns a cached result
      * @param queryStr The query string
-     * @returns The id of the document in queriesDB or null if a reuslt wasn't obtains
+     * @returns The id of the document in Queries or null if a reuslt wasn't obtains
      */
-    getIdForQuery: function (queryStr) {
+    processQuery: function (queryStr) {
         check(queryStr, String);
         this.unblock();
-        var cachedResult = Meteor.queriesDB.findOne({"query": queryStr});
+        var cachedResult = Queries.findOne({"query": queryStr});
         if (cachedResult) {
-            if ((new Date() - cachedResult.date) > CACHE_VALID_DURATION) {
-                // Invalid entry, discard it
-                Meteor.queriesDB.remove({"_id": cachedResult._id});
-                console.log("Discarded cached result for query \"" + queryStr + "\" from DB.");
-            } else {
-                console.log("Found valid cached reuslt for query \"" + queryStr + "\" --> " + cachedResult._id);
-                return cachedResult._id;
-            }
+            console.log("Found valid cached reuslt for query \"" + queryStr + "\" --> " + cachedResult._id);
+            return cachedResult._id;
         }
         try {
             var response = Meteor.http.call("GET", URL + queryStr);
             // Successful request, add it to the DB
             var _id = new Meteor.Collection.ObjectID()._str;
-            Meteor.queriesDB.insert({
+            var junctionIds = loadJunctionsToDB(response.content);
+
+            Queries.insert({
                 "_id": _id,
                 "query": queryStr,
-                "content": LZString.compressToUint8Array(response.content),
+                "junctions": junctionIds,
+                "numJunctions": junctionIds.length,
                 "date": new Date()
             }, function (err, result) {
                 if (err) {
@@ -102,3 +54,54 @@ Meteor.methods({
         }
     }
 });
+
+/**
+ * Adds the junctions in the TSV file to the
+ * database, if they don't already exist.
+ * Returns an array of the IDs of rows in the TSV.
+ * @param rawTSV
+ */
+function loadJunctionsToDB(rawTSV) {
+    check(rawTSV, String);
+    var lines = rawTSV.split("\n");
+    var headers = lines[0].split("\t");
+    //var types = lines[1].split("\t");
+    var types = ["str", "str", "str", "int", "int", "int", "str", "bool", "str", "str", "str", "str", "str", "str", "int", "int", "float", "float", "str"];
+    var ids = [];
+
+    for (var i = 1; i < lines.length; i++) {
+        // Ignore empty lines
+        if (lines[i] && 0 !== lines[i].length) {
+            //Check if we already have this snaptron_id
+            var elems = lines[i].split("\t");
+            var id = castMember(elems[SNAPTRON_ID_COL], types[SNAPTRON_ID_COL]);
+            if (Junctions.findOne({"_id": id}) == null) {
+                // Build the document
+                var document = {};
+                document["_id"] = id;
+                for (var col = 0; col < headers.length; col++) {
+                    if (col != SNAPTRON_ID_COL) {
+                        document[headers[col]] = castMember(elems[col], types[col]);
+                    }
+                }
+                Junctions.insert(document);
+            }
+            ids.push(id);
+        }
+    }
+
+    return ids;
+}
+
+function castMember(toCast, type) {
+    switch (type) {
+        case "str":
+            return String(toCast);
+        case "int":
+            return parseInt(toCast);
+        case "bool":
+            return parseInt(toCast) != 0;
+        case "float":
+            return parseFloat(toCast);
+    }
+}
