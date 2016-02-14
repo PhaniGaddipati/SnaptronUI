@@ -9,9 +9,10 @@ Router.route('/usage');
 Router.route('/query/:queryStr', {
     loadingTemplate: 'loadingQuery',
     waitOn: function () {
-        return Meteor.subscribe('junctions', this.params.queryStr);
+        return [Meteor.subscribe('queries', this.params.queryStr),
+            Meteor.subscribe('junctions', this.params.queryStr)];
     },
     action: function () {
-        //this.render('template');
+        this.render('queryResults');
     }
 });

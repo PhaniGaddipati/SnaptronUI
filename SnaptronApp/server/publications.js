@@ -8,3 +8,8 @@ Meteor.publish("junctions", function (queryStr) {
     console.log("Published " + resultCursor.count() + " junctions");
     return resultCursor;
 });
+
+Meteor.publish("queries", function (queryStr) {
+    var queryID = Meteor.call("processQuery", queryStr);
+    return Queries.find({_id: queryID});
+});
