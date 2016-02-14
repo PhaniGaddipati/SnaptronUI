@@ -6,5 +6,19 @@
     <body>
     {{> navbar}}
     {{> querybar}}
+    <br>
+    <br>
+    <div class="container">
+        <div class="well well-lg">
+            <h2>Enter a query to start exploring</h2>
+            <br>
+            <p>Try "chr6 1-1000000" or a gene name, or load an example:</p>
+            <p>
+                <a href="/query/CD99" class="btn btn-info btn-sm">CD99</a>
+                <a href="/query/DRD4" class="btn btn-info btn-sm">DRD4</a>
+                <a href="/query/chr6:1-1000000" class="btn btn-info btn-sm">chr6:1-1000000</a>
+            </p>
+        </div>
+    </div>
     </body>
 </template>

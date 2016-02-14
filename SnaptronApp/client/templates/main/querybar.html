@@ -4,13 +4,8 @@
             <input type="text" class="form-control search_input" placeholder="Query"
                    value="chr6:1-1000000|samples_count=5||">
                 <span class="input-group-btn">
-                    <button class="btn btn-primary{{#if loading}} disabled{{/if}} submit" type="button">Submit</button>
+                    <button class="btn btn-primary submit" type="button">Submit</button>
                 </span>
         </div>
-        {{#if loading}}
-            <div class="progress progress-striped active">
-                <div class="progress-bar" style="width: 100%"></div>
-            </div>
-        {{/if}}
     </div>
 </template>
