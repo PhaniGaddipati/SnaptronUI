@@ -20,3 +20,4 @@ http
 check
 ejson
 twbs:bootstrap
+iron:router
