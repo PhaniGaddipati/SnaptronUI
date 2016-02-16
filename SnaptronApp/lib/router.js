@@ -10,8 +10,7 @@ Router.route('/usage');
 Router.route('/query/:queryStr', {
     loadingTemplate: 'loadingQuery',
     waitOn: function () {
-        return [Meteor.subscribe('queries', this.params.queryStr),
-            Meteor.subscribe('junctions', this.params.queryStr)];
+        return Meteor.subscribe('queries', this.params.queryStr);
     },
     data: function () {
         return Queries.findOne();
