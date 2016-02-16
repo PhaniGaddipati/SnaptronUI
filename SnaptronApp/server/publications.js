@@ -3,7 +3,11 @@
  */
 Meteor.publish("junctions", function (queryStr) {
     var queryID = Meteor.call("processQuery", queryStr);
-    var jncts = Queries.findOne({_id: queryID}).junctions;
+    var query = Queries.findOne({_id: queryID});
+    var jncts = [];
+    if (query != null) {
+        jncts = query.junctions;
+    }
     var resultCursor = Junctions.find({}, {"_id": {"$in": jncts}});
     console.log("Published " + resultCursor.count() + " junctions");
     return resultCursor;
