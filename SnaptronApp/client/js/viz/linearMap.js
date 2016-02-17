@@ -4,9 +4,14 @@
 
 const HEIGHT_MULTIPLIER = .4;
 const BACKGROUND_COLOR = "#FFFFFF";
+const MARKER_LABEL_STYLE = "fill:#EEEEEE;stroke:black;stroke-width:1";
+const MARKER_LINE_STYLE = "stroke:#DDDDDD;stroke-width:1";
 
 const PADDING = 25;
 const AXIS_K_CUTOFF = 10000;
+const MARKER_LABEL_HEIGHT = 25;
+
+var xScale;
 
 Template.linearMap.onRendered(function () {
     d3.select(window).on('resize', updateMap);
@@ -40,15 +45,18 @@ function updateMap() {
 
 function initFrame(svg) {
     svg.append("rect").attr("class", "background");
-    svg.append("g").attr("class", "xaxis");
+    svg.append("g").attr("class", "xaxis")
+        .attr("transform", "translate(0,0)");
+    svg.on("mouseout", removeMouseMarker)
+        .on("mousemove", updateMouseMarker);
 }
 
 function updateFrame(svg, width, height, start, stop) {
-    /*svg.select("background").attr("x", 0).attr("y", 0).attr("width", width)
-     .attr("height", height).attr("fill", BACKGROUND_COLOR);*/
+    svg.select("background").attr("x", 0).attr("y", 0).attr("width", width)
+        .attr("height", height).attr("fill", BACKGROUND_COLOR);
 
     //Draw axis
-    var x = d3.scale.linear().range([PADDING, width - PADDING])
+    xScale = d3.scale.linear().range([PADDING, width - PADDING])
         .domain([start, stop]);
     var numTicks = parseInt(width / 120);
     var step = (stop - start) / (numTicks - 1);
@@ -59,7 +67,7 @@ function updateFrame(svg, width, height, start, stop) {
     tickValues.push(stop);
     var xAxis = d3.svg.axis()
         .orient("bottom")
-        .scale(x)
+        .scale(xScale)
         .tickValues(tickValues)
         .tickFormat(function (d) {
             if (d > AXIS_K_CUTOFF) {
@@ -87,17 +95,68 @@ function getLimits(junctions) {
     return {start: start, stop: stop};
 }
 
-function bboxText(svgDocument, string) {
-    var data = svgDocument.createTextNode(string);
+function addMouseMarker() {
+    var svg = d3.select("#linearMapSVG");
+    var marker = svg.select("g.mousemarker");
+    if (marker.empty()) {
+        marker = svg.append("g").attr("class", "mousemarker");
+        marker.append("line")
+            .attr("class", "markerline")
+            .attr("x1", 0)
+            .attr("y1", PADDING)
+            .attr("x2", 0)
+            .attr("y2", svg.node().getBoundingClientRect().height - PADDING)
+            .attr("style", MARKER_LINE_STYLE)
+            .attr("pointer-events", "none");
+        var label = marker.append("g").attr("class", "markerlabel")
+        label.append("rect")
+            .attr("class", "markerlabelbox")
+            .attr("x", 5)
+            .attr("y", 0)
+            .attr("rx", 5)
+            .attr("ry", 5)
+            .attr("width", 10)
+            .attr("height", MARKER_LABEL_HEIGHT)
+            .attr("pointer-events", "none")
+            .attr("style", MARKER_LABEL_STYLE);
+        label.append("text")
+            .attr("class", "markerlabeltext")
+            .attr("pointer-events", "none")
+            .attr("x", 10)
+            .attr("y", MARKER_LABEL_HEIGHT / 2 + 5)
+            .attr("text", "TEST");
+    }
+}
 
-    var svgElement = svgDocument.createElementNS(svgns, "text");
-    svgElement.appendChild(data);
+function removeMouseMarker() {
+    var svg = d3.select("#linearMapSVG");
+    //svg.selectAll("g.mousemarker").transition().remove();
+    console.log("removed");
+}
 
-    svgDocument.documentElement.appendChild(svgElement);
+function updateMouseMarker() {
+    addMouseMarker();
+    var svg = d3.select("#linearMapSVG");
+    var coords = d3.mouse(this);
+    coords[0] = Math.max(coords[0], PADDING);
+    coords[0] = Math.min(coords[0], svg.node().getBoundingClientRect().width - PADDING);
+    var marker = svg.select("g.mousemarker");
+    marker.attr("transform", "translate(" + coords[0] + ",0)");
+    var labelG = marker.select(".markerlabel");
+    var label = labelG.select(".markerlabelbox");
+    var text = labelG.select(".markerlabeltext");
+    text.text(function () {
+        return parseInt(xScale.invert(coords[0]));
+    });
 
-    var bbox = svgElement.getBBox();
-
-    svgElement.parentNode.removeChild(svgElement);
-
-    return bbox;
+    var w = text.node().getBBox().width;
+    var xOffset = -10 - w / 2;
+    if (coords[0] - w - 50 <= 0) {
+        //Goes offscreen, go to other side of line
+        xOffset = 0;
+    } else if (coords[0] + w + 50 >= svg.node().getBBox().width) {
+        xOffset -= w / 2 + 10;
+    }
+    labelG.attr("transform", "translate (" + xOffset + ",0)");
+    label.attr("width", w + 10);
 }
