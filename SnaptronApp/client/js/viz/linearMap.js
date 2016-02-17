@@ -157,6 +157,6 @@ function updateMouseMarker() {
     } else if (coords[0] + w + 50 >= svg.node().getBBox().width) {
         xOffset -= w / 2 + 10;
     }
-    labelG.attr("transform", "translate (" + xOffset + ",0)");
+    labelG.transition().attr("transform", "translate (" + xOffset + ",0)");
     label.attr("width", w + 10);
 }
