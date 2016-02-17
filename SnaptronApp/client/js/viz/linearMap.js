@@ -100,6 +100,7 @@ function addMouseMarker() {
     var marker = svg.select("g.mousemarker");
     if (marker.empty()) {
         marker = svg.append("g").attr("class", "mousemarker");
+        // Marker line
         marker.append("line")
             .attr("class", "markerline")
             .attr("x1", 0)
@@ -108,7 +109,8 @@ function addMouseMarker() {
             .attr("y2", svg.node().getBoundingClientRect().height - PADDING)
             .attr("style", MARKER_LINE_STYLE)
             .attr("pointer-events", "none");
-        var label = marker.append("g").attr("class", "markerlabel")
+        var label = marker.append("g").attr("class", "markerlabel").attr("transform", "translate(0,0)");
+        //Label box and text
         label.append("rect")
             .attr("class", "markerlabelbox")
             .attr("x", 5)
@@ -130,8 +132,7 @@ function addMouseMarker() {
 
 function removeMouseMarker() {
     var svg = d3.select("#linearMapSVG");
-    //svg.selectAll("g.mousemarker").transition().remove();
-    console.log("removed");
+    svg.selectAll("g.mousemarker").remove();
 }
 
 function updateMouseMarker() {
@@ -142,9 +143,9 @@ function updateMouseMarker() {
     coords[0] = Math.min(coords[0], svg.node().getBoundingClientRect().width - PADDING);
     var marker = svg.select("g.mousemarker");
     marker.attr("transform", "translate(" + coords[0] + ",0)");
-    var labelG = marker.select(".markerlabel");
-    var label = labelG.select(".markerlabelbox");
-    var text = labelG.select(".markerlabeltext");
+    var markerLabel = marker.select(".markerlabel");
+    var label = markerLabel.select(".markerlabelbox");
+    var text = markerLabel.select(".markerlabeltext");
     text.text(function () {
         return parseInt(xScale.invert(coords[0]));
     });
@@ -157,6 +158,6 @@ function updateMouseMarker() {
     } else if (coords[0] + w + 50 >= svg.node().getBBox().width) {
         xOffset -= w / 2 + 10;
     }
-    labelG.transition().attr("transform", "translate (" + xOffset + ",0)");
+    markerLabel.transition().attr("transform", "translate (" + xOffset + ",0)");
     label.attr("width", w + 10);
 }
