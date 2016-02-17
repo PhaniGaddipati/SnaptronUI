@@ -13,7 +13,9 @@ const PADDING = 25;
 const AXIS_K_CUTOFF = 10000;
 const MARKER_LABEL_HEIGHT = 25;
 
+var junctions;
 var xScale;
+var xAxis;
 var start;
 var stop;
 
@@ -23,6 +25,18 @@ Template.linearMap.onRendered(function () {
 });
 
 function updateMap() {
+    junctions = Junctions.find().fetch();
+    var _limits = getLimits(junctions);
+    start = _limits.start;
+    stop = _limits.stop;
+    xScale = d3.scale.linear().range([PADDING, VIEWBOX_WIDTH - PADDING])
+        .domain([start, stop]);
+
+    var zoom = d3.behavior.zoom()
+        .x(xScale)
+        .scaleExtent([1, 50])
+        .on("zoom", zoomed);
+
     var svg = d3.select(".svg-container").classed("svg-container", true)
         .selectAll('svg').data([0])
         .enter().append("svg")
@@ -31,19 +45,15 @@ function updateMap() {
         .attr("viewBox", "0 0 " + VIEWBOX_WIDTH + " " + VIEWBOX_HEIGHT)
         .classed("svg-content-responsive", true)
         .on("mouseout", removeMouseMarker)
-        .on("mousemove", updateMouseMarker);
-
-    var junctions = Junctions.find().fetch();
-    var _limits = getLimits(junctions);
-    start = _limits.start;
-    stop = _limits.stop;
+        .on("mousemove", updateMouseMarker)
+        .call(zoom);
 
     updateFrame(svg);
-    updateJunctions(svg, junctions);
+    updateJunctions();
 }
 
-function updateJunctions(svg, junctions) {
-    svg.selectAll(".jnct")
+function updateJunctions() {
+    d3.select(".junctionmap").selectAll(".jnct")
         .data(junctions)
         .enter()
         .append("path")
@@ -63,6 +73,9 @@ function junctionPath(jnct) {
     var cPointY = VIEWBOX_HEIGHT - PADDING - parseInt((VIEWBOX_HEIGHT - PADDING * 2) * (parseFloat(range) / (VIEWBOX_WIDTH / 3)));
     cPointY = Math.max(PADDING, cPointY);
     cPointY = Math.min(VIEWBOX_HEIGHT - PADDING - 5, cPointY);
+    if (startX < 0 || endX > VIEWBOX_WIDTH) {
+        return "";
+    }
     return "M" + startX + " " + endpointY + " C " + cPoint1X + " " + cPointY + " " + cPoint2X + " " + cPointY + " " + endX + " " + endpointY;
 }
 
@@ -76,8 +89,6 @@ function updateFrame(svg) {
         .attr("height", VIEWBOX_HEIGHT).attr("fill", BACKGROUND_COLOR);
 
     //Draw axis
-    xScale = d3.scale.linear().range([PADDING, VIEWBOX_WIDTH - PADDING])
-        .domain([start, stop]);
     var numTicks = parseInt(VIEWBOX_WIDTH / 120);
     var step = (stop - start) / (numTicks - 1);
     var tickValues = [start];
@@ -85,7 +96,7 @@ function updateFrame(svg) {
         tickValues.push(start + i * step);
     }
     tickValues.push(stop);
-    var xAxis = d3.svg.axis()
+    xAxis = d3.svg.axis()
         .orient("bottom")
         .scale(xScale)
         .tickValues(tickValues)
@@ -116,6 +127,11 @@ function getLimits(junctions) {
         }
     }
     return {start: start, stop: stop};
+}
+function zoomed() {
+    d3.select(".xaxis").call(xAxis);
+    d3.select(".junctionmap").selectAll(".jnct").remove();
+    updateJunctions(junctions);
 }
 
 function addMouseMarker() {
@@ -152,7 +168,7 @@ function addMouseMarker() {
 }
 
 function removeMouseMarker() {
-    var svg = d3.selectAll("g.mousemarker").remove();
+    d3.selectAll("g.mousemarker").remove();
 }
 
 function updateMouseMarker() {
