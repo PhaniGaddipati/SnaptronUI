@@ -81,6 +81,16 @@ function updateJunctions() {
         .attr("d", junctionPath);
     // Remove no longer visible
     selection.exit().remove();
+
+    //# jncts counter
+    d3.select(".junctionmap").selectAll(".jnctCounter").data([0])
+        .enter().append("text")
+        .attr("class", "jnctCounter")
+        .attr("x", 0)
+        .attr("y", PADDING);
+    d3.select(".junctionmap").select(".jnctCounter").text(function () {
+        return junctions.length + " Currently Visible";
+    });
 }
 
 function junctionPath(jnct) {
