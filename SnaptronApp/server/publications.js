@@ -9,7 +9,7 @@ Meteor.publish("queries", function (queryStr) {
     if (firstQuery != null) {
         queryJunctions = firstQuery.junctions;
     }
-    var junctions = Junctions.find({}, {"_id": {"$in": queryJunctions}});
+    var junctions = Junctions.find({"_id": {"$in": queryJunctions}});
     console.log("Published " + junctions.count() + " junctions");
 
     return [queries, junctions]

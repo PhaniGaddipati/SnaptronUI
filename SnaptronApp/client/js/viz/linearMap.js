@@ -13,7 +13,6 @@ const PADDING = 25;
 const AXIS_K_CUTOFF = 10000;
 const MARKER_LABEL_HEIGHT = 25;
 
-var junctions;
 var xScale;
 var xAxis;
 var zoom = null;
@@ -34,7 +33,7 @@ Template.linearMap.onRendered(function () {
 });
 
 function updateMap() {
-    junctions = Junctions.find().fetch();
+    var junctions = Junctions.find().fetch();
     var _limits = getLimits(junctions);
     var start = _limits.start;
     var stop = _limits.stop;
@@ -61,6 +60,7 @@ function updateMap() {
 }
 
 function updateJunctions() {
+    var junctions = Junctions.find().fetch();
     d3.select(".junctionmap").selectAll(".jnct")
         .data(junctions)
         .enter()
@@ -135,6 +135,10 @@ function getLimits(junctions) {
         if (junctions[i].end > stop) {
             stop = junctions[i].end;
         }
+    }
+    if (stop == -1) {
+        start = 0;
+        stop = 1;
     }
     return {start: start, stop: stop};
 }
