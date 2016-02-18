@@ -4,7 +4,7 @@
  * This file proves querying functions to get information from the snaptron server
  */
 
-const URL = "http://stingray.cs.jhu.edu:8443/snaptron/?rquery=";
+const URL = "http://stingray.cs.jhu.edu:8443/snaptron?";
 
 /**
  * The column that is the junction id in the raw TSV.

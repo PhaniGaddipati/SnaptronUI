@@ -16,8 +16,17 @@ const MARKER_LABEL_HEIGHT = 25;
 var junctions;
 var xScale;
 var xAxis;
-var start;
-var stop;
+var zoom = null;
+
+Template.linearMap.events({
+    "click .resetView": function (event, template) {
+        if (zoom != null) {
+            zoom.scale(1);
+            zoom.translate([0, 0]);
+            onZoom();
+        }
+    }
+});
 
 Template.linearMap.onRendered(function () {
     //d3.select(window).on('resize', updateMap);
@@ -27,12 +36,12 @@ Template.linearMap.onRendered(function () {
 function updateMap() {
     junctions = Junctions.find().fetch();
     var _limits = getLimits(junctions);
-    start = _limits.start;
-    stop = _limits.stop;
+    var start = _limits.start;
+    var stop = _limits.stop;
     xScale = d3.scale.linear().range([0, VIEWBOX_WIDTH])
         .domain([start, stop]);
 
-    var zoom = d3.behavior.zoom()
+    zoom = d3.behavior.zoom()
         .x(xScale)
         .on("zoom", onZoom);
 
