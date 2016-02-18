@@ -3,7 +3,7 @@
  */
 
 const VIEWBOX_WIDTH = 1000;
-const VIEWBOX_HEIGHT = 400;
+const VIEWBOX_HEIGHT = 250;
 
 const BACKGROUND_COLOR = "#FFFFFF";
 const MARKER_LABEL_STYLE = "fill:#EEEEEE;stroke:black;stroke-width:1";
@@ -29,13 +29,13 @@ function updateMap() {
     var _limits = getLimits(junctions);
     start = _limits.start;
     stop = _limits.stop;
-    xScale = d3.scale.linear().range([PADDING, VIEWBOX_WIDTH - PADDING])
+    xScale = d3.scale.linear().range([0, VIEWBOX_WIDTH])
         .domain([start, stop]);
 
     var zoom = d3.behavior.zoom()
         .x(xScale)
         .scaleExtent([1, 50])
-        .on("zoom", zoomed);
+        .on("zoom", onZoom);
 
     var svg = d3.select(".svg-container").classed("svg-container", true)
         .selectAll('svg').data([0])
@@ -48,7 +48,7 @@ function updateMap() {
         .on("mousemove", updateMouseMarker)
         .call(zoom);
 
-    updateFrame(svg);
+    updateFrame();
     updateJunctions();
 }
 
@@ -79,7 +79,8 @@ function junctionPath(jnct) {
     return "M" + startX + " " + endpointY + " C " + cPoint1X + " " + cPointY + " " + cPoint2X + " " + cPointY + " " + endX + " " + endpointY;
 }
 
-function updateFrame(svg) {
+function updateFrame() {
+    var svg = d3.select(".junctionmap");
     svg.selectAll(".backgroundRect").data([0])
         .enter()
         .append("rect")
@@ -90,12 +91,13 @@ function updateFrame(svg) {
 
     //Draw axis
     var numTicks = parseInt(VIEWBOX_WIDTH / 120);
-    var step = (stop - start) / (numTicks - 1);
-    var tickValues = [start];
-    for (var i = 0; i < numTicks - 1; i++) {
-        tickValues.push(start + i * step);
+    var leftLim = xScale.invert(PADDING);
+    var rightLim = xScale.invert(VIEWBOX_WIDTH - PADDING);
+    var step = (rightLim - leftLim) / (numTicks);
+    var tickValues = [];
+    for (var i = 0; i <= numTicks; i++) {
+        tickValues.push(parseInt(leftLim + i * step));
     }
-    tickValues.push(stop);
     xAxis = d3.svg.axis()
         .orient("bottom")
         .scale(xScale)
@@ -128,10 +130,11 @@ function getLimits(junctions) {
     }
     return {start: start, stop: stop};
 }
-function zoomed() {
+function onZoom() {
     d3.select(".xaxis").call(xAxis);
     d3.select(".junctionmap").selectAll(".jnct").remove();
-    updateJunctions(junctions);
+    updateJunctions();
+    updateFrame();
 }
 
 function addMouseMarker() {
