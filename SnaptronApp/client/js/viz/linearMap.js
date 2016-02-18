@@ -9,6 +9,13 @@ const BACKGROUND_COLOR = "#FFFFFF";
 const MARKER_LABEL_STYLE = "fill:#EEEEEE;stroke:black;stroke-width:1";
 const MARKER_LINE_STYLE = "stroke:#DDDDDD;stroke-width:1";
 
+const JUNCTION_NORMAL_COLOR = "black";
+const JUNCTION_HIGHLIGHT_COLOR = "orange";
+const JUNCTION_SELECTED_COLOR = "red";
+const JUNCTION_NORMAL_WIDTH = 2;
+const JUNCTION_HIGHLIGHTED_WIDTH = 3;
+const JUNCTION_SELECTED_WIDTH = 4;
+
 const PADDING = 25;
 const AXIS_K_CUTOFF = 10000;
 const MARKER_LABEL_HEIGHT = 25;
@@ -16,6 +23,7 @@ const MARKER_LABEL_HEIGHT = 25;
 var xScale;
 var xAxis;
 var zoom = null;
+var selectedJunction = null;
 
 Template.linearMap.events({
     "click .resetView": function (event, template) {
@@ -67,18 +75,20 @@ function updateJunctions() {
         end: {"$lte": rightLim}
     }).fetch();
     var selection = d3.select(".junctionmap").selectAll(".jnct")
-        .data(junctions, function (jnct) {
-            return jnct._id;
-        });
+        .data(junctions, getKeyForJunction);
     // Update
     selection.attr("d", junctionPath);
     // Add newly visisble
     selection.enter()
         .append("path")
         .attr("class", "jnct")
-        .attr("stroke", "black")
-        .attr("fill", "transparent")
-        .attr("d", junctionPath);
+        .attr("stroke", JUNCTION_NORMAL_COLOR)
+        .attr("fill", "none")
+        .attr("stroke-width", JUNCTION_NORMAL_WIDTH)
+        .attr("pointer-events", "visiblePainted")
+        .attr("d", junctionPath)
+        .on("click", onJunctionMouseClick)
+        .on("mouseover", onJunctionMouseOver);
     // Remove no longer visible
     selection.exit().remove();
 
@@ -227,4 +237,28 @@ function updateMouseMarker() {
     }
     markerLabel.transition().attr("transform", "translate (" + xOffset + ",0)");
     label.attr("width", w + 10);
+}
+
+function getKeyForJunction(jnct) {
+    if (jnct == null) {
+        return "";
+    }
+    return jnct._id;
+}
+
+function onJunctionMouseOver(jnct) {
+    d3.selectAll(".jnct")
+        .attr("stroke-width", JUNCTION_NORMAL_WIDTH)
+        .attr("stroke", JUNCTION_NORMAL_COLOR)
+        .data([jnct], getKeyForJunction)
+        .attr("stroke-width", JUNCTION_HIGHLIGHTED_WIDTH)
+        .attr("stroke", JUNCTION_HIGHLIGHT_COLOR);
+    d3.selectAll(".jnct")
+        .data([selectedJunction], getKeyForJunction)
+        .attr("stroke", JUNCTION_SELECTED_COLOR)
+        .attr("stroke-width", JUNCTION_SELECTED_WIDTH);
+}
+function onJunctionMouseClick(jnct) {
+    selectedJunction = jnct;
+    onJunctionMouseOver(jnct);
 }
