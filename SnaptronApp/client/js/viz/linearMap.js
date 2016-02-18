@@ -60,24 +60,27 @@ function updateMap() {
 }
 
 function updateJunctions() {
-    var junctions = Junctions.find().fetch();
-    d3.select(".junctionmap").selectAll(".jnct")
-        .data(junctions)
-        .enter()
+    var leftLim = xScale.invert(PADDING);
+    var rightLim = xScale.invert(VIEWBOX_WIDTH - PADDING);
+    var junctions = Junctions.find({
+        start: {"$gte": leftLim},
+        end: {"$lte": rightLim}
+    }).fetch();
+    var selection = d3.select(".junctionmap").selectAll(".jnct")
+        .data(junctions);
+    selection.enter()
         .append("path")
         .attr("d", junctionPath)
         .attr("class", "jnct")
         .attr("stroke", "black")
         .attr("fill", "transparent");
+    selection.exit().remove();
 }
 
 function junctionPath(jnct) {
     var endpointY = VIEWBOX_HEIGHT - PADDING;
     var startX = parseInt(xScale(jnct.start));
     var endX = parseInt(xScale(jnct.end));
-    if (startX < 0 || endX > VIEWBOX_WIDTH) {
-        return "";
-    }
     var range = endX - startX;
     var cPoint1X = parseInt(startX + 2 * range / 6);
     var cPoint2X = parseInt(startX + 4 * range / 6);
