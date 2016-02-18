@@ -119,7 +119,6 @@ function updateFrame() {
     svg.selectAll("g.xaxis").data([0])
         .enter().append("g")
         .attr("class", "xaxis")
-        .transition()
         .attr("transform", "translate(0,0)")
         .attr("transform", "translate(0," + (VIEWBOX_HEIGHT - PADDING) + ")")
         .call(xAxis);
