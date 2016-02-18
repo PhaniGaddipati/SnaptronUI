@@ -80,7 +80,7 @@ function junctionPath(jnct) {
     var cPoint2X = parseInt(startX + 4 * range / 6);
     var cPointY = VIEWBOX_HEIGHT - PADDING - parseInt((VIEWBOX_HEIGHT - PADDING * 2) * (parseFloat(range) / (VIEWBOX_WIDTH / 3)));
     cPointY = Math.max(PADDING, cPointY);
-    cPointY = Math.min(VIEWBOX_HEIGHT - PADDING - 5, cPointY);
+    cPointY = Math.min(VIEWBOX_HEIGHT - PADDING - 15, cPointY);
     if (startX < 0 || endX > VIEWBOX_WIDTH) {
         return "";
     }
