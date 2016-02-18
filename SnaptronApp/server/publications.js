@@ -10,8 +10,12 @@ Meteor.publish("queries", function (queryStr) {
         queryJunctions = firstQuery.junctions;
     }
     var junctions = Junctions.find({"_id": {"$in": queryJunctions}});
-    console.log("Found " + queryJunctions.length + " junctions");
-    console.log("Published " + junctions.count() + " junctions for id " + queryID);
+    if (queryJunctions.length != junctions.count()) {
+        console.warn("Inconsistency found! Cached query id \"" + queryID
+            + "\" claims " + queryJunctions.length
+            + " junctions but only " + junctions.count() + " found.");
+    }
+    console.log("Found and published " + junctions.count() + " junctions for id " + queryID);
 
     return [queries, junctions]
 });

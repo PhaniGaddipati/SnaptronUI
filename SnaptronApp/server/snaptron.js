@@ -31,24 +31,22 @@ Meteor.methods({
             console.log("Attempting to load results for query \"" + queryStr + "\"");
             var response = Meteor.http.call("GET", URL + queryStr);
             // Successful request, add it to the DB
-            var _id = new Meteor.Collection.ObjectID()._str;
             var junctionIds = loadJunctionsToDB(response.content);
 
-            Queries.insert({
-                "_id": _id,
-                "query": queryStr,
-                "junctions": junctionIds,
-                "numJunctions": junctionIds.length,
-                "date": new Date()
-            }, function (err, result) {
-                if (err) {
-                    console.error("Failed to cache result for query\"" + queryStr + "\" into DB.");
-                    console.error(err);
-                } else {
-                    console.log("Cached result for query\"" + queryStr + "\" into DB --> " + _id);
-                }
-            });
-            return _id;
+            try {
+                var _id = Queries.insert({
+                    "query": queryStr,
+                    "junctions": junctionIds,
+                    "numJunctions": junctionIds.length,
+                    "date": new Date()
+                });
+                console.log("Cached result for query \"" + queryStr + "\" into DB --> " + _id);
+                return _id;
+            } catch (err) {
+                console.error("Failed to cache result for query\"" + queryStr + "\" into DB.");
+                console.error(err);
+                return null;
+            }
         } catch (err) {
             console.error(err);
             return null;
