@@ -67,13 +67,19 @@ function updateJunctions() {
         end: {"$lte": rightLim}
     }).fetch();
     var selection = d3.select(".junctionmap").selectAll(".jnct")
-        .data(junctions);
+        .data(junctions, function (jnct) {
+            return jnct._id;
+        });
+    // Update
+    selection.attr("d", junctionPath);
+    // Add newly visisble
     selection.enter()
         .append("path")
-        .attr("d", junctionPath)
         .attr("class", "jnct")
         .attr("stroke", "black")
-        .attr("fill", "transparent");
+        .attr("fill", "transparent")
+        .attr("d", junctionPath);
+    // Remove no longer visible
     selection.exit().remove();
 }
 
@@ -146,7 +152,6 @@ function getLimits(junctions) {
 }
 function onZoom() {
     d3.select(".xaxis").call(xAxis);
-    d3.select(".junctionmap").selectAll(".jnct").remove();
     updateJunctions();
     updateFrame();
 }
