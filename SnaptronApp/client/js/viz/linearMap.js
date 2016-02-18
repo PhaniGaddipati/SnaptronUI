@@ -34,7 +34,6 @@ function updateMap() {
 
     var zoom = d3.behavior.zoom()
         .x(xScale)
-        .scaleExtent([1, 50])
         .on("zoom", onZoom);
 
     var svg = d3.select(".svg-container").classed("svg-container", true)
@@ -103,7 +102,7 @@ function updateFrame() {
         .scale(xScale)
         .tickValues(tickValues)
         .tickFormat(function (d) {
-            if (d > AXIS_K_CUTOFF) {
+            if (Math.abs(d) > AXIS_K_CUTOFF) {
                 return parseInt(d / 1000) + "k";
             }
             return d;
