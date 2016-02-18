@@ -24,10 +24,11 @@ Meteor.methods({
         this.unblock();
         var cachedResult = Queries.findOne({"query": queryStr});
         if (cachedResult) {
-            console.log("Found valid cached reuslt for query \"" + queryStr + "\" --> " + cachedResult._id);
+            console.log("Found valid cached reuslts for query \"" + queryStr + "\" --> " + cachedResult._id);
             return cachedResult._id;
         }
         try {
+            console.log("Attempting to load results for query \"" + queryStr + "\"");
             var response = Meteor.http.call("GET", URL + queryStr);
             // Successful request, add it to the DB
             var _id = new Meteor.Collection.ObjectID()._str;
