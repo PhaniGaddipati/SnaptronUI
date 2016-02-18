@@ -75,15 +75,15 @@ function junctionPath(jnct) {
     var endpointY = VIEWBOX_HEIGHT - PADDING;
     var startX = parseInt(xScale(jnct.start));
     var endX = parseInt(xScale(jnct.end));
+    if (startX < 0 || endX > VIEWBOX_WIDTH) {
+        return "";
+    }
     var range = endX - startX;
     var cPoint1X = parseInt(startX + 2 * range / 6);
     var cPoint2X = parseInt(startX + 4 * range / 6);
     var cPointY = VIEWBOX_HEIGHT - PADDING - parseInt((VIEWBOX_HEIGHT - PADDING * 2) * (parseFloat(range) / (VIEWBOX_WIDTH / 3)));
     cPointY = Math.max(PADDING, cPointY);
     cPointY = Math.min(VIEWBOX_HEIGHT - PADDING - 15, cPointY);
-    if (startX < 0 || endX > VIEWBOX_WIDTH) {
-        return "";
-    }
     return "M" + startX + " " + endpointY + " C " + cPoint1X + " " + cPointY + " " + cPoint2X + " " + cPointY + " " + endX + " " + endpointY;
 }
 
