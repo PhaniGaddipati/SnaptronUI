@@ -6,14 +6,16 @@ const ENTER_KEY_CODE = 13;
 Template.querybar.events({
     "click .submit": function (event, template) {
         event.preventDefault();
-        var queryStr = template.find(".search_input").value;
-        handleSubmitQuery(queryStr);
+        var region = template.find(".search_input").value;
+        var query = newQuery(region);
+        handleSubmitQuery(getQueryString(query));
     },
     'keypress .search_input': function (event, template) {
         if (event.which === ENTER_KEY_CODE) {
             event.preventDefault();
-            var queryStr = template.find(".search_input").value;
-            handleSubmitQuery(queryStr);
+            var region = template.find(".search_input").value;
+            var query = newQuery(region);
+            handleSubmitQuery(getQueryString(query));
         }
     }
 });
