@@ -10,7 +10,7 @@ const OPERATOR_LTE = "<:";
 
 newQuery = function (region) {
     return {
-        "region": region.toLowerCase(),
+        "region": region,
         "length": null,
         "samples_count": null,
         "coverage_sum": null,
@@ -19,20 +19,30 @@ newQuery = function (region) {
     }
 };
 
-setLength = function (query, op, val) {
-    query.length = op + str(val);
+setQueryLength = function (query, op, val) {
+    if (val != undefined && val != null && !isNaN(val)) {
+        query.length = getOpFromOption(op) + String(val);
+    }
 };
-setSamplesCount = function (query, op, val) {
-    query.samples_count = op + str(val);
+setQuerySamplesCount = function (query, op, val) {
+    if (val != undefined && val != null && !isNaN(val)) {
+        query.samples_count = getOpFromOption(op) + String(val);
+    }
 };
-setCoverageSum = function (query, op, val) {
-    query.coverage_sum = op + str(val);
+setQueryCoverageSum = function (query, op, val) {
+    if (val != undefined && val != null && !isNaN(val)) {
+        query.coverage_sum = getOpFromOption(op) + String(val);
+    }
 };
-setCoverageAvg = function (query, op, val) {
-    query.coverage_avg = op + str(val);
+setQueryCoverageAvg = function (query, op, val) {
+    if (val != undefined && val != null && !isNaN(val)) {
+        query.coverage_avg = getOpFromOption(op) + String(val);
+    }
 };
-setCoverageMedian = function (query, op, val) {
-    query.coverage_median = op + str(val);
+setQueryCoverageMedian = function (query, op, val) {
+    if (val != undefined && val != null && !isNaN(val)) {
+        query.coverage_median = getOpFromOption(op) + String(val);
+    }
 };
 
 getQueryString = function (query) {
@@ -54,3 +64,19 @@ getQueryString = function (query) {
     }
     return queryStr;
 };
+
+function getOpFromOption(opStr) {
+    switch (opStr) {
+        case '>':
+            return OPERATOR_GT;
+        case '<':
+            return OPERATOR_LT;
+        case '=':
+            return OPERATOR_EQ;
+        case '≥':
+            return OPERATOR_GTE;
+        case '≤':
+            return OPERATOR_LTE;
+    }
+    return null;
+}
