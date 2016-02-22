@@ -8,7 +8,7 @@ Template.querybar.events({
         event.preventDefault();
         handleSubmitQuery(template);
     },
-    'keypress .search_input': function (event, template) {
+    'keypress #regionInput': function (event, template) {
         if (event.which === ENTER_KEY_CODE) {
             event.preventDefault();
             handleSubmitQuery(template);
