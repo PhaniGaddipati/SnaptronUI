@@ -4,13 +4,13 @@
 
 Template.queryResults.helpers({
     queryStr: function () {
-        return Queries.findOne().query;
+        return Queries.findOne()._id;
     },
     numJunctions: function () {
-        return Queries.findOne().numJunctions;
+        return Queries.findOne().junctions.length;
     },
     queryDate: function () {
-        var date = Queries.findOne().date;
+        var date = Queries.findOne().lastLoadedDate;
         return moment(date).format("MMMM Do YYYY");
     }
 });

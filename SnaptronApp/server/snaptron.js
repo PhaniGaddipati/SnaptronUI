@@ -5,54 +5,151 @@
  */
 
 const URL = "http://stingray.cs.jhu.edu:8443/snaptron?";
+const COLUMN_TYPES = ["str", "str", "str", "int", "int", "int", "str", "bool", "str", "str", "str", "str", "str", "str", "int", "int", "float", "float", "str"];
 
 /**
  * The column that is the junction id in the raw TSV.
  * @type {number}
  */
 const SNAPTRON_ID_COL = 1;
+const MAX_JUNCTIONS_PER_CALL = 100;
+const CACHE_REFRESH_TIME = 2 * 7 * 24 * 60 * 60 * 1000; // 2 weeks
 
 Meteor.methods({
 
     /**
-     * Queries the snaptron server, or returns a cached result
-     * @param queryStr The query string
-     * @returns The id of the document in Queries or null if a reuslt wasn't obtains
+     * If a valid cached query is in QueriesDB, return the id (same as queryStr)
+     * Otherwise try to load the query/junctions and return the id.
+     * On failure returns null
+     * @param query
+     * @returns {*}
      */
-    processQuery: function (queryStr) {
-        check(queryStr, String);
+    processQuery: function (query) {
+        check(query, String);
         this.unblock();
-        var cachedResult = Queries.findOne({"query": queryStr});
-        if (cachedResult) {
-            console.log("Found valid cached reuslts for query \"" + queryStr + "\" --> " + cachedResult._id);
-            return cachedResult._id;
-        }
-        try {
-            console.log("Attempting to load results for query \"" + queryStr + "\"");
-            var response = Meteor.http.call("GET", URL + queryStr);
-            // Successful request, add it to the DB
-            var junctionIds = loadJunctionsToDB(response.content);
 
-            try {
-                var _id = Queries.insert({
-                    "query": queryStr,
-                    "junctions": junctionIds,
-                    "numJunctions": junctionIds.length,
-                    "date": new Date()
-                });
-                console.log("Cached result for query \"" + queryStr + "\" into DB --> " + _id);
-                return _id;
-            } catch (err) {
-                console.error("Failed to cache result for query\"" + queryStr + "\" into DB.");
-                console.error(err);
-                return null;
+        // queryStr is the _id to the Queries db
+        var cachedResult = Queries.findOne({"_id": query});
+        if (cachedResult) {
+            console.log("Found cached query (\"" + query + "\")");
+            // Already have a cached response. Make sure it hasn't been too long to redo it
+            if ((new Date().getTime() - cachedResult.lastLoadedDate.getTime()) > CACHE_REFRESH_TIME) {
+                console.log("Discarded cached query (\"" + query + "\")");
+                // Expired, remove it
+                Queries.remove({"_id": cachedResult._id});
+            } else {
+                // Cool, just make sure all the junctions are loaded
+                loadMissingJunctions(query);
+                return cachedResult._id;
             }
-        } catch (err) {
-            console.error(err);
-            return null;
         }
+
+        addQueryToDB(query);
+        if (loadQuery(query) && loadMissingJunctions(query)) {
+            return query;
+        }
+        return null;
     }
 });
+
+/**
+ * Adds the query to the database.
+ * @param query
+ */
+function addQueryToDB(query) {
+    check(query, String);
+    var queryDocument = Queries.findOne({"_id": query});
+    if (queryDocument) {
+        console.warn("Found an existing document within addQueryToDB! Replacing it.");
+    } else {
+        queryDocument = {
+            "_id": query,
+            "lastLoadedDate": new Date(0),
+            "metadata": {},
+            "regions": [],
+            "rfilters": [],
+            "sfilters": [],
+            "junctions": []
+        };
+    }
+    // Parse out query elements from the given query and update queryDocument
+    // Insert updated doc into DB
+    var queryTokens = getTokensAsJSONFromQueryString(query);
+    for (var key in queryTokens) {
+        queryDocument[key] = queryTokens[key];
+    }
+    Queries.upsert({"_id": query}, queryDocument);
+    console.log("Added query to database (\"" + query + "\")");
+    return queryDocument._id;
+}
+
+function loadQuery(query) {
+    check(query, String);
+    var queryDocument = Queries.findOne({"_id": query});
+    if (queryDocument == null) {
+        console.error("Load query called with an ID not found (\"" + query + "\")!");
+        return;
+    }
+    var request = URL + "regions=" + queryDocument.regions.join(",");
+    if (queryDocument.sfilters.length > 0)
+        request += "&sfilter=" + queryDocument.sfilters.join("&sfilter=");
+    if (queryDocument.rfilters.length > 0)
+        request += "&rfilter=" + queryDocument.rfilters.join("&rfilter=");
+    request += "&fields=snaptron_id";
+
+    try {
+        var responseTSV = Meteor.http.call("GET", request).content.trim();
+        var junctions = responseTSV.split("\n").slice(1); // first line is header
+        if (junctions.length == 1 && junctions[0] === "") {
+            junctions = [];
+        }
+        Queries.update({"_id": query}, {
+            $set: {
+                "junctions": junctions,
+                "lastLoadedDate": new Date()
+            }
+        });
+        console.log("Loaded query (\"" + query + "\")");
+        return true;
+    } catch (err) {
+        console.error("Error in loadQuery");
+        console.error(err);
+        return false;
+    }
+}
+
+function loadMissingJunctions(query) {
+    check(query, String);
+    var queryDocument = Queries.findOne({"_id": query});
+    if (queryDocument == null) {
+        console.error("loadMissingjunctions called with an ID not found (\"" + query + "\")!");
+        return;
+    }
+    var queryJunctionIDs = queryDocument.junctions;
+    var toLoadJunctionIDs = [];
+    for (var i = 0; i < queryJunctionIDs.length; i++) {
+        if (!Junctions.findOne({"_id": queryJunctionIDs[i]})) {
+            toLoadJunctionIDs.push(queryJunctionIDs[i]);
+        }
+    }
+    if (toLoadJunctionIDs.length > 0) {
+        console.log("Found " + toLoadJunctionIDs.length + " junctions to load (\"" + query + "\")");
+    }
+    try {
+        for (var jnctIndex = 0; jnctIndex < toLoadJunctionIDs.length; jnctIndex += MAX_JUNCTIONS_PER_CALL) {
+            var idBatch = toLoadJunctionIDs.slice(jnctIndex, jnctIndex + MAX_JUNCTIONS_PER_CALL);
+            console.log("Loading junctions " + jnctIndex + "-" + (jnctIndex + idBatch.length - 1));
+            var request = URL + "ids=snaptron:" + idBatch.join(",");
+            var responseTSV = Meteor.http.call("GET", request).content.trim();
+            loadJunctionsToDB(responseTSV);
+        }
+        return true;
+    } catch (err) {
+        console.error("Error in loadMissingJunctions");
+        console.error(err);
+        return false;
+    }
+}
 
 /**
  * Adds the junctions in the TSV file to the
@@ -64,8 +161,6 @@ function loadJunctionsToDB(rawTSV) {
     check(rawTSV, String);
     var lines = rawTSV.split("\n");
     var headers = lines[0].split("\t");
-    //var types = lines[1].split("\t");
-    var types = ["str", "str", "str", "int", "int", "int", "str", "bool", "str", "str", "str", "str", "str", "str", "int", "int", "float", "float", "str"];
     var ids = [];
 
     for (var i = 1; i < lines.length; i++) {
@@ -73,14 +168,14 @@ function loadJunctionsToDB(rawTSV) {
         if (lines[i] && 0 !== lines[i].length) {
             //Check if we already have this snaptron_id
             var elems = lines[i].split("\t");
-            var id = castMember(elems[SNAPTRON_ID_COL], types[SNAPTRON_ID_COL]);
+            var id = castMember(elems[SNAPTRON_ID_COL], COLUMN_TYPES[SNAPTRON_ID_COL]);
             if (Junctions.findOne({"_id": id}) == null) {
                 // Build the document
                 var document = {};
                 document["_id"] = id;
                 for (var col = 0; col < headers.length; col++) {
                     if (col != SNAPTRON_ID_COL) {
-                        document[headers[col]] = castMember(elems[col], types[col]);
+                        document[headers[col]] = castMember(elems[col], COLUMN_TYPES[col]);
                     }
                 }
                 Junctions.insert(document);

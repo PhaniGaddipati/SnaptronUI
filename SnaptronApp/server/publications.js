@@ -4,7 +4,7 @@
 Meteor.publish("queries", function (queryStr) {
     var queryID = Meteor.call("processQuery", queryStr);
     var queries = Queries.find({_id: queryID});
-    var firstQuery = Queries.findOne({_id: queryID});
+    var firstQuery = queries.fetch()[0];
     var queryJunctions = [];
     if (firstQuery != null) {
         queryJunctions = firstQuery.junctions;

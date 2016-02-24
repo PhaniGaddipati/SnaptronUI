@@ -65,6 +65,25 @@ getQueryString = function (query) {
     return queryStr;
 };
 
+getTokensAsJSONFromQueryString = function (queryStr) {
+    check(queryStr, String);
+    var tokens = queryStr.split("&");
+    var regions = [];
+    var rfilters = [];
+    for (var i = 0; i < tokens.length; i++) {
+        var pair = tokens[i].split("=");
+        if (pair[0] === "regions") {
+            regions.push(pair[1]);
+        } else if (par[0] === "rfilter") {
+            rfilters.push(pair[1]);
+        }
+    }
+    return {
+        "regions": regions,
+        "rfilters": rfilters
+    }
+};
+
 function getOpFromOption(opStr) {
     switch (opStr) {
         case '>':
