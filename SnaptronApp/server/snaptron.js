@@ -99,10 +99,13 @@ function loadQuery(query) {
 
     try {
         var responseTSV = Meteor.http.call("GET", request).content.trim();
-        var junctions = responseTSV.split("\n").slice(1); // first line is header
-        if (junctions.length == 1 && junctions[0] === "") {
-            junctions = [];
+        var lines = responseTSV.split("\n").slice(1); // first line is header
+        var junctions = [];
+
+        for (var line = 0; line < lines.length; line++) {
+            junctions.push(lines[line].split("\t")[1]);
         }
+
         Queries.update({"_id": query}, {
             $set: {
                 "junctions": junctions,
