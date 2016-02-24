@@ -7,10 +7,10 @@ Router.route('/', function () {
 });
 Router.route('/about');
 Router.route('/usage');
-Router.route('/query/:queryStr', {
+Router.route('/query/:queryId', {
     loadingTemplate: 'loadingQuery',
     waitOn: function () {
-        return Meteor.subscribe('queries', this.params.queryStr);
+        return Meteor.subscribe('queries', this.params.queryId);
     },
     data: function () {
         return Queries.findOne();

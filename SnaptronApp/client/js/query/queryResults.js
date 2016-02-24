@@ -3,8 +3,9 @@
  */
 
 Template.queryResults.helpers({
-    queryStr: function () {
-        return Queries.findOne()._id;
+    regions: function () {
+        var regions = Queries.findOne()[QUERY_REGIONS];
+        return regions.join(",");
     },
     numJunctions: function () {
         return Queries.findOne().junctions.length;

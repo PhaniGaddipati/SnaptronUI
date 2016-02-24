@@ -13,92 +13,60 @@ const COLUMN_TYPES = ["str", "str", "str", "int", "int", "int", "str", "bool", "
  */
 const SNAPTRON_ID_COL = 1;
 const MAX_JUNCTIONS_PER_CALL = 100;
-const CACHE_REFRESH_TIME = 2 * 7 * 24 * 60 * 60 * 1000; // 2 weeks
+const QUERY_REFRESH_TIME = 2 * 7 * 24 * 60 * 60 * 1000; // 2 weeks
 
 Meteor.methods({
 
     /**
-     * If a valid cached query is in QueriesDB, return the id (same as queryStr)
+     * If a valid query is in QueriesDB and successfully sync, return the id (same as queryStr)
      * Otherwise try to load the query/junctions and return the id.
      * On failure returns null
-     * @param query
+     * @param queryId
      * @returns {*}
      */
-    processQuery: function (query) {
-        check(query, String);
+    processQuery: function (queryId) {
         this.unblock();
 
-        // queryStr is the _id to the Queries db
-        var cachedResult = Queries.findOne({"_id": query});
-        if (cachedResult) {
-            console.log("Found cached query (\"" + query + "\")");
-            // Already have a cached response. Make sure it hasn't been too long to redo it
-            if ((new Date().getTime() - cachedResult.lastLoadedDate.getTime()) > CACHE_REFRESH_TIME) {
-                console.log("Discarded cached query (\"" + query + "\")");
-                // Expired, remove it
-                Queries.remove({"_id": cachedResult._id});
-            } else {
-                // Cool, just make sure all the junctions are loaded
-                loadMissingJunctions(query);
-                return cachedResult._id;
+        var query = Queries.findOne({"_id": queryId});
+        if (query) {
+            if ((new Date().getTime() - query[QUERY_LAST_LOADED_DATE].getTime()) > QUERY_REFRESH_TIME) {
+                // We want to update the query
+                console.log("Updating query (\"" + queryId + "\")");
+                if (!loadQuery(queryId)) {
+                    return null;
+                }
+            }
+            if (loadMissingJunctions(queryId)) {
+                return queryId;
             }
         }
-
-        addQueryToDB(query);
-        if (loadQuery(query) && loadMissingJunctions(query)) {
-            return query;
-        }
         return null;
+    },
+
+    addQuery: function (queryDoc) {
+        return addQueryToDB(queryDoc);
     }
 });
 
 /**
  * Adds the query to the database.
- * @param query
+ * @param queryDocument
  */
-function addQueryToDB(query) {
-    check(query, String);
-    var queryDocument = Queries.findOne({"_id": query});
-    if (queryDocument) {
-        console.warn("Found an existing document within addQueryToDB! Replacing it.");
-    } else {
-        queryDocument = {
-            "_id": query,
-            "lastLoadedDate": new Date(0),
-            "metadata": {},
-            "regions": [],
-            "rfilters": [],
-            "sfilters": [],
-            "junctions": []
-        };
-    }
-    // Parse out query elements from the given query and update queryDocument
-    // Insert updated doc into DB
-    var queryTokens = getTokensAsJSONFromQueryString(query);
-    for (var key in queryTokens) {
-        queryDocument[key] = queryTokens[key];
-    }
-    Queries.upsert({"_id": query}, queryDocument);
-    console.log("Added query to database (\"" + query + "\")");
-    return queryDocument._id;
+function addQueryToDB(queryDocument) {
+    var id = Queries.insert(queryDocument);
+    console.log("Added query to database (\"" + id + "\")");
+    return id;
 }
 
-function loadQuery(query) {
-    check(query, String);
-    var queryDocument = Queries.findOne({"_id": query});
-    if (queryDocument == null) {
-        console.error("Load query called with an ID not found (\"" + query + "\")!");
-        return;
+function loadQuery(queryId) {
+    var query = Queries.findOne({"_id": queryId});
+    if (query == null) {
+        console.error("Load query called with an ID not found (\"" + queryId + "\")!");
+        return false;
     }
-    var snaptronQuery = "?regions=" + queryDocument.regions.join(",");
-    if (queryDocument.sfilters.length > 0)
-        snaptronQuery += "&sfilter=" + queryDocument.sfilters.join("&sfilter=");
-    if (queryDocument.rfilters.length > 0)
-        snaptronQuery += "&rfilter=" + queryDocument.rfilters.join("&rfilter=");
-    snaptronQuery += "&fields=snaptron_id";
+    var snaptronQuery = "?regions=" + query[QUERY_REGIONS].join(",") + "&contains=1&fields=snaptron_id";
 
     try {
-        console.log("Request: " + snaptronQuery);
         var responseTSV = Meteor.http.get(URL + snaptronQuery).content.trim();
         var lines = responseTSV.split("\n").slice(1); // first line is header
         var junctions = [];
@@ -107,13 +75,11 @@ function loadQuery(query) {
             junctions.push(lines[line].split("\t")[1]);
         }
 
-        Queries.update({"_id": query}, {
-            $set: {
-                "junctions": junctions,
-                "lastLoadedDate": new Date()
-            }
-        });
-        console.log("Loaded query (\"" + query + "\")");
+        var newInfo = {};
+        newInfo[QUERY_JUNCTIONS] = junctions;
+        newInfo[QUERY_LAST_LOADED_DATE] = new Date();
+        Queries.update({"_id": queryId}, {$set: newInfo});
+        console.log("Loaded query (\"" + queryId + "\")");
         return true;
     } catch (err) {
         console.error("Error in loadQuery");
@@ -122,14 +88,13 @@ function loadQuery(query) {
     }
 }
 
-function loadMissingJunctions(query) {
-    check(query, String);
-    var queryDocument = Queries.findOne({"_id": query});
-    if (queryDocument == null) {
-        console.error("loadMissingjunctions called with an ID not found (\"" + query + "\")!");
+function loadMissingJunctions(queryId) {
+    var query = Queries.findOne({"_id": queryId});
+    if (query == null) {
+        console.error("loadMissingjunctions called with an ID not found (\"" + queryId + "\")!");
         return;
     }
-    var queryJunctionIDs = queryDocument.junctions;
+    var queryJunctionIDs = query[QUERY_JUNCTIONS];
     var toLoadJunctionIDs = [];
     for (var i = 0; i < queryJunctionIDs.length; i++) {
         if (!Junctions.findOne({"_id": queryJunctionIDs[i]})) {
@@ -137,7 +102,7 @@ function loadMissingJunctions(query) {
         }
     }
     if (toLoadJunctionIDs.length > 0) {
-        console.log("Found " + toLoadJunctionIDs.length + " junctions to load (\"" + query + "\")");
+        console.log("Found " + toLoadJunctionIDs.length + " junctions to load (\"" + queryId + "\")");
     }
     try {
         for (var jnctIndex = 0; jnctIndex < toLoadJunctionIDs.length; jnctIndex += MAX_JUNCTIONS_PER_CALL) {

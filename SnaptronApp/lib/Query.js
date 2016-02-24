@@ -2,94 +2,72 @@
  * Created by Phani on 2/19/2016.
  */
 
-const OPERATOR_EQ = ":";
-const OPERATOR_GT = ">";
-const OPERATOR_LT = "<";
-const OPERATOR_GTE = ">:";
-const OPERATOR_LTE = "<:";
+OPERATOR_EQ = ":";
+OPERATOR_GT = ">";
+OPERATOR_LT = "<";
+OPERATOR_GTE = ">:";
+OPERATOR_LTE = "<:";
 
-newQuery = function (region) {
-    return {
-        "region": region,
-        "length": null,
-        "samples_count": null,
-        "coverage_sum": null,
-        "coverage_avg": null,
-        "coverage_median": null
-    }
-};
+QUERY_METADATA = "metadata";
+QUERY_LAST_LOADED_DATE = "lastLoadedDate";
+QUERY_REGIONS = "regions";
+QUERY_FILTERS = "filters";
+QUERY_JUNCTIONS = "junctions";
 
-setQueryLength = function (query, op, val) {
-    if (val != undefined && val != null && !isNaN(val)) {
-        query.length = getOpFromOption(op) + String(val);
-    }
-};
-setQuerySamplesCount = function (query, op, val) {
-    if (val != undefined && val != null && !isNaN(val)) {
-        query.samples_count = getOpFromOption(op) + String(val);
-    }
-};
-setQueryCoverageSum = function (query, op, val) {
-    if (val != undefined && val != null && !isNaN(val)) {
-        query.coverage_sum = getOpFromOption(op) + String(val);
-    }
-};
-setQueryCoverageAvg = function (query, op, val) {
-    if (val != undefined && val != null && !isNaN(val)) {
-        query.coverage_avg = getOpFromOption(op) + String(val);
-    }
-};
-setQueryCoverageMedian = function (query, op, val) {
-    if (val != undefined && val != null && !isNaN(val)) {
-        query.coverage_median = getOpFromOption(op) + String(val);
-    }
-};
+QUERY_FILTER = "filter";
+QUERY_FILTER_OP = "op";
+QUERY_FILTER_VAL = "val";
+QUERY_FILTER_SAMPLE_COUNT = "samples_count";
+QUERY_FILTER_COV_SUM = "coverage_sum";
+QUERY_FILTER_COV_AVG = "coverage_avg";
+QUERY_FILTER_COV_MED = "coverage_median";
+QUERY_FILTER_LENGTH = "length";
 
-getQueryString = function (query) {
-    var queryStr = "regions=" + query.region;
-    if (query.length) {
-        queryStr += "&rfilter=length" + query.length;
-    }
-    if (query.samples_count) {
-        queryStr += "&rfilter=samples_count" + query.samples_count;
-    }
-    if (query.coverage_sum) {
-        queryStr += "&rfilter=coverage_sum" + query.coverage_sum;
-    }
-    if (query.coverage_avg) {
-        queryStr += "&rfilter=coverage_avg" + query.coverage_avg;
-    }
-    if (query.coverage_median) {
-        queryStr += "&rfilter=coverage_median" + query.coverage_median;
-    }
-    return queryStr;
-};
 
-getTokensAsJSONFromQueryString = function (queryStr) {
-    check(queryStr, String);
-    var tokens = queryStr.split("&");
-    var regions = [];
-    var rfilters = [];
-    var sfilters = [];
-    for (var i = 0; i < tokens.length; i++) {
-        var pair = tokens[i].split("=");
-        if (pair[0] === "regions") {
-            regions.push(pair[1]);
-        } else if (pair[0] === "rfilter") {
-            rfilters.push(pair[1]);
-        }
-        else if (pair[1] === "sfilter") {
-            sfilters.push(pair[1]);
-        }
-    }
-    return {
-        "regions": regions,
-        "rfilters": rfilters,
-        "sfilters": sfilters
-    }
+newQuery = function () {
+    var queryDoc = {};
+    queryDoc[QUERY_LAST_LOADED_DATE] = new Date(0);
+    queryDoc[QUERY_METADATA] = [];
+    queryDoc[QUERY_REGIONS] = [];
+    queryDoc[QUERY_FILTERS] = [];
+    queryDoc[QUERY_JUNCTIONS] = [];
+    return queryDoc;
+};
+addQueryRegion = function (query, region) {
+    check(region, String);
+    query[QUERY_REGIONS].push(region);
+    return query;
+};
+addQueryFilter = function (query, filter, opStr, val) {
+    check(filter, String);
+
+    var filterDoc = {};
+    filterDoc[QUERY_FILTER] = filter;
+    filterDoc[QUERY_FILTER_OP] = getOpFromOptionStr(opStr);
+    filterDoc[QUERY_FILTER_VAL] = val;
+    query[QUERY_FILTERS].push(filterDoc);
+    return query;
+};
+addQueryJunctions = function (query, junctions) {
+    var current = query[QUERY_JUNCTIONS];
+    query[QUERY_JUNCTIONS] = current.concat(junctions);
+    return query;
+};
+setQueryJunctions = function (query, junctions) {
+    query[QUERY_JUNCTIONS] = junctions;
+    return query;
+};
+updateQueryLastLoadedTime = function (query) {
+    query[QUERY_LAST_LOADED_DATE] = new Date();
+    return query;
+};
+addQueryMetadata = function (query, key, val) {
+    check(key, String);
+    query[QUERY_METADATA].push({key: val});
+    return query;
 };
 
-function getOpFromOption(opStr) {
+function getOpFromOptionStr(opStr) {
     switch (opStr) {
         case '>':
             return OPERATOR_GT;
