@@ -70,17 +70,22 @@ getTokensAsJSONFromQueryString = function (queryStr) {
     var tokens = queryStr.split("&");
     var regions = [];
     var rfilters = [];
+    var sfilters = [];
     for (var i = 0; i < tokens.length; i++) {
         var pair = tokens[i].split("=");
         if (pair[0] === "regions") {
             regions.push(pair[1]);
-        } else if (par[0] === "rfilter") {
+        } else if (pair[0] === "rfilter") {
             rfilters.push(pair[1]);
+        }
+        else if (pair[1] === "sfilter") {
+            sfilters.push(pair[1]);
         }
     }
     return {
         "regions": regions,
-        "rfilters": rfilters
+        "rfilters": rfilters,
+        "sfilters": sfilters
     }
 };
 
