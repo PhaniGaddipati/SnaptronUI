@@ -4,7 +4,7 @@
  * This file proves querying functions to get information from the snaptron server
  */
 
-const URL = "http://stingray.cs.jhu.edu:8443/snaptron?";
+const URL = "http://stingray.cs.jhu.edu:8443/snaptron";
 const COLUMN_TYPES = ["str", "str", "str", "int", "int", "int", "str", "bool", "str", "str", "str", "str", "str", "str", "int", "int", "float", "float", "str"];
 
 /**
@@ -90,15 +90,16 @@ function loadQuery(query) {
         console.error("Load query called with an ID not found (\"" + query + "\")!");
         return;
     }
-    var request = URL + "regions=" + queryDocument.regions.join(",");
+    var snaptronQuery = "?regions=" + queryDocument.regions.join(",");
     if (queryDocument.sfilters.length > 0)
-        request += "&sfilter=" + queryDocument.sfilters.join("&sfilter=");
+        snaptronQuery += "&sfilter=" + queryDocument.sfilters.join("&sfilter=");
     if (queryDocument.rfilters.length > 0)
-        request += "&rfilter=" + queryDocument.rfilters.join("&rfilter=");
-    request += "&fields=snaptron_id";
+        snaptronQuery += "&rfilter=" + queryDocument.rfilters.join("&rfilter=");
+    snaptronQuery += "&fields=snaptron_id";
 
     try {
-        var responseTSV = Meteor.http.call("GET", request).content.trim();
+        console.log("Request: " + snaptronQuery);
+        var responseTSV = Meteor.http.get(URL + snaptronQuery).content.trim();
         var lines = responseTSV.split("\n").slice(1); // first line is header
         var junctions = [];
 
@@ -142,8 +143,8 @@ function loadMissingJunctions(query) {
         for (var jnctIndex = 0; jnctIndex < toLoadJunctionIDs.length; jnctIndex += MAX_JUNCTIONS_PER_CALL) {
             var idBatch = toLoadJunctionIDs.slice(jnctIndex, jnctIndex + MAX_JUNCTIONS_PER_CALL);
             console.log("Loading junctions " + jnctIndex + "-" + (jnctIndex + idBatch.length - 1));
-            var request = URL + "ids=snaptron:" + idBatch.join(",");
-            var responseTSV = Meteor.http.call("GET", request).content.trim();
+            var snaptronQuery = "?ids=snaptron:" + idBatch.join(",");
+            var responseTSV = Meteor.http.get(URL + snaptronQuery).content.trim();
             loadJunctionsToDB(responseTSV);
         }
         return true;
