@@ -11,7 +11,7 @@ Template.home.events({
     "click #drd4btn": function (event, template) {
         event.preventDefault();
         var query = newQuery();
-        addQueryRegion(query, "drd3");
+        addQueryRegion(query, "drd4");
         submitQuery(query);
     },
     "click #chrbtn": function (event, template) {
