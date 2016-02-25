@@ -50,6 +50,7 @@ function updateMap() {
 
     zoom = d3.behavior.zoom()
         .x(xScale)
+        .scaleExtent([1, 100])
         .on("zoom", onZoom);
 
     var svg = d3.select(".svg-container").classed("svg-container", true)
