@@ -45,7 +45,7 @@ function updateMap() {
     var _limits = getLimits(junctions);
     var start = _limits.start;
     var stop = _limits.stop;
-    xScale = d3.scale.linear().range([0, VIEWBOX_WIDTH])
+    xScale = d3.scale.linear().range([PADDING, VIEWBOX_WIDTH - PADDING])
         .domain([start, stop]);
 
     zoom = d3.behavior.zoom()
