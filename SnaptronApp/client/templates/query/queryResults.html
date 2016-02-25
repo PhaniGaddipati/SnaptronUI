@@ -2,9 +2,9 @@
     <body>
     {{> navbar}}
     <div class="container">
-        <div class="panel panel-info">
+        <div class="panel panel-primary">
             <div class="panel-heading">
-                <h3 class="panel-title">Overview</h3>
+                <h2 class="panel-title">Overview</h2>
             </div>
             <div class="panel-body">
                 <row>
@@ -47,8 +47,22 @@
         {{> linearMap}}
         <br>
         <br>
-        <h2>Junctions</h2>
-        {{> junctionTable}}
+        <br>
+        <br>
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h2 class="panel-title" data-toggle="collapse" href="#collapse1">
+                    <a>Raw Junction Data <span class="caret"></span></a>
+                </h2>
+            </div>
+            <div id="collapse1" class="panel-collapse collapse">
+                <div class="panel-body"
+                     onmouseover="document.body.style.overflow='hidden';"
+                     onmouseout="document.body.style.overflow='auto';">
+                    {{> junctionTable}}
+                </div>
+            </div>
+        </div>
         <br>
         <br>
         <br>
