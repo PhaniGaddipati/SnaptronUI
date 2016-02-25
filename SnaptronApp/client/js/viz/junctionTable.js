@@ -4,12 +4,21 @@
 
 const MAX_DATA_LEN = 16;
 
+var numDisplayedJunctions = 10;
+
 Template.junctionTable.onRendered(function () {
     updateTable();
 });
 
+Template.junctionTable.events({
+    "click #showSelect": function (event, template) {
+        numDisplayedJunctions = parseInt(template.find("#showSelect").value);
+        updateTable();
+    }
+});
+
 function updateTable() {
-    var junctions = Junctions.find().fetch();
+    var junctions = Junctions.find({}, {limit: numDisplayedJunctions}).fetch();
     if (junctions.length == 0) {
         return;
     }
@@ -28,9 +37,10 @@ function updateTable() {
     // Content
     var rows = d3.select("#junctionTableBody")
         .selectAll("tr")
-        .data(junctions)
-        .enter()
+        .data(junctions);
+    rows.enter()
         .append("tr");
+    rows.exit().remove();
     var cells = rows.selectAll("td")
         .data(function (row) {
             return columns.map(function (column) {
