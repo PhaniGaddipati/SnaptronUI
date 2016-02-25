@@ -54,7 +54,7 @@ Template.querybar.onRendered(function () {
 function handleSubmitQuery(template) {
     if (!Session.get("loadingQuery")) {
         var region = template.find("#regionInput").value.toLowerCase();
-        region.replace(/\s+/, ""); //Strip whitespace
+        region.replace(/\s+/g, ""); //Strip whitespace
         var length = parseInt(template.find("#lengthInput").value);
         var samples = parseInt(template.find("#samplesCountInput").value);
         var covSum = parseFloat(template.find("#coverageSumInput").value);
