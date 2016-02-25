@@ -2,11 +2,11 @@
  * Created by Phani on 2/19/2016.
  */
 
-OPERATOR_EQ = ":";
-OPERATOR_GT = ">";
-OPERATOR_LT = "<";
-OPERATOR_GTE = ">:";
-OPERATOR_LTE = "<:";
+OPERATOR_EQ = "$eq";
+OPERATOR_GT = "$gt";
+OPERATOR_LT = "$lt";
+OPERATOR_GTE = "$gte";
+OPERATOR_LTE = "$lte";
 
 QUERY_METADATA = "metadata";
 QUERY_LAST_LOADED_DATE = "lastLoadedDate";
@@ -14,7 +14,7 @@ QUERY_REGIONS = "regions";
 QUERY_FILTERS = "filters";
 QUERY_JUNCTIONS = "junctions";
 
-QUERY_FILTER = "filter";
+QUERY_FILTER_FIELD = "filter";
 QUERY_FILTER_OP = "op";
 QUERY_FILTER_VAL = "val";
 QUERY_FILTER_SAMPLE_COUNT = "samples_count";
@@ -40,12 +40,13 @@ addQueryRegion = function (query, region) {
 };
 addQueryFilter = function (query, filter, opStr, val) {
     check(filter, String);
-
-    var filterDoc = {};
-    filterDoc[QUERY_FILTER] = filter;
-    filterDoc[QUERY_FILTER_OP] = getOpFromOptionStr(opStr);
-    filterDoc[QUERY_FILTER_VAL] = val;
-    query[QUERY_FILTERS].push(filterDoc);
+    if (!isNaN(val)) {
+        var filterDoc = {};
+        filterDoc[QUERY_FILTER_FIELD] = filter;
+        filterDoc[QUERY_FILTER_OP] = getOpFromOptionStr(opStr);
+        filterDoc[QUERY_FILTER_VAL] = val;
+        query[QUERY_FILTERS].push(filterDoc);
+    }
     return query;
 };
 addQueryJunctions = function (query, junctions) {

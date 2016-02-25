@@ -5,13 +5,13 @@
 Template.queryResults.helpers({
     regions: function () {
         var regions = Queries.findOne()[QUERY_REGIONS];
-        return regions.join(",");
+        return regions.join(",").toUpperCase();
     },
     numJunctions: function () {
         return Queries.findOne().junctions.length;
     },
     queryDate: function () {
         var date = Queries.findOne().lastLoadedDate;
-        return moment(date).format("MMMM Do YYYY");
+        return moment(date).format("MMMM Do, YYYY");
     }
 });

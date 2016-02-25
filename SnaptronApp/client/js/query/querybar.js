@@ -53,12 +53,12 @@ Template.querybar.onRendered(function () {
 
 function handleSubmitQuery(template) {
     if (!Session.get("loadingQuery")) {
-        var region = template.find("#regionInput").value;
+        var region = template.find("#regionInput").value.toLowerCase();
         var length = parseInt(template.find("#lengthInput").value);
         var samples = parseInt(template.find("#samplesCountInput").value);
-        var covSum = parseInt(template.find("#coverageSumInput").value);
-        var covAvg = parseInt(template.find("#coverageAvgInput").value);
-        var covMed = parseInt(template.find("#coverageMedInput").value);
+        var covSum = parseFloat(template.find("#coverageSumInput").value);
+        var covAvg = parseFloat(template.find("#coverageAvgInput").value);
+        var covMed = parseFloat(template.find("#coverageMedInput").value);
 
         var lengthOp = template.find("#lengthInputOp").value;
         var samplesOp = template.find("#samplesCountInputOp").value;
@@ -67,11 +67,6 @@ function handleSubmitQuery(template) {
         var covMedOp = template.find("#coverageMedInputOp").value;
 
         Session.set("regionInput", region);
-        Session.set("length", length);
-        Session.set("samples", samples);
-        Session.set("covSum", covSum);
-        Session.set("covAvg", covAvg);
-        Session.set("covMed", covMed);
         Session.set("lengthOp", lengthOp);
         Session.set("samplesOp", samplesOp);
         Session.set("covSumOp", covSumOp);
@@ -80,11 +75,26 @@ function handleSubmitQuery(template) {
 
         var query = newQuery();
         addQueryRegion(query, region);
-        addQueryFilter(query, QUERY_FILTER_LENGTH, lengthOp, length);
-        addQueryFilter(query, QUERY_FILTER_SAMPLE_COUNT, samplesOp, samples);
-        addQueryFilter(query, QUERY_FILTER_COV_SUM, covSumOp, covSum);
-        addQueryFilter(query, QUERY_FILTER_COV_AVG, covAvgOp, covAvg);
-        addQueryFilter(query, QUERY_FILTER_COV_MED, covMedOp, covMed);
+        if (!isNaN(length)) {
+            addQueryFilter(query, QUERY_FILTER_LENGTH, lengthOp, length);
+            Session.set("length", length);
+        }
+        if (!isNaN(samples)) {
+            addQueryFilter(query, QUERY_FILTER_SAMPLE_COUNT, samplesOp, samples);
+            Session.set("samples", samples);
+        }
+        if (!isNaN(covSum)) {
+            addQueryFilter(query, QUERY_FILTER_COV_SUM, covSumOp, covSum);
+            Session.set("covSum", covSum);
+        }
+        if (!isNaN(covAvg)) {
+            addQueryFilter(query, QUERY_FILTER_COV_AVG, covAvgOp, covAvg);
+            Session.set("covAvg", covAvg);
+        }
+        if (!isNaN(covMed)) {
+            addQueryFilter(query, QUERY_FILTER_COV_MED, covMedOp, covMed);
+            Session.set("covMed", covMed);
+        }
         submitQuery(query);
     }
 }
