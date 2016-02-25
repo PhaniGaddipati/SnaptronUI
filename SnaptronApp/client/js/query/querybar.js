@@ -53,8 +53,7 @@ Template.querybar.onRendered(function () {
 
 function handleSubmitQuery(template) {
     if (!Session.get("loadingQuery")) {
-        var region = template.find("#regionInput").value.toLowerCase();
-        region = region.replace(/\s+/g, ""); //Strip whitespace
+        var region = template.find("#regionInput").value;
         var length = parseInt(template.find("#lengthInput").value);
         var samples = parseInt(template.find("#samplesCountInput").value);
         var covSum = parseFloat(template.find("#coverageSumInput").value);
@@ -74,6 +73,7 @@ function handleSubmitQuery(template) {
         Session.set("covAvgOp", covAvgOp);
         Session.set("covMedOp", covMedOp);
 
+        region = region.toLowerCase().replace(/\s+/g, ""); //Strip whitespace
         var query = newQuery();
         addQueryRegion(query, region);
         if (!isNaN(length)) {
