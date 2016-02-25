@@ -20,10 +20,10 @@ const PADDING = 25;
 const AXIS_K_CUTOFF = 10000;
 const MARKER_LABEL_HEIGHT = 25;
 
-var xScale;
-var xAxis;
+var linearMapXScale;
+var linearMapXAxis;
 var zoom = null;
-var selectedJunction = null;
+var linearMapSelectedJunction = null;
 
 Template.linearMap.events({
     "click .resetView": function (event, template) {
@@ -36,7 +36,6 @@ Template.linearMap.events({
 });
 
 Template.linearMap.onRendered(function () {
-    //d3.select(window).on('resize', updateMap);
     updateMap();
 });
 
@@ -45,11 +44,11 @@ function updateMap() {
     var _limits = getLimits(junctions);
     var start = _limits.start;
     var stop = _limits.stop;
-    xScale = d3.scale.linear().range([PADDING, VIEWBOX_WIDTH - PADDING])
+    linearMapXScale = d3.scale.linear().range([0, VIEWBOX_WIDTH])
         .domain([start, stop]);
 
     zoom = d3.behavior.zoom()
-        .x(xScale)
+        .x(linearMapXScale)
         .scaleExtent([1, 100])
         .on("zoom", onZoom);
 
@@ -69,8 +68,8 @@ function updateMap() {
 }
 
 function updateJunctions() {
-    var leftLim = xScale.invert(PADDING);
-    var rightLim = xScale.invert(VIEWBOX_WIDTH - PADDING);
+    var leftLim = linearMapXScale.invert(0);
+    var rightLim = linearMapXScale.invert(VIEWBOX_WIDTH);
     var junctions = Junctions.find({
         start: {"$gte": leftLim},
         end: {"$lte": rightLim}
@@ -106,8 +105,8 @@ function updateJunctions() {
 
 function junctionPath(jnct) {
     var endpointY = VIEWBOX_HEIGHT - PADDING;
-    var startX = parseInt(xScale(jnct.start));
-    var endX = parseInt(xScale(jnct.end));
+    var startX = parseInt(linearMapXScale(jnct.start));
+    var endX = parseInt(linearMapXScale(jnct.end));
     var range = endX - startX;
     var cPoint1X = parseInt(startX + 2 * range / 6);
     var cPoint2X = parseInt(startX + 4 * range / 6);
@@ -129,16 +128,16 @@ function updateFrame() {
 
     //Draw axis
     var numTicks = parseInt(VIEWBOX_WIDTH / 120);
-    var leftLim = xScale.invert(PADDING);
-    var rightLim = xScale.invert(VIEWBOX_WIDTH - PADDING);
+    var leftLim = linearMapXScale.invert(PADDING);
+    var rightLim = linearMapXScale.invert(VIEWBOX_WIDTH - PADDING);
     var step = (rightLim - leftLim) / (numTicks);
     var tickValues = [];
     for (var i = 0; i <= numTicks; i++) {
         tickValues.push(parseInt(leftLim + i * step));
     }
-    xAxis = d3.svg.axis()
+    linearMapXAxis = d3.svg.axis()
         .orient("bottom")
-        .scale(xScale)
+        .scale(linearMapXScale)
         .tickValues(tickValues)
         .tickFormat(function (d) {
             if (Math.abs(d) > AXIS_K_CUTOFF) {
@@ -151,7 +150,7 @@ function updateFrame() {
         .attr("class", "xaxis")
         .attr("transform", "translate(0,0)")
         .attr("transform", "translate(0," + (VIEWBOX_HEIGHT - PADDING) + ")")
-        .call(xAxis);
+        .call(linearMapXAxis);
 }
 
 function getLimits(junctions) {
@@ -172,7 +171,7 @@ function getLimits(junctions) {
     return {start: start, stop: stop};
 }
 function onZoom() {
-    d3.select(".xaxis").call(xAxis);
+    d3.select(".xaxis").call(linearMapXAxis);
     updateJunctions();
     updateFrame();
 }
@@ -225,7 +224,7 @@ function updateMouseMarker() {
     var label = markerLabel.select(".markerlabelbox");
     var text = markerLabel.select(".markerlabeltext");
     text.text(function () {
-        return parseInt(xScale.invert(coords[0]));
+        return parseInt(linearMapXScale.invert(coords[0]));
     });
 
     var w = text.node().getBBox().width;
@@ -255,11 +254,11 @@ function onJunctionMouseOver(jnct) {
         .attr("stroke-width", JUNCTION_HIGHLIGHTED_WIDTH)
         .attr("stroke", JUNCTION_HIGHLIGHT_COLOR);
     d3.selectAll(".jnct")
-        .data([selectedJunction], getKeyForJunction)
+        .data([linearMapSelectedJunction], getKeyForJunction)
         .attr("stroke", JUNCTION_SELECTED_COLOR)
         .attr("stroke-width", JUNCTION_SELECTED_WIDTH);
 }
 function onJunctionMouseClick(jnct) {
-    selectedJunction = jnct;
+    linearMapSelectedJunction = jnct;
     onJunctionMouseOver(jnct);
 }
