@@ -8,7 +8,7 @@ Template.queryResults.helpers({
         return regions.join(",").toUpperCase();
     },
     numJunctions: function () {
-        return Queries.findOne().junctions.length;
+        return Junctions.find({}).count();
     },
     queryDate: function () {
         var date = Queries.findOne().lastLoadedDate;
