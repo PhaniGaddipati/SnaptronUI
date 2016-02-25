@@ -19,3 +19,16 @@ Router.route('/query/:queryId', {
         this.render('queryResults');
     }
 });
+
+Router.route('/query/:queryId/dataTSV', {
+    loadingTemplate: 'loadingQuery',
+    waitOn: function () {
+        return Meteor.subscribe('queries', this.params.queryId);
+    },
+    data: function () {
+        return Queries.findOne();
+    },
+    action: function () {
+        this.render('rawData');
+    }
+});

@@ -19,6 +19,9 @@ Template.junctionTable.events({
     "click #showSelect": function (event, template) {
         numDisplayedJunctions = parseInt(template.find("#showSelect").value);
         updateTable();
+    },
+    "click #rawTSVBtn": function (event, template) {
+        Router.go(Router.current().url + "/dataTSV");
     }
 });
 
