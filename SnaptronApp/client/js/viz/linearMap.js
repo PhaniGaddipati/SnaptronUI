@@ -9,9 +9,12 @@ const MARKER_LABEL_STYLE = "fill:#EEEEEE;stroke:black;stroke-width:1";
 const MARKER_LINE_STYLE = "stroke:#DDDDDD;stroke-width:1";
 const MIN_DISPLAY_LENGTH_PX = 3;
 
+const MID_AXIS_LINE_HEIGHT = 4;
+
 const JUNCTION_NORMAL_COLOR = "black";
-const JUNCTION_HIGHLIGHT_COLOR = "orange";
-const JUNCTION_SELECTED_COLOR = "red";
+const JUNCTION_BOOL_TRUE_COLOR = "red";
+const JUNCTION_HIGHLIGHT_COLOR = "cyan";
+const JUNCTION_SELECTED_COLOR = "blue";
 const JUNCTION_NORMAL_WIDTH = 2;
 const JUNCTION_HIGHLIGHTED_WIDTH = 3;
 const JUNCTION_SELECTED_WIDTH = 4;
@@ -24,6 +27,10 @@ var linearMapXAxis;
 var zoom = null;
 var linearMapSelectedJunction = null;
 
+var colorByKey = null;
+var colorByMin;
+var colorByMax;
+
 Session.setDefault("numCurrentlyVisible", 0);
 
 Template.linearMap.events({
@@ -33,6 +40,17 @@ Template.linearMap.events({
             zoom.translate([0, 0]);
             onZoom();
         }
+    },
+    "click #colorBySelect": function (event, template) {
+        var selected = template.find("#colorBySelect").value;
+        if (selected === "None") {
+            colorByKey = null;
+        } else {
+            colorByKey = selected;
+        }
+        updateColorByRange();
+        d3.select(".junctionmap").selectAll(".jnct").remove();
+        updateJunctions();
     }
 });
 
@@ -43,8 +61,27 @@ Template.linearMap.helpers({
 });
 
 Template.linearMap.onRendered(function () {
+    colorByKey = null;
     updateMap();
+    updateControls();
 });
+
+function updateControls() {
+    // Update color-by option
+    var options = ["None"].concat(getJunctionBoolKeys().concat(getJunctionNumberKeys()));
+
+    var selection = d3.select("#colorBySelect")
+        .selectAll("option")
+        .data(options, function (opt) {
+            return opt;
+        });
+    selection.exit().remove();
+    selection.enter()
+        .append("option")
+        .text(function (d) {
+            return d;
+        });
+}
 
 function updateMap() {
     var junctions = Junctions.find().fetch();
@@ -74,7 +111,7 @@ function updateMap() {
     updateJunctions();
 }
 
-function updateJunctions() {
+function getVisibleJunctions() {
     var leftLim = linearMapXScale.invert(0);
     var rightLim = linearMapXScale.invert(VIEWBOX_WIDTH);
     var minLength = linearMapXScale.invert(MIN_DISPLAY_LENGTH_PX) - leftLim;
@@ -83,6 +120,11 @@ function updateJunctions() {
         end: {"$lte": rightLim},
         length: {"$gte": minLength}
     }).fetch();
+    return visibleJunctions;
+}
+
+function updateJunctions() {
+    var visibleJunctions = getVisibleJunctions();
     var selection = d3.select(".junctionmap").selectAll(".jnct")
         .data(visibleJunctions, getKeyForJunction);
     // Update
@@ -91,7 +133,7 @@ function updateJunctions() {
     selection.enter()
         .append("path")
         .attr("class", "jnct")
-        .attr("stroke", JUNCTION_NORMAL_COLOR)
+        .attr("stroke", getJunctionColor)
         .attr("fill", "none")
         .attr("stroke-width", JUNCTION_NORMAL_WIDTH)
         .attr("pointer-events", "visiblePainted")
@@ -112,6 +154,7 @@ function junctionPath(jnct) {
     var cPoint2X = parseInt(startX + 4 * range / 6);
     var annotatedMod = jnct[JUNCTION_ANNOTATED] ? -1 : 1;
     var cPointY = (VIEWBOX_HEIGHT ) / 2 - annotatedMod * parseInt((VIEWBOX_HEIGHT / 2) * (parseFloat(range) / (VIEWBOX_WIDTH / 3)));
+    endpointY -= annotatedMod * MID_AXIS_LINE_HEIGHT / 2;
     cPointY = Math.max(0, cPointY);
     cPointY = Math.min(VIEWBOX_HEIGHT, cPointY);
     return "M" + startX + " " + endpointY + " C " + cPoint1X + " " + cPointY + " " + cPoint2X + " " + cPointY + " " + endX + " " + endpointY;
@@ -147,8 +190,8 @@ function updateFrame() {
         .enter().append("rect")
         .attr("id", "midAxisLine")
         .attr("transform", "translate(0,0)")
-        .attr("x", 0).attr("y", VIEWBOX_HEIGHT / 2).attr("width", VIEWBOX_WIDTH)
-        .attr("height", 5).attr("fill", "#000000");
+        .attr("x", 0).attr("y", VIEWBOX_HEIGHT / 2 - MID_AXIS_LINE_HEIGHT / 2).attr("width", VIEWBOX_WIDTH)
+        .attr("height", MID_AXIS_LINE_HEIGHT).attr("fill", "#000000");
 }
 
 function getLimits(junctions) {
@@ -247,7 +290,7 @@ function getKeyForJunction(jnct) {
 function onJunctionMouseOver(jnct) {
     d3.selectAll(".jnct")
         .attr("stroke-width", JUNCTION_NORMAL_WIDTH)
-        .attr("stroke", JUNCTION_NORMAL_COLOR)
+        .attr("stroke", getJunctionColor)
         .data([jnct], getKeyForJunction)
         .attr("stroke-width", JUNCTION_HIGHLIGHTED_WIDTH)
         .attr("stroke", JUNCTION_HIGHLIGHT_COLOR);
@@ -263,3 +306,58 @@ function onJunctionMouseClick(jnct) {
 function numberWithCommas(x) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
+
+function updateColorByRange() {
+    if (colorByKey != null && colorByKey !== "bool") {
+        var junctions = getVisibleJunctions();
+        colorByMin = 9007199254740990;
+        colorByMax = -9007199254740990;
+        for (var i = 0; i < junctions.length; i++) {
+            if (junctions[i][colorByKey] > colorByMax) {
+                colorByMax = junctions[i][colorByKey];
+            }
+            if (junctions[i][colorByKey] < colorByMin) {
+                colorByMin = junctions[i][colorByKey];
+            }
+        }
+    }
+}
+
+function getJunctionColor(jnct) {
+    if (colorByKey == null) {
+        return JUNCTION_NORMAL_COLOR;
+    }
+    if (JUNCTION_COLUMN_TYPES[colorByKey] === "bool") {
+        return jnct[colorByKey] ? JUNCTION_BOOL_TRUE_COLOR : JUNCTION_NORMAL_COLOR;
+    }
+    var delta = colorByMax - colorByMin;
+    if (delta == 0) {
+        return JUNCTION_NORMAL_COLOR;
+    }
+    var red = parseInt((parseFloat(255) / delta) * (jnct[colorByKey] - colorByMin));
+    return "rgb(" + red + ",0,0)";
+}
+
+getJunctionNumberKeys = function () {
+    var keys = Object.keys(JUNCTION_COLUMN_TYPES);
+    var numberKeys = [];
+    for (var i = 0; i < keys.length; i++) {
+        var type = JUNCTION_COLUMN_TYPES[keys[i]];
+        if (type === "int" || type === "float") {
+            numberKeys.push(keys[i])
+        }
+    }
+    return numberKeys;
+};
+
+getJunctionBoolKeys = function () {
+    var keys = Object.keys(JUNCTION_COLUMN_TYPES);
+    var boolKeys = [];
+    for (var i = 0; i < keys.length; i++) {
+        var type = JUNCTION_COLUMN_TYPES[keys[i]];
+        if (type === "bool") {
+            boolKeys.push(keys[i])
+        }
+    }
+    return boolKeys;
+};

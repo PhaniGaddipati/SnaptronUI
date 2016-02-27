@@ -3,27 +3,6 @@
  */
 
 JUNCTION_ID_FIELD = "snaptron_id";
-JUNCTION_COLUMN_TYPES = {
-    "DataSource:Type": "str",
-    "snaptron_id": "str",
-    "chromosome": "str",
-    "start": "int",
-    "end": "int",
-    "length": "int",
-    "strand": "str",
-    "annotated?": "bool",
-    "left_motif": "str",
-    "right_motif": "str",
-    "left_annotated?": "str",
-    "right_annotated?": "str",
-    "samples": "str",
-    "read_coverage_by_sample": "str",
-    "samples_count": "int",
-    "coverage_sum": "float",
-    "coverage_avg": "float",
-    "coverage_median": "float",
-    "source_dataset_id": "str"
-};
 
 getJunctions = function (junctionIds) {
     check(junctionIds, [String]);
