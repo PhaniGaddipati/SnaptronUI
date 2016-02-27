@@ -52,63 +52,42 @@ Template.querybar.onRendered(function () {
 });
 
 function handleSubmitQuery(template) {
+    var region = template.find("#regionInput").value;
+    var length = parseInt(template.find("#lengthInput").value);
+    var samples = parseInt(template.find("#samplesCountInput").value);
+    var covSum = parseFloat(template.find("#coverageSumInput").value);
+    var covAvg = parseFloat(template.find("#coverageAvgInput").value);
+    var covMed = parseFloat(template.find("#coverageMedInput").value);
+
+    var lengthOp = template.find("#lengthInputOp").value;
+    var samplesOp = template.find("#samplesCountInputOp").value;
+    var covSumOp = template.find("#coverageSumInputOp").value;
+    var covAvgOp = template.find("#coverageAvgInputOp").value;
+    var covMedOp = template.find("#coverageMedInputOp").value;
+
+    Session.set("regionInput", region);
+    Session.set("lengthOp", lengthOp);
+    Session.set("samplesOp", samplesOp);
+    Session.set("covSumOp", covSumOp);
+    Session.set("covAvgOp", covAvgOp);
+    Session.set("covMedOp", covMedOp);
+
     if (!Session.get("loadingQuery")) {
-        var region = template.find("#regionInput").value;
-        var length = parseInt(template.find("#lengthInput").value);
-        var samples = parseInt(template.find("#samplesCountInput").value);
-        var covSum = parseFloat(template.find("#coverageSumInput").value);
-        var covAvg = parseFloat(template.find("#coverageAvgInput").value);
-        var covMed = parseFloat(template.find("#coverageMedInput").value);
-
-        var lengthOp = template.find("#lengthInputOp").value;
-        var samplesOp = template.find("#samplesCountInputOp").value;
-        var covSumOp = template.find("#coverageSumInputOp").value;
-        var covAvgOp = template.find("#coverageAvgInputOp").value;
-        var covMedOp = template.find("#coverageMedInputOp").value;
-
-        Session.set("regionInput", region);
-        Session.set("lengthOp", lengthOp);
-        Session.set("samplesOp", samplesOp);
-        Session.set("covSumOp", covSumOp);
-        Session.set("covAvgOp", covAvgOp);
-        Session.set("covMedOp", covMedOp);
-
-        region = region.toLowerCase().replace(/\s+/g, ""); //Strip whitespace
-        var query = newQuery();
-        addQueryRegion(query, region);
-        if (!isNaN(length)) {
-            addQueryFilter(query, QUERY_FILTER_LENGTH, lengthOp, length);
-            Session.set("length", length);
+        var filterFields = [QUERY_FILTER_LENGTH, QUERY_FILTER_SAMPLE_COUNT,
+            QUERY_FILTER_COV_SUM, QUERY_FILTER_COV_AVG, QUERY_FILTER_COV_MED];
+        var filterOpts = [lengthOp, samplesOp, covSumOp, covAvgOp, covMedOp];
+        var filterVals = [length, samples, covSum, covAvg, covMed];
+        if (region != undefined && region != null && region.trim().length > 0) {
+            Session.set("loadingQuery", true);
+            Meteor.call("submitQuery", region, filterFields, filterOpts, filterVals, function (err, id) {
+                Session.set("loadingQuery", false);
+                if (err) {
+                    console.log(err);
+                    //TODO ui message of error
+                } else {
+                    Router.go('/query/' + id);
+                }
+            });
         }
-        if (!isNaN(samples)) {
-            addQueryFilter(query, QUERY_FILTER_SAMPLE_COUNT, samplesOp, samples);
-            Session.set("samples", samples);
-        }
-        if (!isNaN(covSum)) {
-            addQueryFilter(query, QUERY_FILTER_COV_SUM, covSumOp, covSum);
-            Session.set("covSum", covSum);
-        }
-        if (!isNaN(covAvg)) {
-            addQueryFilter(query, QUERY_FILTER_COV_AVG, covAvgOp, covAvg);
-            Session.set("covAvg", covAvg);
-        }
-        if (!isNaN(covMed)) {
-            addQueryFilter(query, QUERY_FILTER_COV_MED, covMedOp, covMed);
-            Session.set("covMed", covMed);
-        }
-        submitQuery(query);
     }
 }
-
-submitQuery = function (query) {
-    Session.set("loadingQuery", true);
-    Meteor.call("addQuery", query, function (err, id) {
-        Session.set("loadingQuery", false);
-        if (err) {
-            console.log(err);
-            //TODO ui message of error
-        } else {
-            Router.go('/query/' + id);
-        }
-    });
-};

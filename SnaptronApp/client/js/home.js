@@ -4,20 +4,26 @@
 Template.home.events({
     "click #cd99btn": function (event, template) {
         event.preventDefault();
-        var query = newQuery();
-        addQueryRegion(query, "cd99");
-        submitQuery(query);
+        submitPlainQuery("cd99");
     },
     "click #drd4btn": function (event, template) {
         event.preventDefault();
-        var query = newQuery();
-        addQueryRegion(query, "drd4");
-        submitQuery(query);
+        submitPlainQuery("drd4");
     },
-    "click #chrbtn": function (event, template) {
+    "click #httbtn": function (event, template) {
         event.preventDefault();
-        var query = newQuery();
-        addQueryRegion(query, "chr6:1-10000000");
-        submitQuery(query);
+        submitPlainQuery("htt");
     }
 });
+
+function submitPlainQuery(region) {
+    Meteor.call("submitQuery", region, [], [], [], function (err, id) {
+        Session.set("loadingQuery", false);
+        if (err) {
+            console.log(err);
+            //TODO ui message of error
+        } else {
+            Router.go('/query/' + id);
+        }
+    });
+}

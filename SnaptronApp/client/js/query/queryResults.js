@@ -11,7 +11,7 @@ Template.queryResults.helpers({
         return Junctions.find({}).count();
     },
     queryDate: function () {
-        var date = Queries.findOne()[QUERY_LAST_LOADED_DATE];
+        var date = Queries.findOne()[QUERY_CREATED_DATE];
         return moment(date).format("MMMM Do, YYYY");
     },
     filterSummary: function () {
@@ -30,19 +30,19 @@ Template.queryResults.helpers({
 });
 
 function filterOpToStr(str) {
-    if (str == OPERATOR_EQ) {
+    if (str == MONGO_OPERATOR_EQ) {
         return "==";
     }
-    if (str == OPERATOR_GT) {
+    if (str == MONGO_OPERATOR_GT) {
         return ">";
     }
-    if (str == OPERATOR_LT) {
+    if (str == MONGO_OPERATOR_LT) {
         return "<";
     }
-    if (str == OPERATOR_GTE) {
+    if (str == MONGO_OPERATOR_GTE) {
         return "≥";
     }
-    if (str == OPERATOR_LTE) {
+    if (str == MONGO_OPERATOR_LTE) {
         return "≤";
     }
 }
