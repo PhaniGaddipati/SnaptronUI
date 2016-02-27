@@ -5,7 +5,6 @@
 const VIEWBOX_WIDTH = 1000;
 const VIEWBOX_HEIGHT = 350;
 
-const BACKGROUND_COLOR = "#FFFFFF";
 const MARKER_LABEL_STYLE = "fill:#EEEEEE;stroke:black;stroke-width:1";
 const MARKER_LINE_STYLE = "stroke:#DDDDDD;stroke-width:1";
 const MIN_DISPLAY_LENGTH_PX = 3;
@@ -120,14 +119,6 @@ function junctionPath(jnct) {
 
 function updateFrame() {
     var svg = d3.select(".junctionmap");
-    svg.selectAll(".backgroundRect").data([0])
-        .enter()
-        .append("rect")
-        .attr("class", "backgroundRect")
-        .attr("transform", "translate(0,0)")
-        .attr("x", 0).attr("y", 0).attr("width", VIEWBOX_WIDTH)
-        .attr("height", VIEWBOX_HEIGHT).attr("fill", BACKGROUND_COLOR);
-
     //Draw axis
     var numTicks = parseInt(VIEWBOX_WIDTH / 120);
     var leftLim = linearMapXScale.invert(35);

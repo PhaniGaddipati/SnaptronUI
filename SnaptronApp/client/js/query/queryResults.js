@@ -44,7 +44,7 @@ Template.queryResults.helpers({
                 badRegions.push(regions[i]["_id"]);
             }
         }
-        if (regions.length > 1) {
+        if (badRegions.length > 1) {
             return "Failed to load the regions \"" + badRegions.join("\", \"") + "\". Check that the entry is correct.";
         }
         return "Failed to load the region \"" + badRegions[0] + "\". Check that the entry is correct.";
