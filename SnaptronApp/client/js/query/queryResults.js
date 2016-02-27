@@ -26,6 +26,28 @@ Template.queryResults.helpers({
                 + filters[i][QUERY_FILTER_VAL] + "<br>";
         }
         return summary;
+    },
+    isError: function () {
+        var regions = Regions.find().fetch();
+        for (var i = 0; i < regions.length; i++) {
+            if (regions[i][REGION_LOADED_DATE] == null) {
+                return true;
+            }
+        }
+        return false;
+    },
+    errorMessage: function () {
+        var regions = Regions.find().fetch();
+        var badRegions = [];
+        for (var i = 0; i < regions.length; i++) {
+            if (regions[i][REGION_LOADED_DATE] == null) {
+                badRegions.push(regions[i]["_id"]);
+            }
+        }
+        if (regions.length > 1) {
+            return "Failed to load the regions \"" + badRegions.join("\",\"" + "\". Check that the entry is correct.");
+        }
+        return "Failed to load the region \"" + badRegions[0] + "\". Check that the entry is correct.";
     }
 });
 
