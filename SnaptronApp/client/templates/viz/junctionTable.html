@@ -1,34 +1,6 @@
 <template name="junctionTable">
-
-    <form class="form-inline">
-        <div class="form-group">
-            <label for="showSelect"><strong>Show&nbsp;</strong></label>
-            <select class="form-control" id="showSelect">
-                <option>10</option>
-                <option>25</option>
-                <option>50</option>
-                <option>100</option>
-                <option>500</option>
-            </select>
-        </div>
-
-        <div class="form-group btn-group">
-            <a href="#" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Visible Columns&nbsp;<span
-                    class="caret"></span></a>
-            <ul class="dropdown-menu" id="selectColumnDropdown">
-            </ul>
-        </div>
-    </form>
-    <br>
-    <div style="overflow-x: auto;overflow-y: auto;">
-        <table class="table table-hover table-bordered table-condensed" id="junctionTable" style="white-space: nowrap;">
-            <thead>
-            <tr id="junctionTableHeaderRow"></tr>
-            </thead>
-            <tbody id="junctionTableBody">
-
-            </tbody>
-        </table>
+    <div style="max-width:100%;overflow-x:auto;">
+        {{> reactiveTable collection=junctionTableCollection settings=tableSettings}}
     </div>
     <br>
     <a class="btn btn-primary pull-right" id="rawTSVBtn">View Raw TSV</a>
