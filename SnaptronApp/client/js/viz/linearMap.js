@@ -3,7 +3,7 @@
  */
 
 const VIEWBOX_WIDTH = 1000;
-const VIEWBOX_HEIGHT = 250;
+const VIEWBOX_HEIGHT = 350;
 
 const BACKGROUND_COLOR = "#FFFFFF";
 const MARKER_LABEL_STYLE = "fill:#EEEEEE;stroke:black;stroke-width:1";
@@ -17,7 +17,6 @@ const JUNCTION_NORMAL_WIDTH = 2;
 const JUNCTION_HIGHLIGHTED_WIDTH = 3;
 const JUNCTION_SELECTED_WIDTH = 4;
 
-const PADDING = 25;
 const AXIS_K_CUTOFF = 10000;
 const MARKER_LABEL_HEIGHT = 25;
 
@@ -26,6 +25,8 @@ var linearMapXAxis;
 var zoom = null;
 var linearMapSelectedJunction = null;
 
+Session.setDefault("numCurrentlyVisible", 0);
+
 Template.linearMap.events({
     "click .resetView": function (event, template) {
         if (zoom != null) {
@@ -33,6 +34,12 @@ Template.linearMap.events({
             zoom.translate([0, 0]);
             onZoom();
         }
+    }
+});
+
+Template.linearMap.helpers({
+    "currentlyVisible": function () {
+        return Session.get("numCurrentlyVisible") + " Junctions Currently Visible";
     }
 });
 
@@ -72,13 +79,13 @@ function updateJunctions() {
     var leftLim = linearMapXScale.invert(0);
     var rightLim = linearMapXScale.invert(VIEWBOX_WIDTH);
     var minLength = linearMapXScale.invert(MIN_DISPLAY_LENGTH_PX) - leftLim;
-    var junctions = Junctions.find({
+    var visibleJunctions = Junctions.find({
         start: {"$gte": leftLim},
         end: {"$lte": rightLim},
         length: {"$gte": minLength}
     }).fetch();
     var selection = d3.select(".junctionmap").selectAll(".jnct")
-        .data(junctions, getKeyForJunction);
+        .data(visibleJunctions, getKeyForJunction);
     // Update
     selection.attr("d", junctionPath);
     // Add newly visisble
@@ -94,26 +101,18 @@ function updateJunctions() {
         .on("mouseover", onJunctionMouseOver);
     // Remove no longer visible
     selection.exit().remove();
-
-    //# jncts counter
-    d3.select(".junctionmap").selectAll(".jnctCounter").data([0])
-        .enter().append("text")
-        .attr("class", "jnctCounter")
-        .attr("x", 0)
-        .attr("y", PADDING);
-    d3.select(".junctionmap").select(".jnctCounter").text(function () {
-        return junctions.length + " Currently Visible";
-    });
+    Session.set("numCurrentlyVisible", visibleJunctions.length);
 }
 
 function junctionPath(jnct) {
-    var endpointY = VIEWBOX_HEIGHT - PADDING;
+    var endpointY = (VIEWBOX_HEIGHT) / 2;
     var startX = parseInt(linearMapXScale(jnct.start));
     var endX = parseInt(linearMapXScale(jnct.end));
     var range = endX - startX;
     var cPoint1X = parseInt(startX + 2 * range / 6);
     var cPoint2X = parseInt(startX + 4 * range / 6);
-    var cPointY = VIEWBOX_HEIGHT - PADDING - parseInt((VIEWBOX_HEIGHT) * (parseFloat(range) / (VIEWBOX_WIDTH / 3)));
+    var annotatedMod = jnct[JUNCTION_ANNOTATED] ? -1 : 1;
+    var cPointY = (VIEWBOX_HEIGHT ) / 2 - annotatedMod * parseInt((VIEWBOX_HEIGHT / 2) * (parseFloat(range) / (VIEWBOX_WIDTH / 3)));
     cPointY = Math.max(0, cPointY);
     cPointY = Math.min(VIEWBOX_HEIGHT, cPointY);
     return "M" + startX + " " + endpointY + " C " + cPoint1X + " " + cPointY + " " + cPoint2X + " " + cPointY + " " + endX + " " + endpointY;
@@ -131,8 +130,8 @@ function updateFrame() {
 
     //Draw axis
     var numTicks = parseInt(VIEWBOX_WIDTH / 120);
-    var leftLim = linearMapXScale.invert(PADDING);
-    var rightLim = linearMapXScale.invert(VIEWBOX_WIDTH - PADDING);
+    var leftLim = linearMapXScale.invert(35);
+    var rightLim = linearMapXScale.invert(VIEWBOX_WIDTH - 35);
     var step = (rightLim - leftLim) / (numTicks);
     var tickValues = [];
     for (var i = 0; i <= numTicks; i++) {
@@ -151,9 +150,14 @@ function updateFrame() {
     svg.selectAll("g.xaxis").data([0])
         .enter().append("g")
         .attr("class", "xaxis")
-        .attr("transform", "translate(0,0)")
-        .attr("transform", "translate(0," + (VIEWBOX_HEIGHT - PADDING) + ")")
+        .attr("transform", "translate(0," + (VIEWBOX_HEIGHT - 25) + ")")
         .call(linearMapXAxis);
+    svg.selectAll("#midAxisLine").data([0])
+        .enter().append("rect")
+        .attr("id", "midAxisLine")
+        .attr("transform", "translate(0,0)")
+        .attr("x", 0).attr("y", VIEWBOX_HEIGHT / 2).attr("width", VIEWBOX_WIDTH)
+        .attr("height", 5).attr("fill", "#000000");
 }
 
 function getLimits(junctions) {
@@ -187,9 +191,9 @@ function addMouseMarker() {
         marker.append("line")
             .attr("class", "markerline")
             .attr("x1", 0)
-            .attr("y1", PADDING)
+            .attr("y1", 0)
             .attr("x2", 0)
-            .attr("y2", VIEWBOX_HEIGHT - PADDING)
+            .attr("y2", VIEWBOX_HEIGHT)
             .attr("style", MARKER_LINE_STYLE)
             .attr("pointer-events", "none");
         var label = marker.append("g").attr("class", "markerlabel").attr("transform", "translate(0,0)");
@@ -219,15 +223,15 @@ function removeMouseMarker() {
 function updateMouseMarker() {
     addMouseMarker();
     var coords = d3.mouse(this);
-    coords[0] = Math.max(coords[0], PADDING);
-    coords[0] = Math.min(coords[0], VIEWBOX_WIDTH - PADDING);
+    coords[0] = Math.max(coords[0], 0);
+    coords[0] = Math.min(coords[0], VIEWBOX_WIDTH);
     var marker = d3.select("g.mousemarker");
     marker.attr("transform", "translate(" + coords[0] + ",0)");
     var markerLabel = marker.select(".markerlabel");
     var label = markerLabel.select(".markerlabelbox");
     var text = markerLabel.select(".markerlabeltext");
     text.text(function () {
-        return parseInt(linearMapXScale.invert(coords[0]));
+        return numberWithCommas(parseInt(linearMapXScale.invert(coords[0])));
     });
 
     var w = text.node().getBBox().width;
@@ -264,4 +268,7 @@ function onJunctionMouseOver(jnct) {
 function onJunctionMouseClick(jnct) {
     linearMapSelectedJunction = jnct;
     onJunctionMouseOver(jnct);
+}
+function numberWithCommas(x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
