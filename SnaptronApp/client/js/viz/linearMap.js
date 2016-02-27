@@ -8,6 +8,7 @@ const VIEWBOX_HEIGHT = 250;
 const BACKGROUND_COLOR = "#FFFFFF";
 const MARKER_LABEL_STYLE = "fill:#EEEEEE;stroke:black;stroke-width:1";
 const MARKER_LINE_STYLE = "stroke:#DDDDDD;stroke-width:1";
+const MIN_DISPLAY_LENGTH_PX = 3;
 
 const JUNCTION_NORMAL_COLOR = "black";
 const JUNCTION_HIGHLIGHT_COLOR = "orange";
@@ -70,9 +71,11 @@ function updateMap() {
 function updateJunctions() {
     var leftLim = linearMapXScale.invert(0);
     var rightLim = linearMapXScale.invert(VIEWBOX_WIDTH);
+    var minLength = linearMapXScale.invert(MIN_DISPLAY_LENGTH_PX) - leftLim;
     var junctions = Junctions.find({
         start: {"$gte": leftLim},
-        end: {"$lte": rightLim}
+        end: {"$lte": rightLim},
+        length: {"$gte": minLength}
     }).fetch();
     var selection = d3.select(".junctionmap").selectAll(".jnct")
         .data(junctions, getKeyForJunction);
@@ -110,9 +113,9 @@ function junctionPath(jnct) {
     var range = endX - startX;
     var cPoint1X = parseInt(startX + 2 * range / 6);
     var cPoint2X = parseInt(startX + 4 * range / 6);
-    var cPointY = VIEWBOX_HEIGHT - PADDING - parseInt((VIEWBOX_HEIGHT - PADDING * 2) * (parseFloat(range) / (VIEWBOX_WIDTH / 3)));
-    cPointY = Math.max(PADDING, cPointY);
-    cPointY = Math.min(VIEWBOX_HEIGHT - PADDING - 15, cPointY);
+    var cPointY = VIEWBOX_HEIGHT - PADDING - parseInt((VIEWBOX_HEIGHT) * (parseFloat(range) / (VIEWBOX_WIDTH / 3)));
+    cPointY = Math.max(0, cPointY);
+    cPointY = Math.min(VIEWBOX_HEIGHT, cPointY);
     return "M" + startX + " " + endpointY + " C " + cPoint1X + " " + cPointY + " " + cPoint2X + " " + cPointY + " " + endX + " " + endpointY;
 }
 
