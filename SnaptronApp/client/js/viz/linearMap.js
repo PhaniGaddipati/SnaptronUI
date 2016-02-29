@@ -54,7 +54,7 @@ Template.linearMap.events({
             colorLog = false;
             colorByKey = selected;
         }
-        updateColorByRange();
+        updateColorScale();
         d3.select(".junctionmap").selectAll(".jnct").remove();
         updateJunctions();
     }
@@ -320,7 +320,7 @@ function numberWithCommas(x) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
-function updateColorByRange() {
+function updateColorScale() {
     if (colorByKey != null && colorByKey !== "bool") {
         var junctions = getVisibleJunctions();
         var colorByMin = 9007199254740990;
@@ -341,6 +341,8 @@ function updateColorByRange() {
         colorScale = colorScale.domain([colorByMin, colorByMax])
             .interpolate(d3.interpolateLab)
             .range([JUNCTION_NORMAL_COLOR, JUNCTION_MAX_VAL_COLOR]);
+    } else {
+        d3.select("#scale").remove();
     }
 }
 
@@ -378,17 +380,3 @@ getJunctionBoolKeys = function () {
     return boolKeys;
 };
 
-function hexToRgb(hex) {
-    // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
-    var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
-    hex = hex.replace(shorthandRegex, function (m, r, g, b) {
-        return r + r + g + g + b + b;
-    });
-
-    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    return result ? {
-        r: parseInt(result[1], 16),
-        g: parseInt(result[2], 16),
-        b: parseInt(result[3], 16)
-    } : null;
-}
