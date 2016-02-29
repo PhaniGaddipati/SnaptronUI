@@ -57,20 +57,13 @@
         {{> linearMap}}
         <br>
         <br>
-        <br>
-        <br>
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <h2 class="panel-title" data-toggle="collapse" href="#collapse1">
-                    <a>Raw Junction Data <span class="caret"></span></a>
-                </h2>
+        <row>
+            <a class="btn btn-link"><h2 data-toggle="collapse" href="#junctionTableCollapse">Raw Junction Data <span
+                    class="caret"></span></h2></a>
+            <div id="junctionTableCollapse" class="well panel-collapse panel-body collapse">
+                {{> junctionTable}}
             </div>
-            <div id="collapse1" class="panel-collapse collapse">
-                <div class="panel-body">
-                    {{> junctionTable}}
-                </div>
-            </div>
-        </div>
+        </row>
         <br>
         <br>
         <br>

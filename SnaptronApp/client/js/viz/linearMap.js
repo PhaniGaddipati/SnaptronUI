@@ -29,6 +29,7 @@ var zoom = null;
 var linearMapSelectedJunction = null;
 
 var colorByKey = null;
+var colorLog = false;
 var colorByMin;
 var colorByMax;
 
@@ -46,7 +47,12 @@ Template.linearMap.events({
         var selected = template.find("#colorBySelect").value;
         if (selected === "None") {
             colorByKey = null;
-        } else {
+        } else if (selected.startsWith("log(")) {
+            colorLog = true;
+            colorByKey = selected.replace("log(", "").replace(")", "");
+        }
+        else {
+            colorLog = false;
             colorByKey = selected;
         }
         updateColorByRange();
@@ -69,7 +75,14 @@ Template.linearMap.onRendered(function () {
 
 function updateControls() {
     // Update color-by option
-    var options = ["None"].concat(getJunctionBoolKeys().concat(getJunctionNumberKeys()));
+    var numKeys = getJunctionNumberKeys();
+    var options = ["None"].concat(getJunctionBoolKeys().concat(numKeys));
+    //Add log options
+    var logKeys = [];
+    for (var i = 0; i < numKeys.length; i++) {
+        logKeys.push("log(" + numKeys[i] + ")");
+    }
+    options = options.concat(logKeys);
 
     var selection = d3.select("#colorBySelect")
         .selectAll("option")
@@ -332,13 +345,18 @@ function getJunctionColor(jnct) {
         return jnct[colorByKey] ? JUNCTION_BOOL_TRUE_COLOR : JUNCTION_NORMAL_COLOR;
     }
     var maxColor = hexToRgb(JUNCTION_MAX_VAL_COLOR);
-    var delta = colorByMax - colorByMin;
-    if (delta == 0) {
+    var delta = parseFloat(colorByMax - colorByMin);
+    if (delta == 0 || jnct[colorByKey] <= colorByMin) {
         return JUNCTION_NORMAL_COLOR;
     }
-    var red = parseInt((parseFloat(maxColor.r) / delta) * (jnct[colorByKey] - colorByMin));
-    var green = parseInt((parseFloat(maxColor.g) / delta) * (jnct[colorByKey] - colorByMin));
-    var blue = parseInt((parseFloat(maxColor.b) / delta) * (jnct[colorByKey] - colorByMin));
+    if (colorLog) {
+        var scale = Math.log(jnct[colorByKey] - colorByMin) / Math.log(delta);
+    } else {
+        var scale = (jnct[colorByKey] - colorByMin) / delta;
+    }
+    var red = parseInt(maxColor.r * scale);
+    var green = parseInt(maxColor.g * scale);
+    var blue = parseInt(maxColor.b * scale);
     red = Math.max(0, Math.min(255, red));
     green = Math.max(0, Math.min(255, green));
     blue = Math.max(0, Math.min(255, blue));
