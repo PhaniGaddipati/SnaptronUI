@@ -5,17 +5,17 @@
             <select class="form-control" id="colorBySelect">
             </select>
         </div>
-        <a class="btn btn-default resetView pull-right col-sm-1">Reset View</a>
+        <a class="btn btn-default resetView pull-right col-xs-4 col-md-2 col-lg-1">Reset View</a>
     </row>
     <br>
-    <br>
-    <br>
-    <div class="panel panel-default">
-        <div class="panel-body">
-            {{currentlyVisible}}
-            <i class="pull-right">Unannotated</i>
-            <div class="svg-container"></div>
-            <i class="pull-right">Annotated</i>
+    <row>
+        <div class="panel panel-default col-xs-12">
+            <div class="panel-body">
+                {{currentlyVisible}}
+                <i class="pull-right">Unannotated</i>
+                <div class="svg-container"></div>
+                <i class="pull-right">Annotated</i>
+            </div>
         </div>
-    </div>
+    </row>
 </template>
