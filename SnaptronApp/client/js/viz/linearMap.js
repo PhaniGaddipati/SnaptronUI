@@ -28,10 +28,9 @@ var linearMapXAxis;
 var zoom = null;
 var linearMapSelectedJunction = null;
 
+var colorScale;
 var colorByKey = null;
 var colorLog = false;
-var colorByMin;
-var colorByMax;
 
 Session.setDefault("numCurrentlyVisible", 0);
 
@@ -324,8 +323,8 @@ function numberWithCommas(x) {
 function updateColorByRange() {
     if (colorByKey != null && colorByKey !== "bool") {
         var junctions = getVisibleJunctions();
-        colorByMin = 9007199254740990;
-        colorByMax = -9007199254740990;
+        var colorByMin = 9007199254740990;
+        var colorByMax = -9007199254740990;
         for (var i = 0; i < junctions.length; i++) {
             if (junctions[i][colorByKey] > colorByMax) {
                 colorByMax = junctions[i][colorByKey];
@@ -334,6 +333,14 @@ function updateColorByRange() {
                 colorByMin = junctions[i][colorByKey];
             }
         }
+        if (colorLog) {
+            colorScale = d3.scale.log();
+        } else {
+            colorScale = d3.scale.linear();
+        }
+        colorScale = colorScale.domain([colorByMin, colorByMax])
+            .interpolate(d3.interpolateLab)
+            .range([JUNCTION_NORMAL_COLOR, JUNCTION_MAX_VAL_COLOR]);
     }
 }
 
@@ -344,23 +351,7 @@ function getJunctionColor(jnct) {
     if (JUNCTION_COLUMN_TYPES[colorByKey] === "bool") {
         return jnct[colorByKey] ? JUNCTION_BOOL_TRUE_COLOR : JUNCTION_NORMAL_COLOR;
     }
-    var maxColor = hexToRgb(JUNCTION_MAX_VAL_COLOR);
-    var delta = parseFloat(colorByMax - colorByMin);
-    if (delta == 0 || jnct[colorByKey] <= colorByMin) {
-        return JUNCTION_NORMAL_COLOR;
-    }
-    if (colorLog) {
-        var scale = Math.log(jnct[colorByKey] - colorByMin) / Math.log(delta);
-    } else {
-        var scale = (jnct[colorByKey] - colorByMin) / delta;
-    }
-    var red = parseInt(maxColor.r * scale);
-    var green = parseInt(maxColor.g * scale);
-    var blue = parseInt(maxColor.b * scale);
-    red = Math.max(0, Math.min(255, red));
-    green = Math.max(0, Math.min(255, green));
-    blue = Math.max(0, Math.min(255, blue));
-    return "rgb(" + red + "," + green + "," + blue + ")";
+    return colorScale(jnct[colorByKey]);
 }
 
 getJunctionNumberKeys = function () {
