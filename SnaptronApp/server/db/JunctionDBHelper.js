@@ -105,6 +105,15 @@ findJunctionsForQuery = function (queryId) {
 function castMember(toCast, type) {
     check(type, String);
     switch (type) {
+        case "str[]":
+            return String(toCast).split(",");
+        case "float[]":
+            var elems = String(toCast).split(",");
+            var floats = [];
+            for (var i = 0; i < elems.length; i++) {
+                floats.push(parseFloat(elems[i]));
+            }
+            return floats;
         case "str":
             return String(toCast);
         case "int":
