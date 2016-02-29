@@ -11,10 +11,11 @@ const MIN_DISPLAY_LENGTH_PX = 3;
 
 const MID_AXIS_LINE_HEIGHT = 4;
 
+const JUNCTION_MAX_VAL_COLOR = "#d9230f";
 const JUNCTION_NORMAL_COLOR = "black";
-const JUNCTION_BOOL_TRUE_COLOR = "red";
-const JUNCTION_HIGHLIGHT_COLOR = "cyan";
-const JUNCTION_SELECTED_COLOR = "blue";
+const JUNCTION_BOOL_TRUE_COLOR = "#d9230f";
+const JUNCTION_HIGHLIGHT_COLOR = "#3a87ad";
+const JUNCTION_SELECTED_COLOR = "#33BCFF";
 const JUNCTION_NORMAL_WIDTH = 2;
 const JUNCTION_HIGHLIGHTED_WIDTH = 3;
 const JUNCTION_SELECTED_WIDTH = 4;
@@ -330,12 +331,18 @@ function getJunctionColor(jnct) {
     if (JUNCTION_COLUMN_TYPES[colorByKey] === "bool") {
         return jnct[colorByKey] ? JUNCTION_BOOL_TRUE_COLOR : JUNCTION_NORMAL_COLOR;
     }
+    var maxColor = hexToRgb(JUNCTION_MAX_VAL_COLOR);
     var delta = colorByMax - colorByMin;
     if (delta == 0) {
         return JUNCTION_NORMAL_COLOR;
     }
-    var red = parseInt((parseFloat(255) / delta) * (jnct[colorByKey] - colorByMin));
-    return "rgb(" + red + ",0,0)";
+    var red = parseInt((parseFloat(maxColor.r) / delta) * (jnct[colorByKey] - colorByMin));
+    var green = parseInt((parseFloat(maxColor.g) / delta) * (jnct[colorByKey] - colorByMin));
+    var blue = parseInt((parseFloat(maxColor.b) / delta) * (jnct[colorByKey] - colorByMin));
+    red = Math.max(0, Math.min(255, red));
+    green = Math.max(0, Math.min(255, green));
+    blue = Math.max(0, Math.min(255, blue));
+    return "rgb(" + red + "," + green + "," + blue + ")";
 }
 
 getJunctionNumberKeys = function () {
@@ -361,3 +368,18 @@ getJunctionBoolKeys = function () {
     }
     return boolKeys;
 };
+
+function hexToRgb(hex) {
+    // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
+    var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+    hex = hex.replace(shorthandRegex, function (m, r, g, b) {
+        return r + r + g + g + b + b;
+    });
+
+    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+    } : null;
+}
