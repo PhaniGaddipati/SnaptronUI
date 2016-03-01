@@ -321,6 +321,7 @@ function numberWithCommas(x) {
 }
 
 function updateColorScale() {
+    d3.select(".scale-container").selectAll("svg").remove();
     if (colorByKey != null && colorByKey !== "bool") {
         var junctions = getVisibleJunctions();
         var colorByMin = 9007199254740990;
@@ -341,8 +342,32 @@ function updateColorScale() {
         colorScale = colorScale.domain([colorByMin, colorByMax])
             .interpolate(d3.interpolateLab)
             .range([JUNCTION_NORMAL_COLOR, JUNCTION_MAX_VAL_COLOR]);
-    } else {
-        d3.select("#scale").remove();
+
+        var svg = d3.select(".scale-container").selectAll("svg")
+            .data([0]).enter()
+            .append("svg")
+            .classed("svg-content-responsive", true)
+            .attr("viewBox", "0 0 " + 100 + " " + 15);
+
+        var lowEnd = 1;
+        var highEnd = 100;
+        var arr = [];
+        while (lowEnd <= highEnd) {
+            arr.push(lowEnd++);
+        }
+
+        svg.selectAll("rect").data(arr)
+            .enter()
+            .append("rect")
+            .attr("fill", function (d) {
+                return colorScale(d * ((colorByMax - colorByMin) / 100) + colorByMin);
+            })
+            .attr("width", 1)
+            .attr("height", 2)
+            .attr("x", function (d) {
+                return d - 1;
+            })
+            .attr("y", 5);
     }
 }
 
