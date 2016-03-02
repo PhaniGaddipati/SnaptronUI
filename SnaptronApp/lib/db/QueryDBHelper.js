@@ -152,6 +152,15 @@ addQueryFilter = function (queryId, field, opStr, val) {
     check(val, Number);
 
     var filterDoc = getFilterFromFields(field, opStr, val);
+    var currentFilters = getQuery(queryId)[QRY_FILTERS];
+    for (var i = 0; i < currentFilters.length; i++) {
+        if (currentFilters[i][QRY_FILTER_FIELD] == filterDoc[QRY_FILTER_FIELD]
+            && currentFilters[i][QRY_FILTER_OP] == filterDoc[QRY_FILTER_OP]
+            && currentFilters[i][QRY_FILTER_VAL] == filterDoc[QRY_FILTER_VAL]) {
+            //Filter already exists
+            return null;
+        }
+    }
     if (filterDoc != null) {
         var pushCmd = {};
         pushCmd[QRY_FILTERS] = filterDoc;

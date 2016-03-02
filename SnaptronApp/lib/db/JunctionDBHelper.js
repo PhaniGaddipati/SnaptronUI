@@ -90,11 +90,12 @@ findJunctionsForQuery = function (queryId) {
         var op = filterDoc[QRY_FILTER_OP];
         var val = filterDoc[QRY_FILTER_VAL];
 
-        var restriction = {};
+        var restriction = selector[field];
+        if (restriction == null || restriction == undefined) {
+            restriction = {};
+        }
         restriction[op] = val;
         selector[field] = restriction;
-
-        //TODO Will there ever be multiple filters for the same field?
     }
 
     return Junctions.find(selector);
