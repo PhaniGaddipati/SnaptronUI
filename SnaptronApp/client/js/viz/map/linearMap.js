@@ -1,36 +1,13 @@
 /**
  * Created by Phani on 2/14/2016.
  */
-
-const VIEWBOX_WIDTH = 1000;
-const VIEWBOX_HEIGHT = 350;
-
-const MARKER_LABEL_STYLE = "fill:#EEEEEE;stroke:black;stroke-width:1";
-const MARKER_LINE_STYLE = "stroke:#DDDDDD;stroke-width:1";
-const MIN_DISPLAY_LENGTH_PX = 3;
-
-const MID_AXIS_LINE_HEIGHT = 4;
-
-const JUNCTION_MAX_VAL_COLOR = "#d9230f";
-const JUNCTION_NORMAL_COLOR = "black";
-const JUNCTION_BOOL_TRUE_COLOR = "#d9230f";
-const JUNCTION_HIGHLIGHT_COLOR = "#3a87ad";
-const JUNCTION_SELECTED_COLOR = "#33BCFF";
-const JUNCTION_NORMAL_WIDTH = 2;
-const JUNCTION_HIGHLIGHTED_WIDTH = 3;
-const JUNCTION_SELECTED_WIDTH = 4;
-
-const AXIS_K_CUTOFF = 10000;
-const MARKER_LABEL_HEIGHT = 25;
-
 var linearMapXScale;
 var linearMapXAxis;
 var zoom = null;
 var linearMapSelectedJunction = null;
 
-var colorScale;
+var colorByScale;
 var colorByKey = null;
-var colorLog = false;
 
 Session.setDefault("numCurrentlyVisible", 0);
 
@@ -44,6 +21,7 @@ Template.linearMap.events({
     },
     "click #colorBySelect": function (event, template) {
         var selected = template.find("#colorBySelect").value;
+        var colorLog;
         if (selected === "None") {
             colorByKey = null;
         } else if (selected.startsWith("log(")) {
@@ -54,7 +32,7 @@ Template.linearMap.events({
             colorLog = false;
             colorByKey = selected;
         }
-        updateColorScale();
+        colorByScale = updateColorScale(colorByKey, colorLog, getVisibleJunctions());
         d3.select(".junctionmap").selectAll(".jnct").remove();
         updateJunctions();
     }
@@ -101,7 +79,7 @@ function updateMap() {
     var _limits = getLimits(junctions);
     var start = _limits.start;
     var stop = _limits.stop;
-    linearMapXScale = d3.scale.linear().range([0, VIEWBOX_WIDTH])
+    linearMapXScale = d3.scale.linear().range([0, SnaptronApp.LinearMap.VIEWBOX_WIDTH])
         .domain([start, stop]);
 
     zoom = d3.behavior.zoom()
@@ -114,7 +92,7 @@ function updateMap() {
         .enter().append("svg")
         .attr("class", "junctionmap")
         .attr("preserveAspectRatio", "xMinYMin meet")
-        .attr("viewBox", "0 0 " + VIEWBOX_WIDTH + " " + VIEWBOX_HEIGHT)
+        .attr("viewBox", "0 0 " + SnaptronApp.LinearMap.VIEWBOX_WIDTH + " " + SnaptronApp.LinearMap.VIEWBOX_HEIGHT)
         .classed("svg-content-responsive", true)
         .on("mouseout", removeMouseMarker)
         .on("mousemove", updateMouseMarker)
@@ -126,8 +104,8 @@ function updateMap() {
 
 function getVisibleJunctions() {
     var leftLim = linearMapXScale.invert(0);
-    var rightLim = linearMapXScale.invert(VIEWBOX_WIDTH);
-    var minLength = linearMapXScale.invert(MIN_DISPLAY_LENGTH_PX) - leftLim;
+    var rightLim = linearMapXScale.invert(SnaptronApp.LinearMap.VIEWBOX_WIDTH);
+    var minLength = linearMapXScale.invert(SnaptronApp.LinearMap.MIN_DISPLAY_LENGTH_PX) - leftLim;
     var visibleJunctions = Junctions.find({
         start: {"$gte": leftLim},
         end: {"$lte": rightLim},
@@ -148,7 +126,7 @@ function updateJunctions() {
         .attr("class", "jnct")
         .attr("stroke", getJunctionColor)
         .attr("fill", "none")
-        .attr("stroke-width", JUNCTION_NORMAL_WIDTH)
+        .attr("stroke-width", SnaptronApp.LinearMap.JUNCTION_NORMAL_WIDTH)
         .attr("pointer-events", "visiblePainted")
         .attr("d", junctionPath)
         .on("click", onJunctionMouseClick)
@@ -159,26 +137,29 @@ function updateJunctions() {
 }
 
 function junctionPath(jnct) {
-    var endpointY = (VIEWBOX_HEIGHT) / 2;
+    var endpointY = (SnaptronApp.LinearMap.VIEWBOX_HEIGHT) / 2;
     var startX = parseInt(linearMapXScale(jnct.start));
     var endX = parseInt(linearMapXScale(jnct.end));
     var range = endX - startX;
     var cPoint1X = parseInt(startX + 2 * range / 6);
     var cPoint2X = parseInt(startX + 4 * range / 6);
     var annotatedMod = jnct[JUNCTION_ANNOTATED] ? -1 : 1;
-    var cPointY = (VIEWBOX_HEIGHT ) / 2 - annotatedMod * parseInt((VIEWBOX_HEIGHT / 2) * (parseFloat(range) / (VIEWBOX_WIDTH / 3)));
-    endpointY -= annotatedMod * MID_AXIS_LINE_HEIGHT / 2;
+    var cPointY = (SnaptronApp.LinearMap.VIEWBOX_HEIGHT ) / 2 -
+        annotatedMod * parseInt((SnaptronApp.LinearMap.VIEWBOX_HEIGHT / 2)
+            * (parseFloat(range) / (SnaptronApp.LinearMap.VIEWBOX_WIDTH / 3)));
+    endpointY -= annotatedMod * SnaptronApp.LinearMap.MID_AXIS_LINE_HEIGHT / 2;
     cPointY = Math.max(0, cPointY);
-    cPointY = Math.min(VIEWBOX_HEIGHT, cPointY);
-    return "M" + startX + " " + endpointY + " C " + cPoint1X + " " + cPointY + " " + cPoint2X + " " + cPointY + " " + endX + " " + endpointY;
+    cPointY = Math.min(SnaptronApp.LinearMap.VIEWBOX_HEIGHT, cPointY);
+    return "M" + startX + " " + endpointY + " C " + cPoint1X + " "
+        + cPointY + " " + cPoint2X + " " + cPointY + " " + endX + " " + endpointY;
 }
 
 function updateFrame() {
     var svg = d3.select(".junctionmap");
     //Draw axis
-    var numTicks = parseInt(VIEWBOX_WIDTH / 120);
+    var numTicks = parseInt(SnaptronApp.LinearMap.VIEWBOX_WIDTH / 120);
     var leftLim = linearMapXScale.invert(35);
-    var rightLim = linearMapXScale.invert(VIEWBOX_WIDTH - 35);
+    var rightLim = linearMapXScale.invert(SnaptronApp.LinearMap.VIEWBOX_WIDTH - 35);
     var step = (rightLim - leftLim) / (numTicks);
     var tickValues = [];
     for (var i = 0; i <= numTicks; i++) {
@@ -189,7 +170,7 @@ function updateFrame() {
         .scale(linearMapXScale)
         .tickValues(tickValues)
         .tickFormat(function (d) {
-            if (Math.abs(d) > AXIS_K_CUTOFF) {
+            if (Math.abs(d) > SnaptronApp.LinearMap.AXIS_K_CUTOFF) {
                 return parseInt(d / 1000) + "k";
             }
             return d;
@@ -197,14 +178,16 @@ function updateFrame() {
     svg.selectAll("g.xaxis").data([0])
         .enter().append("g")
         .attr("class", "xaxis")
-        .attr("transform", "translate(0," + (VIEWBOX_HEIGHT - 25) + ")")
+        .attr("transform", "translate(0," + (SnaptronApp.LinearMap.VIEWBOX_HEIGHT - 25) + ")")
         .call(linearMapXAxis);
     svg.selectAll("#midAxisLine").data([0])
         .enter().append("rect")
         .attr("id", "midAxisLine")
         .attr("transform", "translate(0,0)")
-        .attr("x", 0).attr("y", VIEWBOX_HEIGHT / 2 - MID_AXIS_LINE_HEIGHT / 2).attr("width", VIEWBOX_WIDTH)
-        .attr("height", MID_AXIS_LINE_HEIGHT).attr("fill", "#000000");
+        .attr("x", 0).attr("y", SnaptronApp.LinearMap.VIEWBOX_HEIGHT / 2
+            - SnaptronApp.LinearMap.MID_AXIS_LINE_HEIGHT / 2)
+        .attr("width", SnaptronApp.LinearMap.VIEWBOX_WIDTH)
+        .attr("height", SnaptronApp.LinearMap.MID_AXIS_LINE_HEIGHT).attr("fill", "#000000");
 }
 
 function getLimits(junctions) {
@@ -230,7 +213,43 @@ function onZoom() {
     updateFrame();
 }
 
-function addMouseMarker() {
+
+function getKeyForJunction(jnct) {
+    if (jnct == null) {
+        return "";
+    }
+    return jnct._id;
+}
+
+function onJunctionMouseOver(jnct) {
+    d3.selectAll(".jnct")
+        .attr("stroke-width", SnaptronApp.LinearMap.JUNCTION_NORMAL_WIDTH)
+        .attr("stroke", getJunctionColor)
+        .data([jnct], getKeyForJunction)
+        .attr("stroke-width", SnaptronApp.LinearMap.JUNCTION_HIGHLIGHTED_WIDTH)
+        .attr("stroke", SnaptronApp.LinearMap.JUNCTION_HIGHLIGHT_COLOR);
+    d3.selectAll(".jnct")
+        .data([linearMapSelectedJunction], getKeyForJunction)
+        .attr("stroke", SnaptronApp.LinearMap.JUNCTION_SELECTED_COLOR)
+        .attr("stroke-width", SnaptronApp.LinearMap.JUNCTION_SELECTED_WIDTH);
+}
+function onJunctionMouseClick(jnct) {
+    linearMapSelectedJunction = jnct;
+    onJunctionMouseOver(jnct);
+}
+
+function getJunctionColor(jnct) {
+    if (colorByKey == null) {
+        return SnaptronApp.LinearMap.JUNCTION_NORMAL_COLOR;
+    }
+    if (JUNCTION_COLUMN_TYPES[colorByKey] === "bool") {
+        return jnct[colorByKey] ? SnaptronApp.LinearMap.JUNCTION_BOOL_TRUE_COLOR
+            : SnaptronApp.LinearMap.JUNCTION_NORMAL_COLOR;
+    }
+    return colorByScale(jnct[colorByKey]);
+}
+
+addMouseMarker = function () {
     var marker = d3.select("g.mousemarker");
     if (marker.empty()) {
         marker = d3.select(".junctionmap").append("g").attr("class", "mousemarker");
@@ -240,8 +259,8 @@ function addMouseMarker() {
             .attr("x1", 0)
             .attr("y1", 0)
             .attr("x2", 0)
-            .attr("y2", VIEWBOX_HEIGHT)
-            .attr("style", MARKER_LINE_STYLE)
+            .attr("y2", SnaptronApp.LinearMap.VIEWBOX_HEIGHT)
+            .attr("style", SnaptronApp.LinearMap.MARKER_LINE_STYLE)
             .attr("pointer-events", "none");
         var label = marker.append("g").attr("class", "markerlabel").attr("transform", "translate(0,0)");
         //Label box and text
@@ -252,26 +271,26 @@ function addMouseMarker() {
             .attr("rx", 5)
             .attr("ry", 5)
             .attr("width", 10)
-            .attr("height", MARKER_LABEL_HEIGHT)
+            .attr("height", SnaptronApp.LinearMap.MARKER_LABEL_HEIGHT)
             .attr("pointer-events", "none")
-            .attr("style", MARKER_LABEL_STYLE);
+            .attr("style", SnaptronApp.LinearMap.MARKER_LABEL_STYLE);
         label.append("text")
             .attr("class", "markerlabeltext")
             .attr("pointer-events", "none")
             .attr("x", 10)
-            .attr("y", MARKER_LABEL_HEIGHT / 2 + 5);
+            .attr("y", SnaptronApp.LinearMap.MARKER_LABEL_HEIGHT / 2 + 5);
     }
-}
+};
 
-function removeMouseMarker() {
+removeMouseMarker = function () {
     d3.selectAll("g.mousemarker").remove();
-}
+};
 
-function updateMouseMarker() {
+updateMouseMarker = function () {
     addMouseMarker();
     var coords = d3.mouse(this);
     coords[0] = Math.max(coords[0], 0);
-    coords[0] = Math.min(coords[0], VIEWBOX_WIDTH);
+    coords[0] = Math.min(coords[0], SnaptronApp.LinearMap.VIEWBOX_WIDTH);
     var marker = d3.select("g.mousemarker");
     marker.attr("transform", "translate(" + coords[0] + ",0)");
     var markerLabel = marker.select(".markerlabel");
@@ -286,122 +305,9 @@ function updateMouseMarker() {
     if (coords[0] - w - 50 <= 0) {
         //Goes offscreen, go to other side of line
         xOffset = 0;
-    } else if (coords[0] + w + 50 >= VIEWBOX_WIDTH) {
+    } else if (coords[0] + w + 50 >= SnaptronApp.LinearMap.VIEWBOX_WIDTH) {
         xOffset -= w / 2 + 10;
     }
     markerLabel.transition().attr("transform", "translate (" + xOffset + ",0)");
     label.attr("width", w + 10);
-}
-
-function getKeyForJunction(jnct) {
-    if (jnct == null) {
-        return "";
-    }
-    return jnct._id;
-}
-
-function onJunctionMouseOver(jnct) {
-    d3.selectAll(".jnct")
-        .attr("stroke-width", JUNCTION_NORMAL_WIDTH)
-        .attr("stroke", getJunctionColor)
-        .data([jnct], getKeyForJunction)
-        .attr("stroke-width", JUNCTION_HIGHLIGHTED_WIDTH)
-        .attr("stroke", JUNCTION_HIGHLIGHT_COLOR);
-    d3.selectAll(".jnct")
-        .data([linearMapSelectedJunction], getKeyForJunction)
-        .attr("stroke", JUNCTION_SELECTED_COLOR)
-        .attr("stroke-width", JUNCTION_SELECTED_WIDTH);
-}
-function onJunctionMouseClick(jnct) {
-    linearMapSelectedJunction = jnct;
-    onJunctionMouseOver(jnct);
-}
-function numberWithCommas(x) {
-    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-}
-
-function updateColorScale() {
-    d3.select(".scale-container").selectAll("svg").remove();
-    if (colorByKey != null && colorByKey !== "bool") {
-        var junctions = getVisibleJunctions();
-        var colorByMin = 9007199254740990;
-        var colorByMax = -9007199254740990;
-        for (var i = 0; i < junctions.length; i++) {
-            if (junctions[i][colorByKey] > colorByMax) {
-                colorByMax = junctions[i][colorByKey];
-            }
-            if (junctions[i][colorByKey] < colorByMin) {
-                colorByMin = junctions[i][colorByKey];
-            }
-        }
-        if (colorLog) {
-            colorScale = d3.scale.log();
-        } else {
-            colorScale = d3.scale.linear();
-        }
-        colorScale = colorScale.domain([colorByMin, colorByMax])
-            .interpolate(d3.interpolateLab)
-            .range([JUNCTION_NORMAL_COLOR, JUNCTION_MAX_VAL_COLOR]);
-
-        var svg = d3.select(".scale-container").selectAll("svg")
-            .data([0]).enter()
-            .append("svg")
-            .classed("svg-content-responsive", true)
-            .attr("viewBox", "0 0 " + 100 + " " + 15);
-
-        var lowEnd = 1;
-        var highEnd = 100;
-        var arr = [];
-        while (lowEnd <= highEnd) {
-            arr.push(lowEnd++);
-        }
-
-        svg.selectAll("rect").data(arr)
-            .enter()
-            .append("rect")
-            .attr("fill", function (d) {
-                return colorScale(d * ((colorByMax - colorByMin) / 100) + colorByMin);
-            })
-            .attr("width", 1)
-            .attr("height", 2)
-            .attr("x", function (d) {
-                return d - 1;
-            })
-            .attr("y", 5);
-    }
-}
-
-function getJunctionColor(jnct) {
-    if (colorByKey == null) {
-        return JUNCTION_NORMAL_COLOR;
-    }
-    if (JUNCTION_COLUMN_TYPES[colorByKey] === "bool") {
-        return jnct[colorByKey] ? JUNCTION_BOOL_TRUE_COLOR : JUNCTION_NORMAL_COLOR;
-    }
-    return colorScale(jnct[colorByKey]);
-}
-
-getJunctionNumberKeys = function () {
-    var keys = Object.keys(JUNCTION_COLUMN_TYPES);
-    var numberKeys = [];
-    for (var i = 0; i < keys.length; i++) {
-        var type = JUNCTION_COLUMN_TYPES[keys[i]];
-        if (type === "int" || type === "float") {
-            numberKeys.push(keys[i])
-        }
-    }
-    return numberKeys;
 };
-
-getJunctionBoolKeys = function () {
-    var keys = Object.keys(JUNCTION_COLUMN_TYPES);
-    var boolKeys = [];
-    for (var i = 0; i < keys.length; i++) {
-        var type = JUNCTION_COLUMN_TYPES[keys[i]];
-        if (type === "bool") {
-            boolKeys.push(keys[i])
-        }
-    }
-    return boolKeys;
-};
-

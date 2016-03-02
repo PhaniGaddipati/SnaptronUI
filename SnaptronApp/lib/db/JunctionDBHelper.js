@@ -124,3 +124,27 @@ function castMember(toCast, type) {
             return parseFloat(toCast);
     }
 }
+
+getJunctionNumberKeys = function () {
+    var keys = Object.keys(JUNCTION_COLUMN_TYPES);
+    var numberKeys = [];
+    for (var i = 0; i < keys.length; i++) {
+        var type = JUNCTION_COLUMN_TYPES[keys[i]];
+        if (type === "int" || type === "float") {
+            numberKeys.push(keys[i])
+        }
+    }
+    return numberKeys;
+};
+
+getJunctionBoolKeys = function () {
+    var keys = Object.keys(JUNCTION_COLUMN_TYPES);
+    var boolKeys = [];
+    for (var i = 0; i < keys.length; i++) {
+        var type = JUNCTION_COLUMN_TYPES[keys[i]];
+        if (type === "bool") {
+            boolKeys.push(keys[i])
+        }
+    }
+    return boolKeys;
+};
