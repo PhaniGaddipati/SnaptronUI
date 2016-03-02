@@ -2,6 +2,51 @@
  * Created by Phani on 2/14/2016.
  */
 
+Template.queryResults.onRendered(function () {
+    Tracker.autorun(updateFilterDialog);
+    updateSelects();
+});
+
+function updateSelects() {
+    var options = getJunctionNumberKeys();
+    var selection = d3.select("#addFieldSelect")
+        .selectAll("option")
+        .data(options, function (opt) {
+            return opt;
+        });
+    selection.exit().remove();
+    selection.enter()
+        .append("option")
+        .text(function (d) {
+            return d;
+        });
+}
+
+function updateFilterDialog() {
+    var qry = Queries.findOne();
+    if (qry != null) {
+        var filters = qry[QRY_FILTERS];
+        var elems = d3.select("#currentFiltersList").selectAll("li").data(filters, filterKey);
+        var nElems = elems.enter().append("li")
+            .append("form")
+            .attr("class", "form-inline")
+            .append("div")
+            .attr("class", "form-group");
+        nElems.append("label").html(function (filter) {
+            return filter[QRY_FILTER_FIELD] + " "
+                + filterOpToStr(filter[QRY_FILTER_OP]) + " "
+                + filter[QRY_FILTER_VAL] + "&nbsp;&nbsp;";
+        });
+        nElems.append("a")
+            .attr("href", "#")
+            .text("(delete)")
+            .on("click", function (filter) {
+                Meteor.call("deleteFilterFromQuery", Queries.findOne()["_id"], filter)
+            });
+        elems.exit().remove();
+    }
+}
+
 Template.queryResults.events({
     "click #copyQueryBtn": function () {
         Meteor.call("copyQuery", Queries.findOne()["_id"], function (err, newId) {
@@ -12,6 +57,16 @@ Template.queryResults.events({
                 Router.go('/query/' + newId);
             }
         })
+    },
+    "click #modalDoneBtn": function () {
+        console.log("fd");
+        document.location.reload(true);
+    },
+    "click #addFilterBtn": function (evt, template) {
+        var field = template.find("#addFieldSelect").value;
+        var op = template.find("#addOpSelect").value;
+        var val = parseInt(template.find("#addValInput").value);
+        Meteor.call("addFilterToQuery", Queries.findOne()["_id"], field, op, val);
     }
 });
 
@@ -70,20 +125,12 @@ Template.queryResults.helpers({
     }
 });
 
-function filterOpToStr(str) {
-    if (str == MONGO_OPERATOR_EQ) {
-        return "==";
+function filterKey(filter) {
+    if (filter == null || filter == undefined) {
+        return "";
     }
-    if (str == MONGO_OPERATOR_GT) {
-        return ">";
-    }
-    if (str == MONGO_OPERATOR_LT) {
-        return "<";
-    }
-    if (str == MONGO_OPERATOR_GTE) {
-        return "≥";
-    }
-    if (str == MONGO_OPERATOR_LTE) {
-        return "≤";
-    }
+    return filter[QRY_FILTER_FIELD] + " "
+        + filterOpToStr(filter[QRY_FILTER_OP]) + " "
+        + filter[QRY_FILTER_VAL];
+
 }

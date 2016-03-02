@@ -54,6 +54,7 @@ Template.linearMap.onRendered(function () {
     initMap();
     updateFrame();
     Tracker.autorun(updateMarker);
+    Tracker.autorun(updateVisibleJunctions);
     Tracker.autorun(updateJunctions);
 });
 

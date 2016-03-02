@@ -2,6 +2,38 @@
     <body>
     {{> navbar}}
     <div class="container">
+        {{#if isCurrentUsers}}
+            <div class="modal" id="filterModel" data-keyboard="false" data-backdrop="static">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title">Edit Filters</h4>
+                        </div>
+                        <div class="modal-body" id="editFiltersBody">
+                            <ul id="currentFiltersList">
+                            </ul>
+                            <br>
+                            <hr>
+                            <div class="form form-group form-inline">
+                                <select class="form-control" id="addFieldSelect"></select>
+                                <select class="form-control" id="addOpSelect">
+                                    <option>&gt;</option>
+                                    <option>&ge;</option>
+                                    <option>&lt;</option>
+                                    <option>&le;</option>
+                                    <option>=</option>
+                                </select>
+                                <input type="text" size="6" class="form-control" id="addValInput">
+                                <button class="btn btn-default pull-right" id="addFilterBtn">Add Filter</button>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" id="modalDoneBtn">Done</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {{/if}}
         {{#if isError}}
             <div class="panel panel-warning">
                 <div class="panel-heading">
@@ -42,8 +74,6 @@
                         <br>
                         <row>
                             {{#if isCurrentUsers}}
-                                <br>
-                                <i class="col-xs-12">This query is yours</i>
                             {{else}}
                                 {{#if isLoggedIn}}
                                     <i class="btn btn-link" id="copyQueryBtn">Copy query to your account</i>
@@ -53,10 +83,16 @@
                     </div>
                     <row>
                         <div class="col-md-6">
-                            <strong class="col-xs-3">Filters</strong>
+                            <div class="col-xs-3"><strong>Filters</strong>{{#if isCurrentUsers}}
+                                (<a href="#" id="editFiltersBtn"
+                                    data-toggle="modal"
+                                    data-target="#filterModel">Edit</a>)
+                            {{/if}}
+                            </div>
                             <br>
                             <div class="col-xs-9">
                                 {{{filterSummary}}}
+
                             </div>
                         </div>
                     </row>

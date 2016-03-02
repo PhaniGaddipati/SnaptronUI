@@ -29,11 +29,8 @@ Meteor.methods({
         //Assemble filters
         var filters = [];
         for (var i = 0; i < filterFields.length; i++) {
-            var filter = {};
-            if (!isNaN(filterVals[i])) {
-                filter[QRY_FILTER_FIELD] = filterFields[i];
-                filter[QRY_FILTER_OP] = getOpFromOptionStr(filterOpStrs[i]);
-                filter[QRY_FILTER_VAL] = filterVals[i];
+            var filter = getFilterFromFields(filterFields[i], filterOpStrs[i], filterVals[i]);
+            if (filter != null) {
                 filters.push(filter);
             }
         }
@@ -48,6 +45,17 @@ Meteor.methods({
         var id = insertQuery(newQuery);
         console.log("Copied query " + queryId + " to " + id + " for user " + Meteor.userId());
         return id;
+    },
+
+    "deleteFilterFromQuery": function (queryId, filter) {
+        if (isQueryCurrentUsers(queryId)) {
+            removeQueryFilter(queryId, filter);
+        }
+    },
+    "addFilterToQuery": function (queryId, field, opStr, filter) {
+        if (isQueryCurrentUsers(queryId)) {
+            addQueryFilter(queryId, field, opStr, filter);
+        }
     }
 });
 
@@ -143,11 +151,8 @@ addQueryFilter = function (queryId, field, opStr, val) {
     check(opStr, String);
     check(val, Number);
 
-    if (!isNaN(val)) {
-        var filterDoc = {};
-        filterDoc[QRY_FILTER_FIELD] = field;
-        filterDoc[QRY_FILTER_OP] = getOpFromOptionStr(opStr);
-        filterDoc[QRY_FILTER_VAL] = val;
+    var filterDoc = getFilterFromFields(field, opStr, val);
+    if (filterDoc != null) {
         var pushCmd = {};
         pushCmd[QRY_FILTERS] = filterDoc;
 
@@ -159,27 +164,17 @@ addQueryFilter = function (queryId, field, opStr, val) {
     return null;
 };
 
+removeQueryFilter = function (queryId, filter) {
+    check(queryId, String);
+    var pullCmd = {};
+    pullCmd[QRY_FILTERS] = filter;
+    var changed = Queries.update(queryId, {$pull: pullCmd});
+    if (changed > 0) {
+        return queryId;
+    }
+    return null;
+};
+
 isQueryCurrentUsers = function (queryId) {
     return getQuery(queryId)[QRY_OWNER] == Meteor.userId();
 };
-
-/**
- * Converts an operator string to the Mongo operator.
- * @param opStr
- * @returns {*}
- */
-function getOpFromOptionStr(opStr) {
-    switch (opStr) {
-        case '>':
-            return MONGO_OPERATOR_GT;
-        case '<':
-            return MONGO_OPERATOR_LT;
-        case '=':
-            return MONGO_OPERATOR_EQ;
-        case '≥':
-            return MONGO_OPERATOR_GTE;
-        case '≤':
-            return MONGO_OPERATOR_LTE;
-    }
-    return null;
-}
