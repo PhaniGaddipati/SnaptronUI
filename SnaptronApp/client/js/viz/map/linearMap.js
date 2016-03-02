@@ -9,7 +9,8 @@ var linearMapSelectedJunction = null;
 var colorByScale;
 var colorByKey = null;
 
-Session.setDefault("numCurrentlyVisible", 0);
+var numJnctsVisible = new ReactiveVar(0);
+var markerX = new ReactiveVar(-1);
 
 Template.linearMap.events({
     "click .resetView": function () {
@@ -40,7 +41,7 @@ Template.linearMap.events({
 
 Template.linearMap.helpers({
     "currentlyVisible": function () {
-        return Session.get("numCurrentlyVisible") + " Junctions Currently Visible";
+        return numJnctsVisible.get() + " Junctions Currently Visible";
     }
 });
 
@@ -94,10 +95,15 @@ function updateMap() {
         .attr("preserveAspectRatio", "xMinYMin meet")
         .attr("viewBox", "0 0 " + SnapApp.Map.VIEWBOX_W + " " + SnapApp.Map.VIEWBOX_H)
         .classed("svg-content-responsive", true)
-        .on("mouseout", removeMouseMarker)
-        .on("mousemove", updateMouseMarker)
+        .on("mouseout", function () {
+            markerX.set(-1)
+        })
+        .on("mousemove", function () {
+            markerX.set(d3.mouse(this)[0]);
+        })
         .call(zoom);
 
+    Tracker.autorun(updateMarker);
     updateFrame();
     updateJunctions();
 }
@@ -132,7 +138,7 @@ function updateJunctions() {
         .on("mouseover", onJunctionMouseOver);
     // Remove no longer visible
     selection.exit().remove();
-    Session.set("numCurrentlyVisible", visibleJunctions.length);
+    numJnctsVisible.set(visibleJunctions.length);
 }
 
 function junctionPath(jnct) {
@@ -248,65 +254,63 @@ function getJunctionColor(jnct) {
     return colorByScale(jnct[colorByKey]);
 }
 
-addMouseMarker = function () {
-    var marker = d3.select("g.mousemarker");
-    if (marker.empty()) {
-        marker = d3.select(".junctionmap").append("g").attr("class", "mousemarker");
-        // Marker line
-        marker.append("line")
-            .attr("class", "markerline")
-            .attr("x1", 0)
-            .attr("y1", 0)
-            .attr("x2", 0)
-            .attr("y2", SnapApp.Map.VIEWBOX_H)
-            .attr("style", SnapApp.Map.MARKER_LINE_STYLE)
-            .attr("pointer-events", "none");
-        var label = marker.append("g").attr("class", "markerlabel").attr("transform", "translate(0,0)");
-        //Label box and text
-        label.append("rect")
-            .attr("class", "markerlabelbox")
-            .attr("x", 5)
-            .attr("y", 0)
-            .attr("rx", 5)
-            .attr("ry", 5)
-            .attr("width", 10)
-            .attr("height", SnapApp.Map.MARKER_LABEL_HEIGHT)
-            .attr("pointer-events", "none")
-            .attr("style", SnapApp.Map.MARKER_LABEL_STYLE);
-        label.append("text")
-            .attr("class", "markerlabeltext")
-            .attr("pointer-events", "none")
-            .attr("x", 10)
-            .attr("y", SnapApp.Map.MARKER_LABEL_HEIGHT / 2 + 5);
-    }
-};
-
-removeMouseMarker = function () {
-    d3.selectAll("g.mousemarker").remove();
-};
-
-updateMouseMarker = function () {
-    addMouseMarker();
-    var coords = d3.mouse(this);
-    coords[0] = Math.max(coords[0], 0);
-    coords[0] = Math.min(coords[0], SnapApp.Map.VIEWBOX_W);
-    var marker = d3.select("g.mousemarker");
-    marker.attr("transform", "translate(" + coords[0] + ",0)");
-    var markerLabel = marker.select(".markerlabel");
-    var label = markerLabel.select(".markerlabelbox");
-    var text = markerLabel.select(".markerlabeltext");
-    text.text(function () {
-        return numberWithCommas(parseInt(linearMapXScale.invert(coords[0])));
+function updateMarker() {
+    var markerG = d3.select(".junctionmap")
+        .selectAll("#mousemarker").data([0]);
+    markerG.enter().append("g")
+        .attr("id", "mousemarker");
+    markerG.attr("visibility", function () {
+        if (markerX.get() == -1) {
+            return "hidden";
+        }
+        return "visible";
     });
+    // Marker line
+    var markerLine = markerG.selectAll("#markerline")
+        .data([0]).enter()
+        .append("line")
+        .attr("id", "markerline")
+        .attr("x1", 0)
+        .attr("y1", 0)
+        .attr("x2", 0)
+        .attr("y2", SnapApp.Map.VIEWBOX_H)
+        .attr("style", SnapApp.Map.MARKER_LINE_STYLE)
+        .attr("pointer-events", "none");
+    var label = markerG.selectAll("#markerlabel").data([0]);
+    label.enter()
+        .append("g").attr("id", "markerlabel").attr("transform", "translate(0,0)");
+    //Label box and text
+    var labelbox = label.selectAll("#markerlabelbox").data([0])
+    labelbox.enter()
+        .append("rect")
+        .attr("id", "markerlabelbox")
+        .attr("x", 5)
+        .attr("y", 0)
+        .attr("rx", 5)
+        .attr("ry", 5)
+        .attr("width", 10)
+        .attr("height", SnapApp.Map.MARKER_LABEL_HEIGHT)
+        .attr("pointer-events", "none")
+        .attr("style", SnapApp.Map.MARKER_LABEL_STYLE);
+    var text = label.selectAll("#markerlabeltext").data([0]);
+    text.enter().append("text")
+        .attr("id", "markerlabeltext")
+        .attr("pointer-events", "none")
+        .attr("x", 10)
+        .attr("y", SnapApp.Map.MARKER_LABEL_HEIGHT / 2 + 5);
 
-    var w = text.node().getBBox().width;
+    markerG.attr("transform", "translate(" + markerX.get() + ",0)");
+    text.text(function () {
+        return numberWithCommas(parseInt(linearMapXScale.invert(markerX.get())));
+    });
+    var w = d3.select("#markerlabeltext").node().getBBox().width;
     var xOffset = -10 - w / 2;
-    if (coords[0] - w - 50 <= 0) {
+    if (markerX.get() - w - 50 <= 0) {
         //Goes offscreen, go to other side of line
         xOffset = 0;
-    } else if (coords[0] + w + 50 >= SnapApp.Map.VIEWBOX_W) {
+    } else if (markerX.get() + w + 50 >= SnapApp.Map.VIEWBOX_W) {
         xOffset -= w / 2 + 10;
     }
-    markerLabel.transition().attr("transform", "translate (" + xOffset + ",0)");
-    label.attr("width", w + 10);
-};
+    label.attr("transform", "translate (" + xOffset + ",0)");
+    labelbox.attr("width", w + 10);
+}

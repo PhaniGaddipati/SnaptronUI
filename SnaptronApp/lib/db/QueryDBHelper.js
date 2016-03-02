@@ -73,9 +73,9 @@ newQuery = function (regionIds, filters) {
 
     var queryDoc = {};
     if (regionIds == null) {
-        queryDoc[QUERY_REGIONS] = [];
+        queryDoc[QRY_REGIONS] = [];
     } else {
-        queryDoc[QUERY_REGIONS] = regionIds;
+        queryDoc[QRY_REGIONS] = regionIds;
     }
     if (filters == null) {
         queryDoc[QRY_FILTERS] = [];
@@ -100,7 +100,7 @@ addQueryRegion = function (queryId, regionId) {
     check(regionId, String);
 
     var pushCmd = {};
-    pushCmd[QUERY_REGIONS] = regionId;
+    pushCmd[QRY_REGIONS] = regionId;
 
     var changed = Queries.update({"_id": queryId}, {$push: pushCmd});
     if (changed > 0) {
