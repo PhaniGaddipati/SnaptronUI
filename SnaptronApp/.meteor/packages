@@ -26,3 +26,5 @@ momentjs:moment
 aslagle:reactive-table
 fortawesome:fontawesome
 reactive-var
+accounts-password
+accounts-ui

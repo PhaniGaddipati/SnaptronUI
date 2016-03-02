@@ -20,26 +20,32 @@
                 <row>
                     <div class="col-md-6">
                         <row>
-                            <strong class="col-xs-3">Regions</strong>
-                            <div class="col-xs-9">
+                            <strong class="col-xs-4">Regions</strong>
+                            <div class="col-xs-8">
                                 {{regions}}
                             </div>
                         </row>
                         <br>
                         <row>
-                            <strong class="col-xs-3">Junctions</strong>
-                            <div class="col-xs-9">
+                            <strong class="col-xs-4">Junctions</strong>
+                            <div class="col-xs-8">
                                 {{numJunctions}}
                             </div>
                         </row>
                         <br>
                         <row>
-                            <strong class="col-xs-3">Query&nbsp;Date</strong>
-                            <div class="col-xs-9">
+                            <strong class="col-xs-4">Query&nbsp;Date</strong>
+                            <div class="col-xs-8">
                                 {{queryDate}}
                             </div>
                         </row>
                         <br>
+                        {{#if isCurrentUsers}}
+                            <br>
+                            <row>
+                                <i class="col-xs-12">This query is yours</i>
+                            </row>
+                        {{/if}}
                     </div>
                     <row>
                         <div class="col-md-6">

@@ -48,6 +48,9 @@ Template.queryResults.helpers({
             return "Failed to load the regions \"" + badRegions.join("\", \"") + "\". Check that the entry is correct.";
         }
         return "Failed to load the region \"" + badRegions[0] + "\". Check that the entry is correct.";
+    },
+    isCurrentUsers: function () {
+        return isQueryCurrentUsers(Queries.findOne()["_id"]);
     }
 });
 

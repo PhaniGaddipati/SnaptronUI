@@ -64,6 +64,8 @@ findQuery = function (queryId) {
 
 /**
  * Inserts a new query with the given regions and filters, returns the generated ID.
+ * The currently logged in user is assigned as the owner.
+ *
  * @param regionIds
  * @param filters
  * @returns {820|1027|*|any}
@@ -84,7 +86,10 @@ newQuery = function (regionIds, filters) {
         queryDoc[QRY_FILTERS] = filters;
     }
     queryDoc[QRY_CREATED_DATE] = new Date();
-    return Queries.insert(queryDoc);
+    queryDoc[QRY_OWNER] = Meteor.userId();
+    var id = Queries.insert(queryDoc);
+    addQueryToUser(Meteor.userId(), id);
+    return id;
 };
 
 /**
@@ -139,6 +144,10 @@ addQueryFilter = function (queryId, field, opStr, val) {
         }
     }
     return null;
+};
+
+isQueryCurrentUsers = function (queryId) {
+    return getQuery(queryId)[QRY_OWNER] == Meteor.userId();
 };
 
 /**
