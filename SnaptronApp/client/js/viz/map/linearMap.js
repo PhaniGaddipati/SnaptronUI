@@ -6,18 +6,18 @@ var linearMapXAxis;
 var zoom = null;
 var linearMapSelectedJunction = null;
 
-var colorByScale;
+var colorByScale = new ReactiveVar();
 var colorByKey = null;
 
-var numJnctsVisible = new ReactiveVar(0);
 var markerX = new ReactiveVar(-1);
+var visibleJunctions = new ReactiveVar([]);
 
 Template.linearMap.events({
     "click .resetView": function () {
         if (zoom != null) {
             zoom.scale(1);
             zoom.translate([0, 0]);
-            onZoom();
+            updateFrame();
         }
     },
     "click #colorBySelect": function (event, template) {
@@ -33,7 +33,8 @@ Template.linearMap.events({
             colorLog = false;
             colorByKey = selected;
         }
-        colorByScale = updateColorScale(colorByKey, colorLog, getVisibleJunctions());
+        colorByScale.set(updateColorScale(colorByKey, colorLog, visibleJunctions.get()));
+        //Force redraw
         d3.select(".junctionmap").selectAll(".jnct").remove();
         updateJunctions();
     }
@@ -41,17 +42,20 @@ Template.linearMap.events({
 
 Template.linearMap.helpers({
     "currentlyVisible": function () {
-        return numJnctsVisible.get() + " Junctions Currently Visible";
+        return visibleJunctions.get().length + " Junctions Currently Visible";
     }
 });
 
 Template.linearMap.onRendered(function () {
     colorByKey = null;
-    updateMap();
-    updateControls();
+    initControls();
+    initMap();
+    updateFrame();
+    Tracker.autorun(updateMarker);
+    Tracker.autorun(updateJunctions);
 });
 
-function updateControls() {
+function initControls() {
     // Update color-by option
     var numKeys = getJunctionNumberKeys();
     var options = ["None"].concat(getJunctionBoolKeys().concat(numKeys));
@@ -75,7 +79,7 @@ function updateControls() {
         });
 }
 
-function updateMap() {
+function initMap() {
     var junctions = Junctions.find().fetch();
     var _limits = getLimits(junctions);
     var start = _limits.start;
@@ -86,7 +90,7 @@ function updateMap() {
     zoom = d3.behavior.zoom()
         .x(linearMapXScale)
         .scaleExtent([1, Infinity])
-        .on("zoom", onZoom);
+        .on("zoom", updateFrame);
 
     var svg = d3.select(".svg-container").classed("svg-container", true)
         .selectAll('svg').data([0])
@@ -102,27 +106,22 @@ function updateMap() {
             markerX.set(d3.mouse(this)[0]);
         })
         .call(zoom);
-
-    Tracker.autorun(updateMarker);
-    updateFrame();
-    updateJunctions();
 }
 
-function getVisibleJunctions() {
+function updateVisibleJunctions() {
     var leftLim = linearMapXScale.invert(0);
     var rightLim = linearMapXScale.invert(SnapApp.Map.VIEWBOX_W);
     var minLength = linearMapXScale.invert(SnapApp.Map.MIN_DISPLAY_LENGTH_PX) - leftLim;
-    return Junctions.find({
+    visibleJunctions.set(Junctions.find({
         start: {"$gte": leftLim},
         end: {"$lte": rightLim},
         length: {"$gte": minLength}
-    }).fetch();
+    }).fetch());
 }
 
 function updateJunctions() {
-    var visibleJunctions = getVisibleJunctions();
     var selection = d3.select(".junctionmap").selectAll(".jnct")
-        .data(visibleJunctions, getKeyForJunction);
+        .data(visibleJunctions.get(), getKeyForJunction);
     // Update
     selection.attr("d", junctionPath);
     // Add newly visisble
@@ -138,7 +137,6 @@ function updateJunctions() {
         .on("mouseover", onJunctionMouseOver);
     // Remove no longer visible
     selection.exit().remove();
-    numJnctsVisible.set(visibleJunctions.length);
 }
 
 function junctionPath(jnct) {
@@ -193,6 +191,7 @@ function updateFrame() {
             - SnapApp.Map.MID_AXIS_Y_OFF / 2)
         .attr("width", SnapApp.Map.VIEWBOX_W)
         .attr("height", SnapApp.Map.MID_AXIS_Y_OFF).attr("fill", "#000000");
+    updateVisibleJunctions();
 }
 
 function getLimits(junctions) {
@@ -212,12 +211,6 @@ function getLimits(junctions) {
     }
     return {start: start, stop: stop};
 }
-function onZoom() {
-    d3.select(".xaxis").call(linearMapXAxis);
-    updateJunctions();
-    updateFrame();
-}
-
 
 function getKeyForJunction(jnct) {
     if (jnct == null) {
@@ -251,7 +244,7 @@ function getJunctionColor(jnct) {
         return jnct[colorByKey] ? SnapApp.Map.JNCT_BOOL_TRUE_COLOR
             : SnapApp.Map.JNCT_NORMAL_COLOR;
     }
-    return colorByScale(jnct[colorByKey]);
+    return colorByScale.get()(jnct[colorByKey]);
 }
 
 function updateMarker() {
