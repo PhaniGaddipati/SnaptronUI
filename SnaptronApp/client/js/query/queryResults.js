@@ -44,6 +44,13 @@ function updateFilterDialog() {
                 Meteor.call("deleteFilterFromQuery", Queries.findOne()["_id"], filter)
             });
         elems.exit().remove();
+
+        d3.select("#noFilterDiv").select("#noFilterText").remove();
+        if (filters.length == 0) {
+            d3.select("#noFilterDiv").append("p")
+                .attr("id", "noFilterText")
+                .text("No filters currently applied");
+        }
     }
 }
 
