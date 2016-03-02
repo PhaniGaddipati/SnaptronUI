@@ -12,7 +12,7 @@ var colorByKey = null;
 Session.setDefault("numCurrentlyVisible", 0);
 
 Template.linearMap.events({
-    "click .resetView": function (event, template) {
+    "click .resetView": function () {
         if (zoom != null) {
             zoom.scale(1);
             zoom.translate([0, 0]);
@@ -106,12 +106,11 @@ function getVisibleJunctions() {
     var leftLim = linearMapXScale.invert(0);
     var rightLim = linearMapXScale.invert(SnapApp.Map.VIEWBOX_W);
     var minLength = linearMapXScale.invert(SnapApp.Map.MIN_DISPLAY_LENGTH_PX) - leftLim;
-    var visibleJunctions = Junctions.find({
+    return Junctions.find({
         start: {"$gte": leftLim},
         end: {"$lte": rightLim},
         length: {"$gte": minLength}
     }).fetch();
-    return visibleJunctions;
 }
 
 function updateJunctions() {
