@@ -20,7 +20,8 @@ Template.junctionTable.helpers({
 
         return {
             "showColumnToggles": true,
-            "fields": fields
+            "fields": fields,
+            "showFilter": false
         };
     }
 });
