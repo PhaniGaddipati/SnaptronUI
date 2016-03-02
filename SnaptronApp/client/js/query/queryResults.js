@@ -2,6 +2,19 @@
  * Created by Phani on 2/14/2016.
  */
 
+Template.queryResults.events({
+    "click #copyQueryBtn": function () {
+        Meteor.call("copyQuery", Queries.findOne()["_id"], function (err, newId) {
+            if (err != null) {
+                console.warn(err.message);
+                //TODO UI error mesage
+            } else {
+                Router.go('/query/' + newId);
+            }
+        })
+    }
+});
+
 Template.queryResults.helpers({
     regions: function () {
         var regions = Queries.findOne()[QRY_REGIONS];
@@ -51,6 +64,9 @@ Template.queryResults.helpers({
     },
     isCurrentUsers: function () {
         return isQueryCurrentUsers(Queries.findOne()["_id"]);
+    },
+    isLoggedIn: function () {
+        return Meteor.userId() != null;
     }
 });
 

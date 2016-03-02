@@ -40,12 +40,16 @@
                             </div>
                         </row>
                         <br>
-                        {{#if isCurrentUsers}}
-                            <br>
-                            <row>
+                        <row>
+                            {{#if isCurrentUsers}}
+                                <br>
                                 <i class="col-xs-12">This query is yours</i>
-                            </row>
-                        {{/if}}
+                            {{else}}
+                                {{#if isLoggedIn}}
+                                    <i class="btn btn-link" id="copyQueryBtn">Copy query to your account</i>
+                                {{/if}}
+                            {{/if}}
+                        </row>
                     </div>
                     <row>
                         <div class="col-md-6">

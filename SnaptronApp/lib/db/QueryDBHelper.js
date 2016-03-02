@@ -40,6 +40,14 @@ Meteor.methods({
 
         //Attempt insert
         return newQuery(regions, filters);
+    },
+    "copyQuery": function (queryId) {
+        var newQuery = getQuery(queryId);
+        delete newQuery["_id"];
+        delete newQuery[QRY_OWNER];
+        var id = insertQuery(newQuery);
+        console.log("Copied query " + queryId + " to " + id + " for user " + Meteor.userId());
+        return id;
     }
 });
 
@@ -85,6 +93,11 @@ newQuery = function (regionIds, filters) {
     else {
         queryDoc[QRY_FILTERS] = filters;
     }
+
+    return insertQuery(queryDoc);
+};
+
+insertQuery = function (queryDoc) {
     queryDoc[QRY_CREATED_DATE] = new Date();
     queryDoc[QRY_OWNER] = Meteor.userId();
     var id = Queries.insert(queryDoc);
