@@ -35,7 +35,7 @@ Template.linearMap.events({
             colorLog = false;
             colorByKey = selected;
         }
-        colorByScale.set(updateColorScale(colorByKey, colorLog, visibleJunctions.get()));
+        colorByScale.set(updateColorScale(colorByKey, colorLog, Junctions.find().fetch()));
         //Force redraw
         d3.select(".junctionmap").selectAll(".jnct").remove();
         updateJunctions();
