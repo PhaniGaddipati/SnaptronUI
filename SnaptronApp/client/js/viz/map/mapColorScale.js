@@ -60,5 +60,17 @@ function updateBar(colorScale) {
         .attr("x", function (d) {
             return d - 1;
         })
-        .attr("y", 5);
+        .attr("y", 5)
+        .on("mouseover", function (d) {
+            svg.selectAll("text")
+                .text(function () {
+                    var domain = colorScale.domain();
+                    return parseInt(d * ((domain[1] - domain[0]) / 100) + domain[0]);
+                });
+        });
+    svg.append("text")
+        .attr("font-size", 3)
+        .attr("x", "1")
+        .attr("y", "11")
+        .text("");
 }
