@@ -4,7 +4,8 @@
 var linearMapXScale;
 var linearMapXAxis;
 var zoom = null;
-var linearMapSelectedJunction = null;
+var highlightedJnct = new ReactiveVar(null, jnctsEqual);
+var linearMapSelectedJunction = new ReactiveVar(null, jnctsEqual);
 
 var colorByScale = new ReactiveVar();
 var colorByKey = null;
@@ -128,13 +129,13 @@ function updateJunctions() {
     selection.enter()
         .append("path")
         .attr("class", "jnct")
-        .attr("stroke", getJunctionColor)
         .attr("fill", "none")
-        .attr("stroke-width", SnapApp.Map.JNCT_NORMAL_WIDTH)
         .attr("pointer-events", "visiblePainted")
         .attr("d", junctionPath)
         .on("click", onJunctionMouseClick)
         .on("mouseover", onJunctionMouseOver);
+    selection.attr("stroke", getJunctionColor)
+        .attr("stroke-width", getJunctionWidth);
     // Remove no longer visible
     selection.exit().remove();
 }
@@ -220,23 +221,19 @@ function getKeyForJunction(jnct) {
 }
 
 function onJunctionMouseOver(jnct) {
-    d3.selectAll(".jnct")
-        .attr("stroke-width", SnapApp.Map.JNCT_NORMAL_WIDTH)
-        .attr("stroke", getJunctionColor)
-        .data([jnct], getKeyForJunction)
-        .attr("stroke-width", SnapApp.Map.JNCT_HIGHLIGHTED_WIDTH)
-        .attr("stroke", SnapApp.Map.JNCT_HIGHLIGHT_COLOR);
-    d3.selectAll(".jnct")
-        .data([linearMapSelectedJunction], getKeyForJunction)
-        .attr("stroke", SnapApp.Map.JNCT_SELECTED_COLOR)
-        .attr("stroke-width", SnapApp.Map.JNCT_SELECTED_WIDTH);
+    highlightedJnct.set(jnct);
 }
 function onJunctionMouseClick(jnct) {
-    linearMapSelectedJunction = jnct;
-    onJunctionMouseOver(jnct);
+    linearMapSelectedJunction.set(jnct);
 }
 
 function getJunctionColor(jnct) {
+    if (linearMapSelectedJunction.get() == jnct) {
+        return SnapApp.Map.JNCT_SELECTED_COLOR;
+    }
+    if (highlightedJnct.get() == jnct) {
+        return SnapApp.Map.JNCT_HIGHLIGHT_COLOR;
+    }
     if (colorByKey == null) {
         return SnapApp.Map.JNCT_NORMAL_COLOR;
     }
@@ -245,6 +242,16 @@ function getJunctionColor(jnct) {
             : SnapApp.Map.JNCT_NORMAL_COLOR;
     }
     return colorByScale.get()(jnct[colorByKey]);
+}
+
+function getJunctionWidth(jnct) {
+    if (linearMapSelectedJunction.get() == jnct) {
+        return SnapApp.Map.JNCT_SELECTED_WIDTH;
+    }
+    if (highlightedJnct.get() == jnct) {
+        return SnapApp.Map.JNCT_HIGHLIGHTED_WIDTH;
+    }
+    return SnapApp.Map.JNCT_NORMAL_WIDTH;
 }
 
 function updateMarker() {
@@ -306,4 +313,14 @@ function updateMarker() {
     }
     label.attr("transform", "translate (" + xOffset + ",0)");
     labelbox.attr("width", w + 10);
+}
+
+function jnctsEqual(v1, v2) {
+    if ((v1 == null && v2 != null) || (v2 == null && v1 != null)) {
+        return false;
+    }
+    if (v1 == null && v2 == null) {
+        return true;
+    }
+    return v1["_id"] == v2["_id"];
 }
