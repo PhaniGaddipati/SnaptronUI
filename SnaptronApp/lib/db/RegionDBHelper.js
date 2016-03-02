@@ -41,7 +41,7 @@ hasRegion = function (regionId) {
 
 findRegionsForQuery = function (queryId) {
     check(queryId, String);
-    var regionIds = getQuery(queryId)[QUERY_REGIONS];
+    var regionIds = getQuery(queryId)[QRY_REGIONS];
     return Regions.find({
         "_id": {
             "$in": regionIds

@@ -22,7 +22,7 @@ const MAX_JUNCTIONS_PER_CALL = 100;
 updateQuery = function (queryId) {
     var query = getQuery(queryId);
     if (query) {
-        var regionIds = query[QUERY_REGIONS];
+        var regionIds = query[QRY_REGIONS];
         for (var i = 0; i < regionIds.length; i++) {
             if (!hasRegion(regionIds[i])) {
                 newRegion(regionIds[i]);
@@ -80,7 +80,7 @@ function updateRegion(regionId) {
         var headerElems = lines[lineNum].replace("#", "").split("\t");
         var idCol = -1;
         for (i = 0; i < headerElems.length; i++) {
-            if (headerElems[i] === JUNCTION_ID_FIELD) {
+            if (headerElems[i] === JNCT_ID_FIELD) {
                 idCol = i;
                 break;
             }

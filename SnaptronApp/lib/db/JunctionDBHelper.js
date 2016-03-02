@@ -2,8 +2,6 @@
  * Created by Phani on 2/26/2016.
  */
 
-JUNCTION_ID_FIELD = "snaptron_id";
-
 getJunctions = function (junctionIds) {
     check(junctionIds, [String]);
     return Junctions.find({
@@ -44,10 +42,10 @@ addJunctionsFromTSV = function (rawTSV) {
             var junctionDoc = {};
 
             for (var col = 0; col < elems.length; col++) {
-                if (headers[col] == JUNCTION_ID_FIELD) {
+                if (headers[col] == JNCT_ID_FIELD) {
                     junctionDoc["_id"] = elems[col];
                 } else {
-                    junctionDoc[headers[col]] = castMember(elems[col], JUNCTION_COLUMN_TYPES[headers[col]])
+                    junctionDoc[headers[col]] = castMember(elems[col], JNCT_COL_TYPES[headers[col]])
                 }
             }
 
@@ -68,7 +66,7 @@ findJunctionsForQuery = function (queryId) {
     check(queryId, String);
 
     var query = getQuery(queryId);
-    var queryRegions = getRegions(query[QUERY_REGIONS]);
+    var queryRegions = getRegions(query[QRY_REGIONS]);
     var queryJunctions = new Set();
 
     for (var i = 0; i < queryRegions.length; i++) {
@@ -78,7 +76,7 @@ findJunctionsForQuery = function (queryId) {
         }
     }
 
-    var filters = query[QUERY_FILTERS];
+    var filters = query[QRY_FILTERS];
     var selector = {
         "_id": {
             "$in": Array.from(queryJunctions)
@@ -88,9 +86,9 @@ findJunctionsForQuery = function (queryId) {
     // Add query filters to the selector
     for (i = 0; i < filters.length; i++) {
         var filterDoc = filters[i];
-        var field = filterDoc[QUERY_FILTER_FIELD];
-        var op = filterDoc[QUERY_FILTER_OP];
-        var val = filterDoc[QUERY_FILTER_VAL];
+        var field = filterDoc[QRY_FILTER_FIELD];
+        var op = filterDoc[QRY_FILTER_OP];
+        var val = filterDoc[QRY_FILTER_VAL];
 
         var restriction = {};
         restriction[op] = val;
@@ -126,10 +124,10 @@ function castMember(toCast, type) {
 }
 
 getJunctionNumberKeys = function () {
-    var keys = Object.keys(JUNCTION_COLUMN_TYPES);
+    var keys = Object.keys(JNCT_COL_TYPES);
     var numberKeys = [];
     for (var i = 0; i < keys.length; i++) {
-        var type = JUNCTION_COLUMN_TYPES[keys[i]];
+        var type = JNCT_COL_TYPES[keys[i]];
         if (type === "int" || type === "float") {
             numberKeys.push(keys[i])
         }
@@ -138,10 +136,10 @@ getJunctionNumberKeys = function () {
 };
 
 getJunctionBoolKeys = function () {
-    var keys = Object.keys(JUNCTION_COLUMN_TYPES);
+    var keys = Object.keys(JNCT_COL_TYPES);
     var boolKeys = [];
     for (var i = 0; i < keys.length; i++) {
-        var type = JUNCTION_COLUMN_TYPES[keys[i]];
+        var type = JNCT_COL_TYPES[keys[i]];
         if (type === "bool") {
             boolKeys.push(keys[i])
         }

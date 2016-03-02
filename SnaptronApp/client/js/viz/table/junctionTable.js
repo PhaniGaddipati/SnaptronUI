@@ -2,8 +2,6 @@
  * Created by Phani on 2/25/2016.
  */
 
-const DEFAULT_ENABLED_COLUMNS = ["_id", "chromosome", "start", "end", "length", "samples_count", "coverage_sum", "coverage_avg", "coverage_med"];
-
 Template.junctionTable.helpers({
     "junctionTableCollection": function () {
         return Junctions;
@@ -16,7 +14,7 @@ Template.junctionTable.helpers({
             fields.push({
                 key: tableColumns[i],
                 label: formatHeaderText(tableColumns[i]),
-                hidden: (DEFAULT_ENABLED_COLUMNS.indexOf(tableColumns[i]) == -1)
+                hidden: (SnapApp.Table.DEFAULT_ENABLED_COLS.indexOf(tableColumns[i]) == -1)
             });
         }
 

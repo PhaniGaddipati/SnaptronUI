@@ -73,8 +73,8 @@ function handleSubmitQuery(template) {
     Session.set("covMedOp", covMedOp);
 
     if (!Session.get("loadingQuery")) {
-        var filterFields = [QUERY_FILTER_LENGTH, QUERY_FILTER_SAMPLE_COUNT,
-            QUERY_FILTER_COV_SUM, QUERY_FILTER_COV_AVG, QUERY_FILTER_COV_MED];
+        var filterFields = [QRY_FILTER_LENGTH, QRY_FILTER_SAMPLE_COUNT,
+            QRY_FILTER_COV_SUM, QRY_FILTER_COV_AVG, QRY_FILTER_COV_MED];
         var filterOpts = [lengthOp, samplesOp, covSumOp, covAvgOp, covMedOp];
         var filterVals = [length, samples, covSum, covAvg, covMed];
         if (region != undefined && region != null && region.trim().length > 0) {

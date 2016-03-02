@@ -31,9 +31,9 @@ Meteor.methods({
         for (var i = 0; i < filterFields.length; i++) {
             var filter = {};
             if (!isNaN(filterVals[i])) {
-                filter[QUERY_FILTER_FIELD] = filterFields[i];
-                filter[QUERY_FILTER_OP] = getOpFromOptionStr(filterOpStrs[i]);
-                filter[QUERY_FILTER_VAL] = filterVals[i];
+                filter[QRY_FILTER_FIELD] = filterFields[i];
+                filter[QRY_FILTER_OP] = getOpFromOptionStr(filterOpStrs[i]);
+                filter[QRY_FILTER_VAL] = filterVals[i];
                 filters.push(filter);
             }
         }
@@ -78,12 +78,12 @@ newQuery = function (regionIds, filters) {
         queryDoc[QUERY_REGIONS] = regionIds;
     }
     if (filters == null) {
-        queryDoc[QUERY_FILTERS] = [];
+        queryDoc[QRY_FILTERS] = [];
     }
     else {
-        queryDoc[QUERY_FILTERS] = filters;
+        queryDoc[QRY_FILTERS] = filters;
     }
-    queryDoc[QUERY_CREATED_DATE] = new Date();
+    queryDoc[QRY_CREATED_DATE] = new Date();
     return Queries.insert(queryDoc);
 };
 
@@ -127,11 +127,11 @@ addQueryFilter = function (queryId, field, opStr, val) {
 
     if (!isNaN(val)) {
         var filterDoc = {};
-        filterDoc[QUERY_FILTER_FIELD] = field;
-        filterDoc[QUERY_FILTER_OP] = getOpFromOptionStr(opStr);
-        filterDoc[QUERY_FILTER_VAL] = val;
+        filterDoc[QRY_FILTER_FIELD] = field;
+        filterDoc[QRY_FILTER_OP] = getOpFromOptionStr(opStr);
+        filterDoc[QRY_FILTER_VAL] = val;
         var pushCmd = {};
-        pushCmd[QUERY_FILTERS] = filterDoc;
+        pushCmd[QRY_FILTERS] = filterDoc;
 
         var changed = Queries.update({"_id": queryId}, {$push: pushCmd});
         if (changed > 0) {
