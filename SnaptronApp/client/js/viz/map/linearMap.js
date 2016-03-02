@@ -4,8 +4,9 @@
 var linearMapXScale;
 var linearMapXAxis;
 var zoom = null;
-var highlightedJnct = new ReactiveVar(null, jnctsEqual);
-var linearMapSelectedJunction = new ReactiveVar(null, jnctsEqual);
+var highlightedJnctID = new ReactiveVar(null, jnctsEqual);
+var selectedJnctIDs = Session.get("selectedJnctIDs");
+var selectedJnctsDep = new Tracker.Dependency;
 
 var colorByScale = new ReactiveVar();
 var colorByKey = null;
@@ -133,7 +134,8 @@ function updateJunctions() {
         .attr("pointer-events", "visiblePainted")
         .attr("d", junctionPath)
         .on("click", onJunctionMouseClick)
-        .on("mouseover", onJunctionMouseOver);
+        .on("mouseover", onJunctionMouseOver)
+        .on("mouseout", onJunctionMouseOut);
     selection.attr("stroke", getJunctionColor)
         .attr("stroke-width", getJunctionWidth);
     // Remove no longer visible
@@ -221,17 +223,29 @@ function getKeyForJunction(jnct) {
 }
 
 function onJunctionMouseOver(jnct) {
-    highlightedJnct.set(jnct);
+    highlightedJnctID.set(jnct["_id"]);
 }
+function onJunctionMouseOut() {
+    highlightedJnctID.set(null);
+}
+
 function onJunctionMouseClick(jnct) {
-    linearMapSelectedJunction.set(jnct);
+    var index = selectedJnctIDs.indexOf(jnct["_id"]);
+    if (index > -1) {
+        selectedJnctIDs.splice(index, 1);
+    } else {
+        selectedJnctIDs.push(jnct["_id"]);
+    }
+    Session.set("selectedJnctIDs", selectedJnctIDs);
+    selectedJnctsDep.changed();
 }
 
 function getJunctionColor(jnct) {
-    if (linearMapSelectedJunction.get() == jnct) {
+    selectedJnctsDep.depend();
+    if (selectedJnctIDs.indexOf(jnct["_id"]) > -1) {
         return SnapApp.Map.JNCT_SELECTED_COLOR;
     }
-    if (highlightedJnct.get() == jnct) {
+    if (highlightedJnctID.get() == jnct["_id"]) {
         return SnapApp.Map.JNCT_HIGHLIGHT_COLOR;
     }
     if (colorByKey == null) {
@@ -245,10 +259,11 @@ function getJunctionColor(jnct) {
 }
 
 function getJunctionWidth(jnct) {
-    if (linearMapSelectedJunction.get() == jnct) {
+    selectedJnctsDep.depend();
+    if (selectedJnctIDs.indexOf(jnct["_id"]) > -1) {
         return SnapApp.Map.JNCT_SELECTED_WIDTH;
     }
-    if (highlightedJnct.get() == jnct) {
+    if (highlightedJnctID.get() == jnct["_id"]) {
         return SnapApp.Map.JNCT_HIGHLIGHTED_WIDTH;
     }
     return SnapApp.Map.JNCT_NORMAL_WIDTH;
