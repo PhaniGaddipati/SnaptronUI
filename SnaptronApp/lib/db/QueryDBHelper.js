@@ -38,6 +38,13 @@ Meteor.methods({
         //Attempt insert
         return newQuery(regions, filters);
     },
+
+    /**
+     * Copes the given query, such that the owner will
+     * reflect the current user (or null).
+     * @param queryId
+     * @returns The id of the newly created query
+     */
     "copyQuery": function (queryId) {
         var newQuery = getQuery(queryId);
         delete newQuery["_id"];
@@ -47,25 +54,61 @@ Meteor.methods({
         return id;
     },
 
+    /**
+     * If the owner is logged in, remove the given
+     * filter from the query
+     * @param queryId
+     * @param filter
+     * @returns queryId on success, null on failure
+     */
     "deleteFilterFromQuery": function (queryId, filter) {
         if (isQueryCurrentUsers(queryId)) {
-            removeQueryFilter(queryId, filter);
+            return removeQueryFilter(queryId, filter);
         }
+        return null;
     },
+
+    /**
+     * If the owner is logged in, add a filter with the given
+     * fields to the query.
+     *
+     * @param queryId
+     * @param field
+     * @param opStr
+     * @param filter
+     * @returns queryId on success, null on failure
+     */
     "addFilterToQuery": function (queryId, field, opStr, filter) {
         if (isQueryCurrentUsers(queryId)) {
-            addQueryFilter(queryId, field, opStr, filter);
+            return addQueryFilter(queryId, field, opStr, filter);
         }
+        return null;
     },
+
+    /**
+     * If the owner is logged in, add a region to the query.
+     * @param queryId
+     * @param regionId
+     * @returns queryId on success, null on failure
+     */
     "addRegionToQuery": function (queryId, regionId) {
         if (isQueryCurrentUsers(queryId)) {
-            addQueryRegion(queryId, regionId);
+            return addQueryRegion(queryId, regionId);
         }
+        return null;
     },
+
+    /**
+     * If the owner is logged in, remove a region by ID from the query.
+     * @param queryId
+     * @param regionId
+     * @returns queryId on success, null on failure
+     */
     "deleteRegionFromQuery": function (queryId, regionId) {
         if (isQueryCurrentUsers(queryId)) {
-            removeQueryRegion(queryId, regionId);
+            return removeQueryRegion(queryId, regionId);
         }
+        return null;
     }
 });
 
@@ -79,11 +122,21 @@ getQuery = function (queryId) {
     return Queries.findOne({"_id": queryId});
 };
 
+/**
+ * Checks whether the queryId exists.
+ * @param queryId
+ * @returns {boolean} whether the queryId was found
+ */
 hasQuery = function (queryId) {
     check(queryId, String);
     return Queries.find({"_id": queryId}, {"limit": 1}).count() > 0;
 };
 
+/**
+ * Finds a query by ID, and returns the cursor.
+ * @param queryId
+ * @returns {*|DOMElement|{}|5625|any|Mongo.Cursor}
+ */
 findQuery = function (queryId) {
     return Queries.find({"_id": queryId});
 };
@@ -115,6 +168,16 @@ newQuery = function (regionIds, filters) {
     return insertQuery(queryDoc);
 };
 
+/**
+ * Inserts a query into the collection. Before inserting,
+ * the created date is set as now, and the owner is set as the
+ * currently logged in user.
+ *
+ * Additionally, the queryId is added to the current user.
+ *
+ * @param queryDoc
+ * @returns {820|1027|*} The newly inserted query ID
+ */
 insertQuery = function (queryDoc) {
     queryDoc[QRY_CREATED_DATE] = new Date();
     queryDoc[QRY_OWNER] = Meteor.userId();
@@ -145,6 +208,12 @@ addQueryRegion = function (queryId, regionId) {
     return null; //Nothing changed
 };
 
+/**
+ * Removes a region by ID from the given query.
+ * @param queryId
+ * @param regionId
+ * @returns {*} queryId on success, null on failure
+ */
 removeQueryRegion = function (queryId, regionId) {
     check(regionId, String);
     var pullCmd = {};
@@ -185,6 +254,12 @@ addQueryFilter = function (queryId, field, opStr, val) {
     return null;
 };
 
+/**
+ * Removes a filter from the given query.
+ * @param queryId
+ * @param filter
+ * @returns {*} queryId on success, null on failure
+ */
 removeQueryFilter = function (queryId, filter) {
     check(queryId, String);
     var pullCmd = {};
@@ -196,6 +271,76 @@ removeQueryFilter = function (queryId, filter) {
     return null;
 };
 
+/**
+ * Adds a new group of junctions to the query.
+ *
+ * @param queryId
+ * @param groupName
+ * @param junctions
+ * @returns {*} The new groupId
+ */
+addGroupToQuery = function (queryId, groupName, junctions) {
+    check(queryId, String);
+    check(groupName, String);
+    check(junctions, [String]);
+
+    var groupDoc = {};
+    groupDoc["_id"] = new Meteor.Collection.ObjectID().valueOf();
+    groupDoc[QRY_GROUP_NAME] = groupName;
+    groupDoc[QRY_GROUP_JNCTS] = junctions;
+
+    var pushCmd = {};
+    pushCmd[QRY_GROUPS] = groupDoc;
+
+    var changed = Queries.update(queryId, {$push: pushCmd});
+    if (changed > 0) {
+        return groupDoc["_id"];
+    }
+    return null;
+};
+
+/**
+ * Removes the given group by ID from the query.
+ * @param queryId
+ * @param groupId
+ * @returns {*}
+ */
+removeGroupFromQuery = function (queryId, groupId) {
+    check(queryId, String);
+    check(groupId, String);
+
+    var pullCmd = {};
+    pullCmd[QRY_GROUPS] = {"_id": groupId};
+
+    var changed = Queries.update(queryId, {$pull: pullCmd});
+    if (changed > 0) {
+        return queryId;
+    }
+    return null;
+};
+
+/**
+ * Returns all groups in an array from the given query.
+ * @param queryId
+ * @returns {*}
+ */
+getGroupsFromQuery = function (queryId) {
+    check(queryId, String);
+    var query = getQuery(queryId);
+    if (query == null) {
+        return null;
+    }
+
+    return query[QRY_GROUPS];
+};
+
+/**
+ * Checks whether the logged in user is the owner for the given query.
+ * If nobody is logged in, this will always return false.
+ *
+ * @param queryId
+ * @returns {boolean} Whether the current user is the owner
+ */
 isQueryCurrentUsers = function (queryId) {
     if (Meteor.userId() == null) {
         return false;
