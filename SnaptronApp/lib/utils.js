@@ -54,3 +54,13 @@ getFilterFromFields = function (field, opStr, val) {
         return filter;
     }
 };
+
+filterKey = function (filter) {
+    if (filter == null || filter == undefined) {
+        return "";
+    }
+    return filter[QRY_FILTER_FIELD] + " "
+        + filterOpToStr(filter[QRY_FILTER_OP]) + " "
+        + filter[QRY_FILTER_VAL];
+
+};
