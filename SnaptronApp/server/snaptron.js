@@ -128,21 +128,19 @@ function loadMissingRegionJunctions(regionId) {
         }
     }
     if (toLoadJunctionIDs.length > 0) {
-        console.log("Found " + toLoadJunctionIDs.length + " junctions to load (\"" + regionId + "\")");
-    }
-    try {
-        for (i = 0; i < toLoadJunctionIDs.length; i += MAX_JUNCTIONS_PER_CALL) {
-            var idBatch = toLoadJunctionIDs.slice(i, i + MAX_JUNCTIONS_PER_CALL);
-            console.log("Loading junctions " + i + "-" + (i + idBatch.length - 1) + " for region " + regionId);
-            var snaptronQuery = "?ids=snaptron:" + idBatch.join(",");
-            var responseTSV = Meteor.http.get(URL + snaptronQuery).content.trim();
+        console.log("Loading " + toLoadJunctionIDs.length + " junctions for region (\"" + regionId + "\")");
+        try {
+            var snaptronQuery = "\"[{\"snaptron_id\":[\"" + toLoadJunctionIDs.join("\",\"") + "\"]}]\"";
+            var params = {"fields": snaptronQuery};
+            var responseTSV = Meteor.http.post(URL, {params: params}).content.trim();
             addJunctionsFromTSV(responseTSV);
+            return regionId;
+        } catch (err) {
+            console.error("Error in loadMissingRegionJunctions with region " + regionId);
+            console.error(err);
+            return null;
         }
-        return regionId;
-    } catch (err) {
-        console.error("Error in loadMissingRegionJunctions with region " + regionId);
-        console.error(err);
-        return null;
     }
+    return regionId;
 }
 
