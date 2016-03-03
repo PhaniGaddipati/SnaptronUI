@@ -185,5 +185,8 @@ removeQueryFilter = function (queryId, filter) {
 };
 
 isQueryCurrentUsers = function (queryId) {
+    if (Meteor.userId() == null) {
+        return false;
+    }
     return getQuery(queryId)[QRY_OWNER] == Meteor.userId();
 };

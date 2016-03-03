@@ -36,13 +36,10 @@
             </div>
         {{/if}}
         {{#if isError}}
-            <div class="panel panel-warning">
-                <div class="panel-heading">
-                    <h2 class="panel-title"><i>Warning</i></h2>
-                </div>
-                <div class="panel-body">
-                    {{errorMessage}}
-                </div>
+            <div class="alert alert-dismissible alert-warning">
+                <button type="button" class="close" data-dismiss="alert">&#10006;</button>
+                <h4>Warning!</h4>
+                {{errorMessage}}
             </div>
         {{/if}}
         <div class="panel panel-info">
@@ -78,6 +75,9 @@
                             {{else}}
                                 {{#if isLoggedIn}}
                                     <i class="btn btn-link" id="copyQueryBtn">Copy query to your account</i>
+                                {{else}}
+                                    <br>
+                                    <i>Sign in to edit queries</i>
                                 {{/if}}
                             {{/if}}
                         </row>

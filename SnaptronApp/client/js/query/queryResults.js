@@ -79,8 +79,8 @@ Template.queryResults.events({
 
 Template.queryResults.helpers({
     regions: function () {
-        var regions = Queries.findOne()[QRY_REGIONS];
-        return regions.join(", ").toUpperCase();
+        var regionIds = Queries.findOne()[QRY_REGIONS];
+        return regionIds.join(", ").toUpperCase();
     },
     numJunctions: function () {
         return Junctions.find({}).count();
@@ -103,9 +103,10 @@ Template.queryResults.helpers({
         return summary;
     },
     isError: function () {
-        var regions = Regions.find().fetch();
-        for (var i = 0; i < regions.length; i++) {
-            if (regions[i][REGION_LOADED_DATE] == null) {
+        var regionIds = Queries.findOne()[QRY_REGIONS];
+        for (var i = 0; i < regionIds.length; i++) {
+            var reg = getRegion(regionIds[i]);
+            if (reg == null || reg[REGION_LOADED_DATE] == null) {
                 return true;
             }
         }
