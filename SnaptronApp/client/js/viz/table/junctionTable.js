@@ -21,7 +21,8 @@ Template.junctionTable.helpers({
         return {
             "showColumnToggles": true,
             "fields": fields,
-            "showFilter": false
+            "showFilter": false,
+            "rowsPerPage": 15
         };
     }
 });
