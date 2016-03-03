@@ -56,6 +56,16 @@ Meteor.methods({
         if (isQueryCurrentUsers(queryId)) {
             addQueryFilter(queryId, field, opStr, filter);
         }
+    },
+    "addRegionToQuery": function (queryId, regionId) {
+        if (isQueryCurrentUsers(queryId)) {
+            addQueryRegion(queryId, regionId);
+        }
+    },
+    "deleteRegionFromQuery": function (queryId, regionId) {
+        if (isQueryCurrentUsers(queryId)) {
+            removeQueryRegion(queryId, regionId);
+        }
     }
 });
 
@@ -128,11 +138,22 @@ addQueryRegion = function (queryId, regionId) {
     var pushCmd = {};
     pushCmd[QRY_REGIONS] = regionId;
 
-    var changed = Queries.update({"_id": queryId}, {$push: pushCmd});
+    var changed = Queries.update({"_id": queryId}, {$addToSet: pushCmd});
     if (changed > 0) {
         return queryId;
     }
     return null; //Nothing changed
+};
+
+removeQueryRegion = function (queryId, regionId) {
+    check(regionId, String);
+    var pullCmd = {};
+    pullCmd[QRY_REGIONS] = regionId;
+    var changed = Queries.update(queryId, {$pull: pullCmd});
+    if (changed > 0) {
+        return queryId;
+    }
+    return null;
 };
 
 /**
@@ -152,20 +173,11 @@ addQueryFilter = function (queryId, field, opStr, val) {
     check(val, Number);
 
     var filterDoc = getFilterFromFields(field, opStr, val);
-    var currentFilters = getQuery(queryId)[QRY_FILTERS];
-    for (var i = 0; i < currentFilters.length; i++) {
-        if (currentFilters[i][QRY_FILTER_FIELD] == filterDoc[QRY_FILTER_FIELD]
-            && currentFilters[i][QRY_FILTER_OP] == filterDoc[QRY_FILTER_OP]
-            && currentFilters[i][QRY_FILTER_VAL] == filterDoc[QRY_FILTER_VAL]) {
-            //Filter already exists
-            return null;
-        }
-    }
     if (filterDoc != null) {
         var pushCmd = {};
         pushCmd[QRY_FILTERS] = filterDoc;
 
-        var changed = Queries.update({"_id": queryId}, {$push: pushCmd});
+        var changed = Queries.update({"_id": queryId}, {$addToSet: pushCmd});
         if (changed > 0) {
             return queryId;
         }

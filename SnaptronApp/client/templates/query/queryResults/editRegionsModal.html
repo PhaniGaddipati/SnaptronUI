@@ -1,0 +1,32 @@
+<template name="editRegionsModal">
+    <div class="modal" id="regionModal" data-keyboard="false" data-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Regions</h4>
+                </div>
+                <div class="modal-body" id="editRegionsBody">
+                    <ul id="currentRegionsList">
+                    </ul>
+                    <div id="noRegionDiv"></div>
+                    <hr>
+                    <div class="form form-group form-inline">
+                        <row>
+                            <div class="input-group col-xs-12">
+                                <input type="text" class="form-control" placeholder="Region" id="addRegionInput">
+                            <span class="input-group-btn">
+                                <button class="btn btn-default" id="addRegionBtn" type="button">Add</button>
+                            </span>
+                            </div>
+                        </row>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="modalDoneBtn" data-dismiss="modal"
+                            data-target="#regionModal">Done
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
