@@ -93,7 +93,10 @@ function initMap() {
     zoom = d3.behavior.zoom()
         .x(linearMapXScale)
         .scaleExtent([1, Infinity])
-        .on("zoom", updateFrame);
+        .on("zoom", function () {
+            d3.select(".xaxis").call(linearMapXAxis);
+            updateFrame();
+        });
 
     var svg = d3.select(".svg-container").classed("svg-container", true)
         .selectAll('svg').data([0])
