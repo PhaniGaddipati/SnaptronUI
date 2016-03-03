@@ -2,6 +2,8 @@
  * Created by Phani on 3/3/2016.
  */
 
+var anyFiltersChanged = false;
+
 Template.editFiltersModal.onRendered(function () {
     Tracker.autorun(updateFilterDialog);
     updateSelects();
@@ -9,13 +11,15 @@ Template.editFiltersModal.onRendered(function () {
 
 Template.editFiltersModal.events({
     "click #modalDoneBtn": function () {
-        console.log("fd");
-        document.location.reload(true);
+        if (anyFiltersChanged) {
+            document.location.reload(true);
+        }
     },
     "click #addFilterBtn": function (evt, template) {
         var field = template.find("#addFieldSelect").value;
         var op = template.find("#addOpSelect").value;
         var val = parseInt(template.find("#addValInput").value);
+        anyFiltersChanged = true;
         Meteor.call("addFilterToQuery", Queries.findOne()["_id"], field, op, val);
     }
 });
@@ -54,6 +58,7 @@ function updateFilterDialog() {
             .attr("href", "#")
             .text("(delete)")
             .on("click", function (filter) {
+                anyFiltersChanged = true;
                 Meteor.call("deleteFilterFromQuery", Queries.findOne()["_id"], filter)
             });
         elems.exit().remove();

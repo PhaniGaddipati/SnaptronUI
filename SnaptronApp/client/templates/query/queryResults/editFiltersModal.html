@@ -1,5 +1,5 @@
 <template name="editFiltersModal">
-    <div class="modal" id="filterModel" data-keyboard="false" data-backdrop="static">
+    <div class="modal" id="filterModal" data-keyboard="false" data-backdrop="static">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -25,7 +25,9 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" id="modalDoneBtn">Done</button>
+                    <button type="button" class="btn btn-primary" id="modalDoneBtn" data-dismiss="modal"
+                            data-target="#filterModal">Done
+                    </button>
                 </div>
             </div>
         </div>
