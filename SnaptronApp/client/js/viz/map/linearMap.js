@@ -5,8 +5,6 @@ var linearMapXScale;
 var linearMapXAxis;
 var zoom = null;
 var highlightedJnctID = new ReactiveVar(null, jnctsEqual);
-var selectedJnctIDs = Session.get(SnapApp.SESSION_SELECTED_JNCTS);
-var selectedJnctsDep = new Tracker.Dependency;
 
 var colorByScale = new ReactiveVar();
 var colorByKey = null;
@@ -234,19 +232,19 @@ function onJunctionMouseOut() {
 }
 
 function onJunctionMouseClick(jnct) {
-    var index = selectedJnctIDs.indexOf(jnct["_id"]);
+    var index = SnapApp.selectedJnctIDs.indexOf(jnct["_id"]);
     if (index > -1) {
-        selectedJnctIDs.splice(index, 1);
+        SnapApp.selectedJnctIDs.splice(index, 1);
     } else {
-        selectedJnctIDs.push(jnct["_id"]);
+        SnapApp.selectedJnctIDs.push(jnct["_id"]);
     }
-    Session.set("selectedJnctIDs", selectedJnctIDs);
-    selectedJnctsDep.changed();
+    Session.set("selectedJnctIDs", SnapApp.selectedJnctIDs);
+    SnapApp.selectedJnctIDsDep.changed();
 }
 
 function getJunctionColor(jnct) {
-    selectedJnctsDep.depend();
-    if (selectedJnctIDs.indexOf(jnct["_id"]) > -1) {
+    SnapApp.selectedJnctIDsDep.depend();
+    if (SnapApp.selectedJnctIDs.indexOf(jnct["_id"]) > -1) {
         return SnapApp.Map.JNCT_SELECTED_COLOR;
     }
     if (highlightedJnctID.get() == jnct["_id"]) {
@@ -263,8 +261,8 @@ function getJunctionColor(jnct) {
 }
 
 function getJunctionWidth(jnct) {
-    selectedJnctsDep.depend();
-    if (selectedJnctIDs.indexOf(jnct["_id"]) > -1) {
+    SnapApp.selectedJnctIDsDep.depend();
+    if (SnapApp.selectedJnctIDs.indexOf(jnct["_id"]) > -1) {
         return SnapApp.Map.JNCT_SELECTED_WIDTH;
     }
     if (highlightedJnctID.get() == jnct["_id"]) {
