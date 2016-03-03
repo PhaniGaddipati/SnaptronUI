@@ -22,7 +22,8 @@ Template.junctionTable.helpers({
             "showColumnToggles": true,
             "fields": fields,
             "showFilter": false,
-            "rowsPerPage": 15
+            "rowsPerPage": 15,
+            "rowClass": getRowClass
         };
     }
 });
@@ -32,6 +33,14 @@ Template.junctionTable.events({
         Router.go(Router.current().url + "/dataTSV");
     }
 });
+
+function getRowClass(jnct) {
+    SnapApp.selectedJnctIDsDep.depend();
+    if (SnapApp.selectedJnctIDs.indexOf(jnct["_id"]) > -1) {
+        return SnapApp.Table.ROW_SELECTED_CLASS;
+    }
+    return SnapApp.Table.ROW_NORMAL_CLASS;
+}
 
 function formatHeaderText(str) {
     return str.toUpperCase().replace(/_/g, " ").trim();
