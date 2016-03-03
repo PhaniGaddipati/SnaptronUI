@@ -16,13 +16,28 @@ Template.editFiltersModal.events({
         }
     },
     "click #addFilterBtn": function (evt, template) {
-        var field = template.find("#addFieldSelect").value;
-        var op = template.find("#addOpSelect").value;
-        var val = parseInt(template.find("#addValInput").value);
-        anyFiltersChanged = true;
-        Meteor.call("addFilterToQuery", Queries.findOne()["_id"], field, op, val);
+        handleAddFilter(template);
+    },
+    "keypress #addValInput": function (event, template) {
+        if (event.which === ENTER_KEY_CODE) {
+            event.preventDefault();
+            handleAddFilter(template);
+        }
     }
 });
+
+function handleAddFilter(template) {
+    var field = template.find("#addFieldSelect").value;
+    var op = template.find("#addOpSelect").value;
+    var val = parseInt(template.find("#addValInput").value);
+    anyFiltersChanged = true;
+    Meteor.call("addFilterToQuery", Queries.findOne()["_id"], field, op, val);
+}
+
+function handleRemoveFilter(filter) {
+    anyFiltersChanged = true;
+    Meteor.call("deleteFilterFromQuery", Queries.findOne()["_id"], filter)
+}
 
 function updateSelects() {
     var options = getJunctionNumberKeys();
@@ -58,8 +73,7 @@ function updateFilterDialog() {
             .attr("href", "#")
             .text("(delete)")
             .on("click", function (filter) {
-                anyFiltersChanged = true;
-                Meteor.call("deleteFilterFromQuery", Queries.findOne()["_id"], filter)
+                handleRemoveFilter(filter);
             });
         elems.exit().remove();
 

@@ -1,7 +1,6 @@
 /**
  * Created by Phani on 2/14/2016.
  */
-const ENTER_KEY_CODE = 13;
 
 Session.setDefault("loadingQuery", false);
 

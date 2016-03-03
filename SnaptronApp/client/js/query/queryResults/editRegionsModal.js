@@ -16,11 +16,26 @@ Template.editRegionsModal.events({
         }
     },
     "click #addRegionBtn": function (evt, template) {
-        var region = template.find("#addRegionInput").value;
-        anyRegionChange = true;
-        Meteor.call("addRegionToQuery", Queries.findOne()["_id"], region);
+        handleAddRegion(template);
+    },
+    "keypress #addRegionInput": function (event, template) {
+        if (event.which === ENTER_KEY_CODE) {
+            event.preventDefault();
+            handleAddRegion(template);
+        }
     }
 });
+
+function handleAddRegion(template) {
+    var region = template.find("#addRegionInput").value;
+    anyRegionChange = true;
+    Meteor.call("addRegionToQuery", Queries.findOne()["_id"], region);
+}
+
+function handleRemoveRegion(regionId) {
+    anyRegionChange = true;
+    Meteor.call("deleteRegionFromQuery", Queries.findOne()["_id"], regionId)
+}
 
 function updateRegionDialog() {
     var qry = Queries.findOne();
@@ -41,8 +56,7 @@ function updateRegionDialog() {
             .attr("href", "#")
             .text("(delete)")
             .on("click", function (regionId) {
-                anyRegionChange = true;
-                Meteor.call("deleteRegionFromQuery", Queries.findOne()["_id"], regionId)
+                handleRemoveRegion(regionId);
             });
         elems.exit().remove();
 
