@@ -31,8 +31,22 @@ Template.junctionTable.helpers({
 Template.junctionTable.events({
     "click #rawTSVBtn": function (event, template) {
         Router.go(Router.current().url + "/dataTSV");
-    }
+    },
+    "click .reactive-table tbody tr": onRowClicked,
+    "dblclick .reactive-table tbody tr": onRowClicked
 });
+
+function onRowClicked(event) {
+    event.preventDefault();
+    var index = SnapApp.selectedJnctIDs.indexOf(this._id);
+    if (index > -1) {
+        // Unselect
+        SnapApp.selectedJnctIDs.splice(index, 1);
+    } else {
+        SnapApp.selectedJnctIDs.push(this._id);
+    }
+    SnapApp.selectedJnctIDsDep.changed();
+}
 
 function getRowClass(jnct) {
     SnapApp.selectedJnctIDsDep.depend();
