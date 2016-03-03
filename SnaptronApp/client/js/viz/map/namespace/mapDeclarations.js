@@ -3,12 +3,6 @@
  */
 
 /**
- * Session variables.
- */
-
-Session.setDefault("selectedJnctIDs", []);
-
-/**
  * Constants
  */
 SnapApp.Map = {};

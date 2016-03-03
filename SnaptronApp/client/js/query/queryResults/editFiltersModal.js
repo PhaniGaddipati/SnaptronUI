@@ -19,7 +19,7 @@ Template.editFiltersModal.events({
         handleAddFilter(template);
     },
     "keypress #addValInput": function (event, template) {
-        if (event.which === ENTER_KEY_CODE) {
+        if (event.which === SnapApp.ENTER_KEY_CODE) {
             event.preventDefault();
             handleAddFilter(template);
         }

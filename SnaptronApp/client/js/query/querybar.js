@@ -16,7 +16,7 @@ Template.querybar.events({
         handleSubmitQuery(template);
     },
     "keypress #regionInput": function (event, template) {
-        if (event.which === ENTER_KEY_CODE) {
+        if (event.which === SnapApp.ENTER_KEY_CODE) {
             event.preventDefault();
             handleSubmitQuery(template);
         }

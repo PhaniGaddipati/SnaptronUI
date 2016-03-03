@@ -19,7 +19,7 @@ Template.editRegionsModal.events({
         handleAddRegion(template);
     },
     "keypress #addRegionInput": function (event, template) {
-        if (event.which === ENTER_KEY_CODE) {
+        if (event.which === SnapApp.ENTER_KEY_CODE) {
             event.preventDefault();
             handleAddRegion(template);
         }

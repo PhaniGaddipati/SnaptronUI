@@ -4,4 +4,4 @@
 
 SnapApp = {};
 
-ENTER_KEY_CODE = 13;
+SnapApp.ENTER_KEY_CODE = 13;

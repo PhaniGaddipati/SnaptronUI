@@ -5,7 +5,7 @@ var linearMapXScale;
 var linearMapXAxis;
 var zoom = null;
 var highlightedJnctID = new ReactiveVar(null, jnctsEqual);
-var selectedJnctIDs = Session.get("selectedJnctIDs");
+var selectedJnctIDs = Session.get(SnapApp.SESSION_SELECTED_JNCTS);
 var selectedJnctsDep = new Tracker.Dependency;
 
 var colorByScale = new ReactiveVar();
