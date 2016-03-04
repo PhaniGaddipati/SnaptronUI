@@ -6,9 +6,24 @@
                     <h4 class="modal-title">Filters</h4>
                 </div>
                 <div class="modal-body" id="editFiltersBody">
-                    <ul id="currentFiltersList">
-                    </ul>
-                    <div id="noFilterDiv"></div>
+                    {{#if anyFilters}}
+                        <ul>
+                            {{#each filters}}
+                                <li>
+                                    {{filterText}}
+                                    {{#if isCurrentUsers}}
+                                        &nbsp;&nbsp;
+                                        <a href="#" class="text-danger filterDel">
+                                            <i>(delete)</i>
+                                        </a>
+                                        <br>
+                                    {{/if}}
+                                </li>
+                            {{/each}}
+                        </ul>
+                    {{else}}
+                        <i>No Filters</i>
+                    {{/if}}
                     <hr>
                     <div class="form form-group form-inline">
                         <select class="form-control" id="addFieldSelect"></select>

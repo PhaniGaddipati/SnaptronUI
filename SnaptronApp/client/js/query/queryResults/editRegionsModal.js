@@ -5,10 +5,6 @@
 
 var anyRegionChange = false;
 
-Template.editRegionsModal.onRendered(function () {
-    Tracker.autorun(updateRegionDialog);
-});
-
 Template.editRegionsModal.events({
     "click #modalDoneBtn": function () {
         if (anyRegionChange) {
@@ -23,6 +19,26 @@ Template.editRegionsModal.events({
             event.preventDefault();
             handleAddRegion(template);
         }
+    },
+    "click .regionDel": function () {
+        handleRemoveRegion(this.toString());
+    }
+});
+
+Template.editRegionsModal.helpers({
+    "anyRegions": function () {
+        return Queries.findOne()[QRY_REGIONS].length > 0;
+    },
+
+    "regions": function () {
+        return Queries.findOne()[QRY_REGIONS];
+    },
+
+    "regionText": function () {
+        return this.toUpperCase();
+    },
+    isCurrentUsers: function () {
+        return isQueryCurrentUsers(Queries.findOne()["_id"]);
     }
 });
 
@@ -35,36 +51,4 @@ function handleAddRegion(template) {
 function handleRemoveRegion(regionId) {
     anyRegionChange = true;
     Meteor.call("deleteRegionFromQuery", Queries.findOne()["_id"], regionId)
-}
-
-function updateRegionDialog() {
-    var qry = Queries.findOne();
-    if (qry != null) {
-        var regionIds = qry[QRY_REGIONS];
-        var elems = d3.select("#currentRegionsList").selectAll("li").data(regionIds, function (d) {
-            return d;
-        });
-        var nElems = elems.enter().append("li")
-            .append("form")
-            .attr("class", "form-inline")
-            .append("div")
-            .attr("class", "form-group");
-        nElems.append("label").html(function (regionId) {
-            return regionId.toUpperCase() + "&nbsp;&nbsp;";
-        });
-        nElems.append("a")
-            .attr("href", "#")
-            .text("(delete)")
-            .on("click", function (regionId) {
-                handleRemoveRegion(regionId);
-            });
-        elems.exit().remove();
-
-        d3.select("#noRegionDiv").select("#noRegionText").remove();
-        if (regionIds.length == 0) {
-            d3.select("#noRegionDiv").append("p")
-                .attr("id", "noRegionText")
-                .text("No Regions");
-        }
-    }
 }

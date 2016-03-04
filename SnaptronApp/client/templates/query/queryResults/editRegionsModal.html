@@ -6,9 +6,24 @@
                     <h4 class="modal-title">Regions</h4>
                 </div>
                 <div class="modal-body" id="editRegionsBody">
-                    <ul id="currentRegionsList">
-                    </ul>
-                    <div id="noRegionDiv"></div>
+                    {{#if anyRegions}}
+                        <ul>
+                            {{#each regions}}
+                                <li>
+                                    {{regionText}}
+                                    {{#if isCurrentUsers}}
+                                        &nbsp;&nbsp;
+                                        <a href="#" class="text-danger regionDel">
+                                            <i>(delete)</i>
+                                        </a>
+                                        <br>
+                                    {{/if}}
+                                </li>
+                            {{/each}}
+                        </ul>
+                    {{else}}
+                        <i>No Regions</i>
+                    {{/if}}
                     <hr>
                     <div class="form form-group form-inline">
                         <row>

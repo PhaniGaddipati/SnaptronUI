@@ -5,8 +5,26 @@
 var anyFiltersChanged = false;
 
 Template.editFiltersModal.onRendered(function () {
-    Tracker.autorun(updateFilterDialog);
     updateSelects();
+});
+
+Template.editFiltersModal.helpers({
+    "anyFilters": function () {
+        return Queries.findOne()[QRY_FILTERS].length > 0;
+    },
+
+    "filters": function () {
+        return Queries.findOne()[QRY_FILTERS];
+    },
+
+    "filterText": function () {
+        return this[QRY_FILTER_FIELD] + " "
+            + filterOpToStr(this[QRY_FILTER_OP]) + " "
+            + this[QRY_FILTER_VAL]
+    },
+    isCurrentUsers: function () {
+        return isQueryCurrentUsers(Queries.findOne()["_id"]);
+    }
 });
 
 Template.editFiltersModal.events({
@@ -23,6 +41,9 @@ Template.editFiltersModal.events({
             event.preventDefault();
             handleAddFilter(template);
         }
+    },
+    "click .filterDel": function () {
+        handleRemoveFilter(this);
     }
 });
 
@@ -52,36 +73,4 @@ function updateSelects() {
         .text(function (d) {
             return d;
         });
-}
-
-function updateFilterDialog() {
-    var qry = Queries.findOne();
-    if (qry != null) {
-        var filters = qry[QRY_FILTERS];
-        var elems = d3.select("#currentFiltersList").selectAll("li").data(filters, filterKey);
-        var nElems = elems.enter().append("li")
-            .append("form")
-            .attr("class", "form-inline")
-            .append("div")
-            .attr("class", "form-group");
-        nElems.append("label").html(function (filter) {
-            return filter[QRY_FILTER_FIELD] + " "
-                + filterOpToStr(filter[QRY_FILTER_OP]) + " "
-                + filter[QRY_FILTER_VAL] + "&nbsp;&nbsp;";
-        });
-        nElems.append("a")
-            .attr("href", "#")
-            .text("(delete)")
-            .on("click", function (filter) {
-                handleRemoveFilter(filter);
-            });
-        elems.exit().remove();
-
-        d3.select("#noFilterDiv").select("#noFilterText").remove();
-        if (filters.length == 0) {
-            d3.select("#noFilterDiv").append("p")
-                .attr("id", "noFilterText")
-                .text("No filters currently applied");
-        }
-    }
 }
