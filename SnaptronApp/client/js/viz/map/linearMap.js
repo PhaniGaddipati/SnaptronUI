@@ -124,7 +124,8 @@ function updateVisibleJunctions() {
 }
 
 function updateJunctions() {
-    var selection = d3.select(".junctionmap").selectAll(".jnct")
+    var selection = d3.select(".junctionmap").select("#jnctG")
+        .selectAll(".jnct")
         .data(visibleJunctions.get(), getKeyForJunction);
     // Update
     selection.attr("d", junctionPath);
@@ -135,6 +136,7 @@ function updateJunctions() {
         .attr("fill", "none")
         .attr("pointer-events", "visiblePainted")
         .attr("d", junctionPath)
+        .attr("stroke-linecap", "round")
         .on("click", onJunctionMouseClick)
         .on("mouseover", onJunctionMouseOver)
         .on("mouseout", onJunctionMouseOut);
@@ -183,6 +185,9 @@ function updateFrame() {
             }
             return d;
         });
+    svg.selectAll("#jnctG").data([0])
+        .enter().append("g")
+        .attr("id", "jnctG");
     svg.selectAll("g.xaxis").data([0])
         .enter().append("g")
         .attr("class", "xaxis")
