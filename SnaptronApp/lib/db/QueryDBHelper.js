@@ -50,7 +50,6 @@ Meteor.methods({
         delete newQuery["_id"];
         delete newQuery[QRY_OWNER];
         var id = insertQuery(newQuery);
-        console.log("Copied query " + queryId + " to " + id + " for user " + Meteor.userId());
         return id;
     },
 
