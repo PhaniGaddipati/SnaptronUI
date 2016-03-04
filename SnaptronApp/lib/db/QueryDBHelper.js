@@ -109,6 +109,18 @@ Meteor.methods({
             return removeQueryRegion(queryId, regionId);
         }
         return null;
+    },
+    /**
+     * If the current user owns the query, add the group.
+     * @param queryId
+     * @param groupName
+     * @param jncts
+     * @returns {*}
+     */
+    "addGroupToQuery": function (queryId, groupName, jncts) {
+        if (isQueryCurrentUsers(queryId)) {
+            return addGroupToQuery(queryId, groupName, jncts);
+        }
     }
 });
 
@@ -284,6 +296,9 @@ addGroupToQuery = function (queryId, groupName, junctions) {
     check(groupName, String);
     check(junctions, [String]);
 
+    if (junctions.length == 0) {
+        return null;
+    }
     var groupDoc = {};
     groupDoc["_id"] = new Meteor.Collection.ObjectID().valueOf();
     groupDoc[QRY_GROUP_NAME] = groupName;

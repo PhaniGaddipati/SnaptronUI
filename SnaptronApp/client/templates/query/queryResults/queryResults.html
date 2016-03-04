@@ -83,6 +83,13 @@
         <h2>Map</h2>
         {{> linearMap}}
         <br>
+        {{#if anyJunctionsSelected}}
+            {{#transition in="fadeInDown:250" out="fadeOutUp:250"}}
+                <div class="animated out">
+                    {{> selectionBar}}
+                </div>
+            {{/transition}}
+        {{/if}}
         <br>
         <row>
             <a class="btn btn-link"><h2 data-toggle="collapse" href="#junctionTableCollapse">Raw Junction Data <span
