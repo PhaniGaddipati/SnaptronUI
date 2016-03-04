@@ -52,15 +52,24 @@ Template.queryGroups.events({
     },
     "click .groupSel": function (evt, template) {
         evt.preventDefault();
-        var group = getGroupFromQuery(Queries.findOne()["_id"], this._id);
-        SnapApp.selectedJnctIDs = group[QRY_GROUP_JNCTS];
-        SnapApp.selectedJnctIDsDep.changed();
+        onSelectGroup(this._id);
     },
     "click .groupDel": function (evt, template) {
         evt.preventDefault();
         Meteor.call("deleteGroupFromQuery", Queries.findOne()["_id"], this._id)
     }
 });
+
+function onSelectGroup(groupId) {
+    var group = getGroupFromQuery(Queries.findOne()["_id"], groupId);
+    var jncts = group[QRY_GROUP_JNCTS];
+    for (var i = 0; i < jncts.length; i++) {
+        if (SnapApp.selectedJnctIDs.indexOf(jncts[i]) == -1) {
+            SnapApp.selectedJnctIDs.push(jncts[i]);
+        }
+    }
+    SnapApp.selectedJnctIDsDep.changed();
+}
 
 function onAddGroup(template) {
     var name = template.find("#addGroupInputName").value;

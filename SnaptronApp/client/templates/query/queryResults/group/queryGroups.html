@@ -1,31 +1,6 @@
 <template name="queryGroups">
     <row>
-        <div>
-            {{#if anyJunctionsSelected}}
-                {{#transition in="fadeInDown:250" out="fadeOutUp:250"}}
-                    <div class="panel panel-default col-xs-12 animated out">
-                        <div class="panel-body">
-                            <h4>{{selectionTitle}}</h4>
-                            <form>
-                                <div class="form-group form-inline">
-                                    {{> selectedTable}}
-                                    <br>
-                                    {{#if isUsersQuery}}
-                                        <input type="text" class="form-control input-sm" placeholder="Name"
-                                               id="addGroupInputName">
-                                        <button class="btn btn-primary btn-sm" id="addQryGroupBtn">Add Group</button>
-                                    {{/if}}
-                                    <button class="pull-right btn btn-default btn-sm" id="clearSelectionBtn">Clear
-                                        Selection
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                {{/transition}}
-            {{/if}}
-        </div>
-        <div class="panel panel-default col-xs-12">
+        <div class="panel panel-default col-xs-12 {{#if anyJunctionsSelected}}col-md-4{{/if}}">
             <div class="panel-body">
                 <h4>Junction Groups</h4>
                 {{#if isNoGroups}}
@@ -49,6 +24,30 @@
                     </ul>
                 {{/if}}
             </div>
+        </div>
+        <div>
+            {{#if anyJunctionsSelected}}
+                {{#transition in="fadeInDown:250" out="fadeOutUp:250"}}
+                    <div class="panel panel-default col-md-8 col-xs-12 animated out">
+                        <div class="panel-body">
+                            <h4><span class="btn btn-link text-danger" id="clearSelectionBtn">X
+                            </span>{{selectionTitle}}
+                            </h4>
+                            <form>
+                                <div class="form-group form-inline">
+                                    {{> selectedTable}}
+                                    <br>
+                                    {{#if isUsersQuery}}
+                                        <input type="text" class="form-control input-sm" placeholder="Name"
+                                               id="addGroupInputName" size="35">
+                                        <button class="btn btn-primary btn-sm" id="addQryGroupBtn">Add Group</button>
+                                    {{/if}}
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                {{/transition}}
+            {{/if}}
         </div>
     </row>
 </template>
