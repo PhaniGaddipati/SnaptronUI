@@ -121,6 +121,20 @@ Meteor.methods({
         if (isQueryCurrentUsers(queryId)) {
             return addGroupToQuery(queryId, groupName, jncts);
         }
+        return null;
+    },
+
+    /**
+     * If the user has permission, remove the group from the query.
+     * @param queryId
+     * @param groupId
+     * @returns {*}
+     */
+    "deleteGroupFromQuery": function (queryId, groupId) {
+        if (isQueryCurrentUsers(queryId)) {
+            return removeGroupFromQuery(queryId, groupId);
+        }
+        return null;
     }
 });
 
@@ -176,7 +190,7 @@ newQuery = function (regionIds, filters) {
     else {
         queryDoc[QRY_FILTERS] = filters;
     }
-
+    queryDoc[QRY_GROUPS] = [];
     return insertQuery(queryDoc);
 };
 
@@ -296,6 +310,10 @@ addGroupToQuery = function (queryId, groupName, junctions) {
     check(groupName, String);
     check(junctions, [String]);
 
+    if (groupName == null || groupName.trim() == "") {
+        groupName = "Untitled"
+    }
+    groupName = groupName.trim();
     if (junctions.length == 0) {
         return null;
     }
@@ -347,6 +365,27 @@ getGroupsFromQuery = function (queryId) {
     }
 
     return query[QRY_GROUPS];
+};
+
+/**
+ * Get a group by ID from a query by ID
+ * @param queryId
+ * @param groupId
+ * @returns {*}
+ */
+getGroupFromQuery = function (queryId, groupId) {
+    check(queryId, String);
+    check(groupId, String);
+
+    var group;
+    var groups = getGroupsFromQuery(queryId);
+    for (var i = 0; i < groups.length; i++) {
+        if (groups[i]["_id"] == groupId) {
+            group = groups[i];
+            break;
+        }
+    }
+    return group;
 };
 
 /**

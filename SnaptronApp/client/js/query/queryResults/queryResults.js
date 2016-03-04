@@ -68,9 +68,5 @@ Template.queryResults.helpers({
     },
     isLoggedIn: function () {
         return Meteor.userId() != null;
-    },
-    anyJunctionsSelected: function () {
-        SnapApp.selectedJnctIDsDep.depend();
-        return SnapApp.selectedJnctIDs.length > 0;
     }
 });
