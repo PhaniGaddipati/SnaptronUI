@@ -10,7 +10,7 @@ Router.route('/usage');
 Router.route('/query/:queryId', {
     loadingTemplate: 'loadingQuery',
     waitOn: function () {
-        return Meteor.subscribe('queries', this.params.queryId);
+        return Meteor.subscribe('queries', this.params["queryId"]);
     },
     data: function () {
         return Queries.findOne();
@@ -23,7 +23,7 @@ Router.route('/query/:queryId', {
 Router.route('/query/:queryId/dataTSV', {
     loadingTemplate: 'loadingQuery',
     waitOn: function () {
-        return Meteor.subscribe('queries', this.params.queryId);
+        return Meteor.subscribe('queries', this.params["queryId"]);
     },
     data: function () {
         return Queries.findOne();

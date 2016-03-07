@@ -10,7 +10,7 @@ Template.queryGroups.helpers({
         SnapApp.selectedJnctIDsDep.depend();
         var len = SnapApp.selectedJnctIDs.length;
         if (len == 0)
-            return "No junctions selected"
+            return "No junctions selected";
         if (len == 1)
             return SnapApp.selectedJnctIDs.length + " junction selected";
         return SnapApp.selectedJnctIDs.length + " junctions selected";

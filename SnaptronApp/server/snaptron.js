@@ -7,13 +7,6 @@
 const URL = "http://stingray.cs.jhu.edu:8443/snaptron";
 
 /**
- * The column that is the junction id in the raw TSV.
- * @type {number}
- */
-const MAX_JUNCTIONS_PER_CALL = 100;
-
-
-/**
  * Updates all of the regions in the query if they have
  * not been loaded, or if they expired.
  * @param queryId
@@ -63,7 +56,7 @@ function updateRegion(regionId) {
         for (var i = 0; i < lines.length; i++) {
             if (lines[i].startsWith("##")) {
                 var str = lines[i].replace(/[#]+/g, "");
-                if (str.contains("=")) {
+                if (str.includes("=")) {
                     var elems = str.split("=");
                     addRegionMetadata(regionId, elems[0], elems[1]);
                 } else {
@@ -114,6 +107,12 @@ function updateRegion(regionId) {
     }
 }
 
+/**
+ * Checks which junctions have already been loaded for the
+ * given region (by ID), and attempts to load the rest
+ * @param regionId
+ * @returns {*} regionId on success, null on failure
+ */
 function loadMissingRegionJunctions(regionId) {
     var region = getRegion(regionId);
     if (region == null) {

@@ -302,7 +302,7 @@ function updateMarker() {
     label.enter()
         .append("g").attr("id", "markerlabel").attr("transform", "translate(0,0)");
     //Label box and text
-    var labelbox = label.selectAll("#markerlabelbox").data([0])
+    var labelbox = label.selectAll("#markerlabelbox").data([0]);
     labelbox.enter()
         .append("rect")
         .attr("id", "markerlabelbox")

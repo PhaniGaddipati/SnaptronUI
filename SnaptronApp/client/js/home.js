@@ -2,15 +2,15 @@
  * Created by Phani on 2/24/2016.
  */
 Template.home.events({
-    "click #cd99btn": function (event, template) {
+    "click #cd99btn": function (event) {
         event.preventDefault();
         submitPlainQuery("cd99");
     },
-    "click #drd4btn": function (event, template) {
+    "click #drd4btn": function (event) {
         event.preventDefault();
         submitPlainQuery("drd4");
     },
-    "click #httbtn": function (event, template) {
+    "click #httbtn": function (event) {
         event.preventDefault();
         submitPlainQuery("htt");
     }
