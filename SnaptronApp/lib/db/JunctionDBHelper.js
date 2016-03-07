@@ -22,38 +22,17 @@ hasJunction = function (junctionId) {
 };
 
 /**
- * Adds the junctions in the TSV file to the
+ * Adds the junctions to the
  * database, if they don't already exist.
- * Returns an array of the IDs of rows in the TSV.
  * @param rawTSV
+ * @returns {Array} the ids of the inserted junctions
  */
-addJunctionsFromTSV = function (rawTSV) {
-    check(rawTSV, String);
-    // Get rid of commented lines
-    rawTSV.replace(/[#].+/g, "");
-
-    var lines = rawTSV.split("\n");
-    var headers = lines[0].split("\t");
+addJunctions = function (junctions) {
     var ids = [];
-
-    for (var i = 1; i < lines.length; i++) {
-        if (lines[i] && 0 != lines[i].length) {
-            var elems = lines[i].split("\t");
-            var junctionDoc = {};
-
-            for (var col = 0; col < elems.length; col++) {
-                if (headers[col] == JNCT_ID_FIELD) {
-                    junctionDoc["_id"] = elems[col];
-                } else {
-                    junctionDoc[headers[col]] = castMember(elems[col], JNCT_COL_TYPES[headers[col]])
-                }
-            }
-
-            Junctions.upsert({"_id": junctionDoc["_id"]}, junctionDoc);
-            ids.push(junctionDoc["_id"]);
-        }
+    for (var i = 0; i < junctions.length; i++) {
+        Junctions.upsert({"_id": junctions[i]["_id"]}, junctions[i]);
+        ids.push(junctions[i]["_id"]);
     }
-
     return ids;
 };
 

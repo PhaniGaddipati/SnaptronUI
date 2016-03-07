@@ -50,54 +50,8 @@ function updateRegion(regionId) {
     try {
         console.log("Loading region " + regionId + "...");
         var responseTSV = Meteor.http.get(URL + snaptronQuery).content.trim();
-        var lines = responseTSV.split("\n");
-        var lineNum = 0;
-        //Parse metadata
-        for (var i = 0; i < lines.length; i++) {
-            if (lines[i].startsWith("##")) {
-                var str = lines[i].replace(/[#]+/g, "");
-                if (str.includes("=")) {
-                    var elems = str.split("=");
-                    addRegionMetadata(regionId, elems[0], elems[1]);
-                } else {
-                    console.log("Unrecognized metadata line: " + str);
-                }
-                lineNum++;
-            } else {
-                break;
-            }
-        }
-
-        // Find the column where the id is
-        // Next line should be header
-        var headerElems = lines[lineNum].replace("#", "").split("\t");
-        var idCol = -1;
-        for (i = 0; i < headerElems.length; i++) {
-            if (headerElems[i] === JNCT_ID_FIELD) {
-                idCol = i;
-                break;
-            }
-        }
-        if (idCol == -1) {
-            console.warn("ID column now found when trying to update region " + regionId + "!");
-            return null;
-        }
-        lineNum++;
-
-        // Ignore type line if it exists
-        if (lineNum < lines.length && lines[lineNum].startsWith("#")) {
-            lineNum++;
-        }
-
-        // Get the junction IDs
-        var junctionIds = [];
-        for (var line = lineNum; line < lines.length; line++) {
-            junctionIds.push(lines[line].split("\t")[idCol]);
-        }
-
-        setRegionJunctions(regionId, junctionIds);
-        setRegionLoadedDate(regionId, new Date());
-        console.log("Done Loading region " + regionId);
+        var regionDoc = parseRegionResponse(regionId, responseTSV);
+        upsertRegion(regionDoc);
         return regionId;
     } catch (err) {
         setRegionLoadedDate(regionId, null);
@@ -132,7 +86,8 @@ function loadMissingRegionJunctions(regionId) {
             var snaptronQuery = "\"[{\"snaptron_id\":[\"" + toLoadJunctionIDs.join("\",\"") + "\"]}]\"";
             var params = {"fields": snaptronQuery};
             var responseTSV = Meteor.http.post(URL, {params: params}).content.trim();
-            addJunctionsFromTSV(responseTSV);
+            var junctions = parseJunctionsResponse(responseTSV);
+            addJunctions(responseTSV);
             return regionId;
         } catch (err) {
             console.error("Error in loadMissingRegionJunctions with region " + regionId);

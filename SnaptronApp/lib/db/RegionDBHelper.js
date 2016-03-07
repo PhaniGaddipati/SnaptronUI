@@ -64,6 +64,15 @@ newRegion = function (regionId) {
 };
 
 /**
+ * Inserts the given region document.
+ * @param regionDoc
+ * @returns {820|1027|*|any} The newly inserted region id
+ */
+upsertRegion = function (regionDoc) {
+    return Regions.upsert({"_id": regionDoc["_id"]}, regionDoc);
+};
+
+/**
  * Set the junctionIDs for the given region.
  * @param regionId
  * @param junctionIds
