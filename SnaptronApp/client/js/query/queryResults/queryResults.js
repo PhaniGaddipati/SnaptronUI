@@ -43,7 +43,7 @@ Template.queryResults.helpers({
     isError: function () {
         var regionIds = Queries.findOne()[QRY_REGIONS];
         for (var i = 0; i < regionIds.length; i++) {
-            var reg = getRegion(regionIds[i]);
+            var reg = SnapApp.RegionDB.getRegion(regionIds[i]);
             if (reg == null || reg[REGION_LOADED_DATE] == null) {
                 return true;
             }
@@ -64,7 +64,7 @@ Template.queryResults.helpers({
         return "Failed to load the region \"" + badRegions[0] + "\". Check that the entry is correct.";
     },
     isCurrentUsers: function () {
-        return isQueryCurrentUsers(Queries.findOne()["_id"]);
+        return SnapApp.QueryDB.isQueryCurrentUsers(Queries.findOne()["_id"]);
     },
     isLoggedIn: function () {
         return Meteor.userId() != null;

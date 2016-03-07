@@ -38,7 +38,7 @@ Template.editRegionsModal.helpers({
         return this.toUpperCase();
     },
     isCurrentUsers: function () {
-        return isQueryCurrentUsers(Queries.findOne()["_id"]);
+        return SnapApp.QueryDB.isQueryCurrentUsers(Queries.findOne()["_id"]);
     }
 });
 

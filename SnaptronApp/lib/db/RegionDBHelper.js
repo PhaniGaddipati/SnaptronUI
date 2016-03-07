@@ -2,6 +2,7 @@
  * Created by Phani on 2/26/2016.
  */
 
+SnapApp.RegionDB = {};
 REGION_REFRESH_TIME = 2 * 7 * 24 * 60 * 60 * 1000; // 2 weeks
 
 /**
@@ -9,7 +10,7 @@ REGION_REFRESH_TIME = 2 * 7 * 24 * 60 * 60 * 1000; // 2 weeks
  * @param regionIds The IDs to look for
  * @returns {any} Matched documents
  */
-getRegions = function (regionIds) {
+SnapApp.RegionDB.getRegions = function (regionIds) {
     check(regionIds, [String]);
     return Regions.find({
         "_id": {
@@ -23,25 +24,25 @@ getRegions = function (regionIds) {
  * @param regionId
  * @returns {any}
  */
-getRegion = function (regionId) {
+SnapApp.RegionDB.getRegion = function (regionId) {
     check(regionId, String);
     return Regions.findOne({"_id": regionId});
 };
 
-getRegionNoJunctions = function (regionId) {
+SnapApp.RegionDB.getRegionNoJunctions = function (regionId) {
     var fields = {};
     fields[REGION_JUNCTIONS] = 0;
     return Regions.findOne({"_id": regionId}, {"fields": fields});
 };
 
-hasRegion = function (regionId) {
+SnapApp.RegionDB.hasRegion = function (regionId) {
     check(regionId, String);
     return Regions.find({"_id": regionId}, {"limit": 1}).count() > 0;
 };
 
-findRegionsForQuery = function (queryId) {
+SnapApp.RegionDB.findRegionsForQuery = function (queryId) {
     check(queryId, String);
-    var regionIds = getQuery(queryId)[QRY_REGIONS];
+    var regionIds = SnapApp.QueryDB.getQuery(queryId)[QRY_REGIONS];
     return Regions.find({
         "_id": {
             "$in": regionIds
@@ -54,7 +55,7 @@ findRegionsForQuery = function (queryId) {
  * @param regionId
  * @returns {820|1027|*|any}
  */
-newRegion = function (regionId) {
+SnapApp.RegionDB.newRegion = function (regionId) {
     var regionDoc = {};
     regionDoc["_id"] = regionId;
     regionDoc[REGION_JUNCTIONS] = [];
@@ -68,7 +69,7 @@ newRegion = function (regionId) {
  * @param regionDoc
  * @returns {820|1027|*|any} The newly inserted region id
  */
-upsertRegion = function (regionDoc) {
+SnapApp.RegionDB.upsertRegion = function (regionDoc) {
     return Regions.upsert({"_id": regionDoc["_id"]}, regionDoc);
 };
 
@@ -78,7 +79,7 @@ upsertRegion = function (regionDoc) {
  * @param junctionIds
  * @returns {*}
  */
-setRegionJunctions = function (regionId, junctionIds) {
+SnapApp.RegionDB.setRegionJunctions = function (regionId, junctionIds) {
     check(regionId, String);
     check(junctionIds, [String]);
 
@@ -98,7 +99,7 @@ setRegionJunctions = function (regionId, junctionIds) {
  * @param date
  * @returns {*}
  */
-setRegionLoadedDate = function (regionId, date) {
+SnapApp.RegionDB.setRegionLoadedDate = function (regionId, date) {
     check(regionId, String);
     check(date, Match.OneOf(Date, null));
 
@@ -118,7 +119,7 @@ setRegionLoadedDate = function (regionId, date) {
  * @param val
  * @returns {*}
  */
-addRegionMetadata = function (regionId, key, val) {
+SnapApp.RegionDB.addRegionMetadata = function (regionId, key, val) {
     check(regionId, String);
     check(key, String);
 

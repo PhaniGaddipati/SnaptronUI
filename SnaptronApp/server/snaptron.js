@@ -6,21 +6,23 @@
 
 const URL = "http://stingray.cs.jhu.edu:8443/snaptron";
 
+SnapApp.Snaptron = {};
+
 /**
  * Updates all of the regions in the query if they have
  * not been loaded, or if they expired.
  * @param queryId
  * @returns {*}
  */
-updateQuery = function (queryId) {
-    var query = getQuery(queryId);
+SnapApp.Snaptron.updateQuery = function (queryId) {
+    var query = SnapApp.QueryDB.getQuery(queryId);
     if (query) {
         var regionIds = query[QRY_REGIONS];
         for (var i = 0; i < regionIds.length; i++) {
-            if (!hasRegion(regionIds[i])) {
-                newRegion(regionIds[i]);
+            if (!SnapApp.RegionDB.hasRegion(regionIds[i])) {
+                SnapApp.RegionDB.newRegion(regionIds[i]);
             }
-            var region = getRegionNoJunctions(regionIds[i]);
+            var region = SnapApp.RegionDB.getRegionNoJunctions(regionIds[i]);
             if (region[REGION_LOADED_DATE] == null ||
                 (new Date().getTime() - region[REGION_LOADED_DATE]) > REGION_REFRESH_TIME) {
                 updateRegion(region["_id"]);
@@ -40,9 +42,9 @@ updateQuery = function (queryId) {
  */
 function updateRegion(regionId) {
     var snaptronQuery = URL + "?regions=" + regionId + "&contains=1&fields=snaptron_id";
-    if (!hasRegion(regionId)) {
+    if (!SnapApp.RegionDB.hasRegion(regionId)) {
         console.log("Region with id " + regionId + " doesn't exist, creating it.");
-        if (newRegion(regionId) == null) {
+        if (SnapApp.RegionDB.newRegion(regionId) == null) {
             console.log("Failed to create a region document for " + regionId + "! Aborting update");
             return null;
         }
@@ -50,11 +52,11 @@ function updateRegion(regionId) {
     try {
         console.log("Loading region " + regionId + "...");
         var responseTSV = Meteor.http.get(URL + snaptronQuery).content.trim();
-        var regionDoc = parseRegionResponse(regionId, responseTSV);
-        upsertRegion(regionDoc);
+        var regionDoc = SnapApp.Parser.parseRegionResponse(regionId, responseTSV);
+        SnapApp.RegionDB.upsertRegion(regionDoc);
         return regionId;
     } catch (err) {
-        setRegionLoadedDate(regionId, null);
+        SnapApp.RegionDB.setRegionLoadedDate(regionId, null);
         console.error("Error in updateRegion (\"" + regionId + "\")!");
         console.error(err);
         return null;
@@ -68,7 +70,7 @@ function updateRegion(regionId) {
  * @returns {*} regionId on success, null on failure
  */
 function loadMissingRegionJunctions(regionId) {
-    var region = getRegion(regionId);
+    var region = SnapApp.RegionDB.getRegion(regionId);
     if (region == null) {
         console.error("loadMissingRegionJunctions called with an ID not found (\"" + regionId + "\")!");
         return;
@@ -76,7 +78,7 @@ function loadMissingRegionJunctions(regionId) {
     var regionJunctionIDs = region[REGION_JUNCTIONS];
     var toLoadJunctionIDs = [];
     for (var i = 0; i < regionJunctionIDs.length; i++) {
-        if (!hasJunction(regionJunctionIDs[i])) {
+        if (!SnapApp.JunctionDB.hasJunction(regionJunctionIDs[i])) {
             toLoadJunctionIDs.push(regionJunctionIDs[i]);
         }
     }
@@ -86,8 +88,8 @@ function loadMissingRegionJunctions(regionId) {
             var snaptronQuery = "\"[{\"snaptron_id\":[\"" + toLoadJunctionIDs.join("\",\"") + "\"]}]\"";
             var params = {"fields": snaptronQuery};
             var responseTSV = Meteor.http.post(URL, {params: params}).content.trim();
-            var junctions = parseJunctionsResponse(responseTSV);
-            addJunctions(responseTSV);
+            var junctions = SnapApp.Parser.parseJunctionsResponse(responseTSV);
+            SnapApp.JunctionDB.addJunctions(junctions);
             return regionId;
         } catch (err) {
             console.error("Error in loadMissingRegionJunctions with region " + regionId);

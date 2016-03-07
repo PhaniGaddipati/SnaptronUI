@@ -2,6 +2,7 @@
  * Created by Phani on 3/7/2016.
  */
 
+SnapApp.Parser = {};
 
 /**
  * Parses the TSV response of a single region snaptron query
@@ -9,7 +10,7 @@
  * @param responseTSV
  * @returns {*} A document representing the parsed region
  */
-parseRegionResponse = function (regionId, responseTSV) {
+SnapApp.Parser.parseRegionResponse = function (regionId, responseTSV) {
     check(responseTSV, String);
 
     var regionDoc = {};
@@ -74,7 +75,7 @@ parseRegionResponse = function (regionId, responseTSV) {
  * @param responseTSV
  * @returns {Array} An array of the parsed junctions
  */
-parseJunctionsResponse = function (responseTSV) {
+SnapApp.Parser.parseJunctionsResponse = function (responseTSV) {
     check(responseTSV, String);
     // Get rid of commented lines
     responseTSV.replace(/[#].+/g, "");
@@ -102,3 +103,26 @@ parseJunctionsResponse = function (responseTSV) {
 
     return junctions;
 };
+
+function castMember(toCast, type) {
+    check(type, String);
+    switch (type) {
+        case "str[]":
+            return String(toCast).split(",");
+        case "float[]":
+            var elems = String(toCast).split(",");
+            var floats = [];
+            for (var i = 0; i < elems.length; i++) {
+                floats.push(parseFloat(elems[i]));
+            }
+            return floats;
+        case "str":
+            return String(toCast);
+        case "int":
+            return parseInt(toCast);
+        case "bool":
+            return parseInt(toCast) != 0;
+        case "float":
+            return parseFloat(toCast);
+    }
+}

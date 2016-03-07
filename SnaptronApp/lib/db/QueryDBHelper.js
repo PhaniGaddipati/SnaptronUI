@@ -2,6 +2,8 @@
  * Created by Phani on 2/19/2016.
  */
 
+SnapApp.QueryDB = {};
+
 Meteor.methods({
     /**
      * Creates a query document and returns the ID after being inserted to the DB.
@@ -36,7 +38,7 @@ Meteor.methods({
         }
 
         //Attempt insert
-        return newQuery(regions, filters);
+        return SnapApp.QueryDB.newQuery(regions, filters);
     },
 
     /**
@@ -46,10 +48,10 @@ Meteor.methods({
      * @returns The id of the newly created query
      */
     "copyQuery": function (queryId) {
-        var newQuery = getQuery(queryId);
+        var newQuery = SnapApp.QueryDB.getQuery(queryId);
         delete newQuery["_id"];
         delete newQuery[QRY_OWNER];
-        var id = insertQuery(newQuery);
+        var id = SnapApp.QueryDB.insertQuery(newQuery);
         return id;
     },
 
@@ -61,8 +63,8 @@ Meteor.methods({
      * @returns queryId on success, null on failure
      */
     "deleteFilterFromQuery": function (queryId, filter) {
-        if (isQueryCurrentUsers(queryId)) {
-            return removeQueryFilter(queryId, filter);
+        if (SnapApp.QueryDB.isQueryCurrentUsers(queryId)) {
+            return SnapApp.QueryDB.removeQueryFilter(queryId, filter);
         }
         return null;
     },
@@ -78,8 +80,8 @@ Meteor.methods({
      * @returns queryId on success, null on failure
      */
     "addFilterToQuery": function (queryId, field, opStr, filter) {
-        if (isQueryCurrentUsers(queryId)) {
-            return addQueryFilter(queryId, field, opStr, filter);
+        if (SnapApp.QueryDB.isQueryCurrentUsers(queryId)) {
+            return SnapApp.QueryDB.addQueryFilter(queryId, field, opStr, filter);
         }
         return null;
     },
@@ -91,8 +93,8 @@ Meteor.methods({
      * @returns queryId on success, null on failure
      */
     "addRegionToQuery": function (queryId, regionId) {
-        if (isQueryCurrentUsers(queryId)) {
-            return addQueryRegion(queryId, regionId);
+        if (SnapApp.QueryDB.isQueryCurrentUsers(queryId)) {
+            return SnapApp.QueryDB.addQueryRegion(queryId, regionId);
         }
         return null;
     },
@@ -104,8 +106,8 @@ Meteor.methods({
      * @returns queryId on success, null on failure
      */
     "deleteRegionFromQuery": function (queryId, regionId) {
-        if (isQueryCurrentUsers(queryId)) {
-            return removeQueryRegion(queryId, regionId);
+        if (SnapApp.QueryDB.isQueryCurrentUsers(queryId)) {
+            return SnapApp.QueryDB.removeQueryRegion(queryId, regionId);
         }
         return null;
     },
@@ -117,8 +119,8 @@ Meteor.methods({
      * @returns {*}
      */
     "addGroupToQuery": function (queryId, groupName, jncts) {
-        if (isQueryCurrentUsers(queryId)) {
-            return addGroupToQuery(queryId, groupName, jncts);
+        if (SnapApp.QueryDB.isQueryCurrentUsers(queryId)) {
+            return SnapApp.QueryDB.addGroupToQuery(queryId, groupName, jncts);
         }
         return null;
     },
@@ -130,8 +132,8 @@ Meteor.methods({
      * @returns {*}
      */
     "deleteGroupFromQuery": function (queryId, groupId) {
-        if (isQueryCurrentUsers(queryId)) {
-            return removeGroupFromQuery(queryId, groupId);
+        if (SnapApp.QueryDB.isQueryCurrentUsers(queryId)) {
+            return SnapApp.QueryDB.removeGroupFromQuery(queryId, groupId);
         }
         return null;
     }
@@ -142,7 +144,7 @@ Meteor.methods({
  * @param queryId
  * @returns {any}
  */
-getQuery = function (queryId) {
+SnapApp.QueryDB.getQuery = function (queryId) {
     check(queryId, String);
     return Queries.findOne({"_id": queryId});
 };
@@ -152,7 +154,7 @@ getQuery = function (queryId) {
  * @param queryId
  * @returns {boolean} whether the queryId was found
  */
-hasQuery = function (queryId) {
+SnapApp.QueryDB.hasQuery = function (queryId) {
     check(queryId, String);
     return Queries.find({"_id": queryId}, {"limit": 1}).count() > 0;
 };
@@ -162,7 +164,7 @@ hasQuery = function (queryId) {
  * @param queryId
  * @returns {*|DOMElement|{}|5625|any|Mongo.Cursor}
  */
-findQuery = function (queryId) {
+SnapApp.QueryDB.findQuery = function (queryId) {
     return Queries.find({"_id": queryId});
 };
 
@@ -174,7 +176,7 @@ findQuery = function (queryId) {
  * @param filters
  * @returns {820|1027|*|any}
  */
-newQuery = function (regionIds, filters) {
+SnapApp.QueryDB.newQuery = function (regionIds, filters) {
     check(regionIds, [String]);
 
     var queryDoc = {};
@@ -190,7 +192,7 @@ newQuery = function (regionIds, filters) {
         queryDoc[QRY_FILTERS] = filters;
     }
     queryDoc[QRY_GROUPS] = [];
-    return insertQuery(queryDoc);
+    return SnapApp.QueryDB.insertQuery(queryDoc);
 };
 
 /**
@@ -203,11 +205,11 @@ newQuery = function (regionIds, filters) {
  * @param queryDoc
  * @returns {820|1027|*} The newly inserted query ID
  */
-insertQuery = function (queryDoc) {
+SnapApp.QueryDB.insertQuery = function (queryDoc) {
     queryDoc[QRY_CREATED_DATE] = new Date();
     queryDoc[QRY_OWNER] = Meteor.userId();
     var id = Queries.insert(queryDoc);
-    addQueryToUser(Meteor.userId(), id);
+    SnapApp.UserDB.addQueryToUser(Meteor.userId(), id);
     return id;
 };
 
@@ -219,7 +221,7 @@ insertQuery = function (queryDoc) {
  * @param regionId Region id to add to the query
  * @returns {*} queryId or null
  */
-addQueryRegion = function (queryId, regionId) {
+SnapApp.QueryDB.addQueryRegion = function (queryId, regionId) {
     check(queryId, String);
     check(regionId, String);
 
@@ -239,7 +241,7 @@ addQueryRegion = function (queryId, regionId) {
  * @param regionId
  * @returns {*} queryId on success, null on failure
  */
-removeQueryRegion = function (queryId, regionId) {
+SnapApp.QueryDB.removeQueryRegion = function (queryId, regionId) {
     check(regionId, String);
     var pullCmd = {};
     pullCmd[QRY_REGIONS] = regionId;
@@ -260,7 +262,7 @@ removeQueryRegion = function (queryId, regionId) {
  * @param val The value of the filter
  * @returns {*} queryId or null
  */
-addQueryFilter = function (queryId, field, opStr, val) {
+SnapApp.QueryDB.addQueryFilter = function (queryId, field, opStr, val) {
     check(queryId, String);
     check(field, String);
     check(opStr, String);
@@ -285,7 +287,7 @@ addQueryFilter = function (queryId, field, opStr, val) {
  * @param filter
  * @returns {*} queryId on success, null on failure
  */
-removeQueryFilter = function (queryId, filter) {
+SnapApp.QueryDB.removeQueryFilter = function (queryId, filter) {
     check(queryId, String);
     var pullCmd = {};
     pullCmd[QRY_FILTERS] = filter;
@@ -304,7 +306,7 @@ removeQueryFilter = function (queryId, filter) {
  * @param junctions
  * @returns {*} The new groupId
  */
-addGroupToQuery = function (queryId, groupName, junctions) {
+SnapApp.QueryDB.addGroupToQuery = function (queryId, groupName, junctions) {
     check(queryId, String);
     check(groupName, String);
     check(junctions, [String]);
@@ -337,7 +339,7 @@ addGroupToQuery = function (queryId, groupName, junctions) {
  * @param groupId
  * @returns {*}
  */
-removeGroupFromQuery = function (queryId, groupId) {
+SnapApp.QueryDB.removeGroupFromQuery = function (queryId, groupId) {
     check(queryId, String);
     check(groupId, String);
 
@@ -356,9 +358,9 @@ removeGroupFromQuery = function (queryId, groupId) {
  * @param queryId
  * @returns {*}
  */
-getGroupsFromQuery = function (queryId) {
+SnapApp.QueryDB.getGroupsFromQuery = function (queryId) {
     check(queryId, String);
-    var query = getQuery(queryId);
+    var query = SnapApp.QueryDB.getQuery(queryId);
     if (query == null) {
         return null;
     }
@@ -372,12 +374,12 @@ getGroupsFromQuery = function (queryId) {
  * @param groupId
  * @returns {*}
  */
-getGroupFromQuery = function (queryId, groupId) {
+SnapApp.QueryDB.getGroupFromQuery = function (queryId, groupId) {
     check(queryId, String);
     check(groupId, String);
 
     var group;
-    var groups = getGroupsFromQuery(queryId);
+    var groups = SnapApp.QueryDB.getGroupsFromQuery(queryId);
     for (var i = 0; i < groups.length; i++) {
         if (groups[i]["_id"] == groupId) {
             group = groups[i];
@@ -394,9 +396,9 @@ getGroupFromQuery = function (queryId, groupId) {
  * @param queryId
  * @returns {boolean} Whether the current user is the owner
  */
-isQueryCurrentUsers = function (queryId) {
+SnapApp.QueryDB.isQueryCurrentUsers = function (queryId) {
     if (Meteor.userId() == null) {
         return false;
     }
-    return getQuery(queryId)[QRY_OWNER] == Meteor.userId();
+    return SnapApp.QueryDB.getQuery(queryId)[QRY_OWNER] == Meteor.userId();
 };

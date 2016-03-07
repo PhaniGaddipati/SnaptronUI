@@ -23,7 +23,7 @@ Template.editFiltersModal.helpers({
             + this[QRY_FILTER_VAL]
     },
     isCurrentUsers: function () {
-        return isQueryCurrentUsers(Queries.findOne()["_id"]);
+        return SnapApp.QueryDB.isQueryCurrentUsers(Queries.findOne()["_id"]);
     }
 });
 
@@ -61,7 +61,7 @@ function handleRemoveFilter(filter) {
 }
 
 function updateSelects() {
-    var options = getJunctionNumberKeys();
+    var options = SnapApp.JunctionDB.getJunctionNumberKeys();
     var selection = d3.select("#addFieldSelect")
         .selectAll("option")
         .data(options, function (opt) {

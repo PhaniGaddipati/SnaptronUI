@@ -2,7 +2,9 @@
  * Created by Phani on 2/26/2016.
  */
 
-getJunctions = function (junctionIds) {
+SnapApp.JunctionDB = {};
+
+SnapApp.JunctionDB.getJunctions = function (junctionIds) {
     check(junctionIds, [String]);
     return Junctions.find({
         "_id": {
@@ -16,7 +18,7 @@ getJunction = function (junctionId) {
     return Junctions.findOne({"_id": junctionId});
 };
 
-hasJunction = function (junctionId) {
+SnapApp.JunctionDB.hasJunction = function (junctionId) {
     check(junctionId, String);
     return Junctions.find({"_id": junctionId}, {"limit": 1}).count() > 0;
 };
@@ -24,10 +26,10 @@ hasJunction = function (junctionId) {
 /**
  * Adds the junctions to the
  * database, if they don't already exist.
- * @param rawTSV
+ * @param junctions
  * @returns {Array} the ids of the inserted junctions
  */
-addJunctions = function (junctions) {
+SnapApp.JunctionDB.addJunctions = function (junctions) {
     var ids = [];
     for (var i = 0; i < junctions.length; i++) {
         Junctions.upsert({"_id": junctions[i]["_id"]}, junctions[i]);
@@ -39,13 +41,13 @@ addJunctions = function (junctions) {
 /**
  * Returns a cursor for the junctions from the given
  * query with filters applied
- * @param query
+ * @param queryId
  */
-findJunctionsForQuery = function (queryId) {
+SnapApp.JunctionDB.findJunctionsForQuery = function (queryId) {
     check(queryId, String);
 
-    var query = getQuery(queryId);
-    var queryRegions = getRegions(query[QRY_REGIONS]);
+    var query = SnapApp.QueryDB.getQuery(queryId);
+    var queryRegions = SnapApp.RegionDB.getRegions(query[QRY_REGIONS]);
     var queryJunctions = new Set();
 
     for (var i = 0; i < queryRegions.length; i++) {
@@ -80,30 +82,7 @@ findJunctionsForQuery = function (queryId) {
     return Junctions.find(selector);
 };
 
-function castMember(toCast, type) {
-    check(type, String);
-    switch (type) {
-        case "str[]":
-            return String(toCast).split(",");
-        case "float[]":
-            var elems = String(toCast).split(",");
-            var floats = [];
-            for (var i = 0; i < elems.length; i++) {
-                floats.push(parseFloat(elems[i]));
-            }
-            return floats;
-        case "str":
-            return String(toCast);
-        case "int":
-            return parseInt(toCast);
-        case "bool":
-            return parseInt(toCast) != 0;
-        case "float":
-            return parseFloat(toCast);
-    }
-}
-
-getJunctionNumberKeys = function () {
+SnapApp.JunctionDB.getJunctionNumberKeys = function () {
     var keys = Object.keys(JNCT_COL_TYPES);
     var numberKeys = [];
     for (var i = 0; i < keys.length; i++) {
@@ -115,7 +94,7 @@ getJunctionNumberKeys = function () {
     return numberKeys;
 };
 
-getJunctionBoolKeys = function () {
+SnapApp.JunctionDB.getJunctionBoolKeys = function () {
     var keys = Object.keys(JNCT_COL_TYPES);
     var boolKeys = [];
     for (var i = 0; i < keys.length; i++) {

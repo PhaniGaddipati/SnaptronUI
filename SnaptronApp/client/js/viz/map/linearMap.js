@@ -58,8 +58,8 @@ Template.linearMap.onRendered(function () {
 
 function initControls() {
     // Update color-by option
-    var numKeys = getJunctionNumberKeys();
-    var options = ["None"].concat(getJunctionBoolKeys().concat(numKeys));
+    var numKeys = SnapApp.JunctionDB.getJunctionNumberKeys();
+    var options = ["None"].concat(SnapApp.JunctionDB.getJunctionBoolKeys().concat(numKeys));
     //Add log options
     var logKeys = [];
     for (var i = 0; i < numKeys.length; i++) {

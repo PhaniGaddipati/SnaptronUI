@@ -1,5 +1,7 @@
 /**
  * Created by Phani on 3/1/2016.
+ *
+ * Defines main namespace. Needs to be in the deepest folder in lib/
  */
 
 SnapApp = {};

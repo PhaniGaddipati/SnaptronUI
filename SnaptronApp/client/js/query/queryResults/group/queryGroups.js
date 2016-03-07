@@ -4,7 +4,7 @@
 
 Template.queryGroups.helpers({
     isUsersQuery: function () {
-        return isQueryCurrentUsers(Queries.findOne()["_id"]);
+        return SnapApp.QueryDB.isQueryCurrentUsers(Queries.findOne()["_id"]);
     },
     selectionTitle: function () {
         SnapApp.selectedJnctIDsDep.depend();
@@ -16,17 +16,17 @@ Template.queryGroups.helpers({
         return SnapApp.selectedJnctIDs.length + " junctions selected";
     },
     isNoGroups: function () {
-        return getGroupsFromQuery(Queries.findOne()["_id"]).length == 0
+        return SnapApp.QueryDB.getGroupsFromQuery(Queries.findOne()["_id"]).length == 0
     },
     anyJunctionsSelected: function () {
         SnapApp.selectedJnctIDsDep.depend();
         return SnapApp.selectedJnctIDs.length > 0;
     },
     groups: function () {
-        return getGroupsFromQuery(Queries.findOne()["_id"]);
+        return SnapApp.QueryDB.getGroupsFromQuery(Queries.findOne()["_id"]);
     },
     groupText: function (id) {
-        var group = getGroupFromQuery(Queries.findOne()["_id"], id);
+        var group = SnapApp.QueryDB.getGroupFromQuery(Queries.findOne()["_id"], id);
         if (group == null) {
             return "";
         }
@@ -61,7 +61,7 @@ Template.queryGroups.events({
 });
 
 function onSelectGroup(groupId) {
-    var group = getGroupFromQuery(Queries.findOne()["_id"], groupId);
+    var group = SnapApp.QueryDB.getGroupFromQuery(Queries.findOne()["_id"], groupId);
     var jncts = group[QRY_GROUP_JNCTS];
     for (var i = 0; i < jncts.length; i++) {
         if (SnapApp.selectedJnctIDs.indexOf(jncts[i]) == -1) {

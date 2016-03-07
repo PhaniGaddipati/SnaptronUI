@@ -5,7 +5,7 @@
 Template.selectedTable.helpers({
     "junctionTableCollection": function () {
         SnapApp.selectedJnctIDsDep.depend();
-        return getJunctions(SnapApp.selectedJnctIDs);
+        return SnapApp.JunctionDB.getJunctions(SnapApp.selectedJnctIDs);
     },
     "tableSettings": function () {
         //Generate neat headers
