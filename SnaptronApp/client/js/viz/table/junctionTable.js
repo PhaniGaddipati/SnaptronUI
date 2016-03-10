@@ -33,7 +33,7 @@ Template.junctionTable.events({
         Router.go(Router.current().url + "/dataTSV");
     },
     "click .reactive-table tbody tr": onRowClicked,
-    "dblclick .reactive-table tbody tr": onRowClicked
+    "dblclick .reactive-table tbody tr": onRowClicked,
 });
 
 function onRowClicked(event) {
