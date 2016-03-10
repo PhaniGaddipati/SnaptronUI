@@ -14,7 +14,6 @@ Template.queryResults.events({
         })
     },
     "shown.bs.collapse #junctionTableCollapse": function () {
-        console.log("fdsg");
         $("html, body").animate({scrollTop: $(document).height()}, "slow");
     }
 });
