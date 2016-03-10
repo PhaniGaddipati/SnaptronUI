@@ -11,13 +11,13 @@ var colorByKey = null;
 
 var markerX = new ReactiveVar(-1);
 var visibleJunctions = new ReactiveVar([]);
+var jnctDomainStart;
+var jnctDomainStop;
 
 Template.linearMap.events({
     "click .resetView": function () {
         if (zoom != null) {
-            zoom.scale(1);
-            zoom.translate([0, 0]);
-            updateFrame();
+            onReset();
         }
     },
     "click #colorBySelect": function (event, template) {
@@ -83,17 +83,16 @@ function initControls() {
 function initMap() {
     var junctions = Junctions.find().fetch();
     var _limits = getLimits(junctions);
-    var start = _limits.start;
-    var stop = _limits.stop;
+    jnctDomainStart = _limits.start;
+    jnctDomainStop = _limits.stop;
     linearMapXScale = d3.scale.linear().range([0, SnapApp.Map.VIEWBOX_W])
-        .domain([start, stop]);
+        .domain([jnctDomainStart, jnctDomainStop]);
 
     zoom = d3.behavior.zoom()
         .x(linearMapXScale)
         .scaleExtent([1, Infinity])
         .on("zoom", function () {
-            d3.select(".xaxis").call(linearMapXAxis);
-            updateFrame();
+            onZoom();
         });
 
     var svg = d3.select(".svg-container").classed("svg-container", true)
@@ -167,18 +166,10 @@ function junctionPath(jnct) {
 function updateFrame() {
     var svg = d3.select(".junctionmap");
     //Draw axis
-    var numTicks = parseInt(SnapApp.Map.VIEWBOX_W / 120);
-    var leftLim = linearMapXScale.invert(35);
-    var rightLim = linearMapXScale.invert(SnapApp.Map.VIEWBOX_W - 35);
-    var step = (rightLim - leftLim) / (numTicks);
-    var tickValues = [];
-    for (var i = 0; i <= numTicks; i++) {
-        tickValues.push(parseInt(leftLim + i * step));
-    }
     linearMapXAxis = d3.svg.axis()
         .orient("bottom")
         .scale(linearMapXScale)
-        .tickValues(tickValues)
+        .ticks(10)
         .tickFormat(function (d) {
             if (Math.abs(d) > SnapApp.Map.AXIS_K_CUTOFF) {
                 return parseInt(d / 1000) + "k";
@@ -335,6 +326,21 @@ function updateMarker() {
     }
     label.attr("transform", "translate (" + xOffset + ",0)");
     labelbox.attr("width", w + 10);
+}
+
+function onZoom() {
+    d3.select(".xaxis").call(linearMapXAxis);
+    updateVisibleJunctions();
+}
+
+function onReset() {
+    d3.transition().duration(750).tween("zoom", function () {
+        var ix = d3.interpolate(linearMapXScale.domain(), [jnctDomainStart, jnctDomainStop]);
+        return function (t) {
+            zoom.x(linearMapXScale.domain(ix(t)));
+            onZoom();
+        };
+    });
 }
 
 function jnctsEqual(v1, v2) {
