@@ -23,7 +23,7 @@ Template.selectedTable.helpers({
             "showColumnToggles": true,
             "fields": fields,
             "showFilter": false,
-            "rowsPerPage": 3
+            "rowsPerPage": 10
         };
     }
 });
