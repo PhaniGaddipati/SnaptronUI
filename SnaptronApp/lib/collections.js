@@ -87,6 +87,7 @@ REGION_METADATA_VAL = "value";
 
 JNCT_ID_FIELD = "snaptron_id";
 JNCT_ANNOTATED_KEY = "annotated?";
+JNCT_SAMPLES_KEY = "samples";
 JNCT_COL_TYPES = {
     "DataSource:Type": "str",
     "snaptron_id": "str",
