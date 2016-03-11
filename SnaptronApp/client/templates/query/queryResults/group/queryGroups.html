@@ -32,31 +32,27 @@
         </div>
         <div>
             {{#if anyJunctionsSelected}}
-                {{#transition in="fadeInDown:250" out="fadeOutUp:250"}}
-                    <div class="panel panel-default col-md-8 col-xs-12 animated out">
-                        <div class="panel-body">
-                            <a class="btn btn-link" data-toggle="collapse" href="#selectionCollapse">
-                                <h4>{{selectionTitle}}</h4>
-                            </a>
-                            <span class="caret"></span>
-                            <a href="#" id="clearSelectionBtn" class="btn btn-default pull-right">Clear Selection</a>
-                            <div id="selectionCollapse" class="panel-collapse collapse">
-                                <form>
-                                    <div class="form-group form-inline">
-                                        {{> selectedTable}}
-                                        <br>
-                                        {{#if isUsersQuery}}
-                                            <input type="text" class="form-control input-sm" placeholder="Name"
-                                                   id="addGroupInputName" size="35">
-                                            <button class="btn btn-primary btn-sm" id="addQryGroupBtn">Add Group
-                                            </button>
-                                        {{/if}}
-                                    </div>
-                                </form>
-                            </div>
+                <div class="panel panel-default col-md-8 col-xs-12">
+                    <div class="panel-body">
+                        <a data-toggle="collapse" href="#selectionCollapse">
+                            <h4>{{selectionTitle}} <span class="caret"></span></h4>
+                        </a>
+                        <div id="selectionCollapse" class="panel-collapse collapse">
+                            {{> selectedTable}}
+                            <hr>
+                        </div>
+                        <br>
+                        <div class="form-group form-inline">
+                            {{#if isUsersQuery}}
+                                <input type="text" class="form-control input-sm" placeholder="Name"
+                                       id="addGroupInputName" size="35">
+                                <button class="btn btn-primary btn-sm" id="addQryGroupBtn">Add Group</button>
+                            {{/if}}
+                            <a href="#" id="clearSelectionBtn" class="btn btn-default btn-sm pull-right">Clear
+                                Selection</a>
                         </div>
                     </div>
-                {{/transition}}
+                </div>
             {{/if}}
         </div>
     </row>
