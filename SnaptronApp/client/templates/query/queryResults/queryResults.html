@@ -25,6 +25,7 @@
                                 <strong>Regions</strong>
                                 {{#if isCurrentUsers}}
                                     &nbsp;(<a href="#" id="editFiltersBtn"
+                                              class="text-danger"
                                               data-toggle="modal"
                                               data-target="#regionModal">Edit</a>)
                                 {{/if}}
@@ -66,6 +67,7 @@
                                 <strong>Filters</strong>
                                 {{#if isCurrentUsers}}
                                     &nbsp;(<a href="#" id="editFiltersBtn"
+                                              class="text-danger"
                                               data-toggle="modal"
                                               data-target="#filterModal">Edit</a>)
                                 {{/if}}
@@ -86,9 +88,8 @@
         <br>
         <br>
         <row>
-            <a class="btn btn-link col-xs-12 text-left">
-                <h2 data-toggle="collapse" href="#junctionTableCollapse">All Junction Data <span
-                        class="caret"></span>
+            <a class="col-xs-12 text-left" style="color:inherit;" href="#junctionTableCollapse" data-toggle="collapse">
+                <h2>All Junction Data <span class="caret"></span>
                 </h2>
             </a>
             <div id="junctionTableCollapse" class="well panel-collapse panel-body collapse col-xs-12">
