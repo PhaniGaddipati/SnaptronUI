@@ -172,9 +172,9 @@ function updateFrame() {
         .ticks(10)
         .tickFormat(function (d) {
             if (Math.abs(d) > SnapApp.Map.AXIS_K_CUTOFF) {
-                return parseInt(d / 1000) + "k";
+                return numberWithCommas(parseInt(d / 1000)) + "k";
             }
-            return d;
+            return numberWithCommas(d);
         });
     svg.selectAll("#jnctG").data([0])
         .enter().append("g")
