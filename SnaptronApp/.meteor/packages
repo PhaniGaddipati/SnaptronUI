@@ -27,6 +27,6 @@ aslagle:reactive-table
 fortawesome:fontawesome
 reactive-var
 accounts-password
-accounts-ui
+ian:accounts-ui-bootstrap-3
 webtempest:animate
 underscore
