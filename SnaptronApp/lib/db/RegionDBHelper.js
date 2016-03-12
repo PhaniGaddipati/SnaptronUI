@@ -61,6 +61,7 @@ SnapApp.RegionDB.newRegion = function (regionId) {
     regionDoc[REGION_JUNCTIONS]   = [];
     regionDoc[REGION_METADATA]    = [];
     regionDoc[REGION_LOADED_DATE] = null;
+    console.log("Inserting new region " + regionId);
     return Regions.insert(regionDoc);
 };
 
@@ -70,6 +71,7 @@ SnapApp.RegionDB.newRegion = function (regionId) {
  * @returns {820|1027|*|any} The newly inserted region id
  */
 SnapApp.RegionDB.upsertRegion = function (regionDoc) {
+    console.log("Upserting region " + regionDoc["_id"]);
     return Regions.upsert({"_id": regionDoc["_id"]}, regionDoc);
 };
 
@@ -87,6 +89,7 @@ SnapApp.RegionDB.setRegionJunctions = function (regionId, junctionIds) {
     newInfo[REGION_JUNCTIONS] = junctionIds;
     var changed               = Regions.update({"_id": regionId}, {$set: newInfo});
     if (changed > 0) {
+        console.log("Updated region " + regionId + " junctions");
         return regionId;
     }
     return null; //Nothing changed
@@ -107,6 +110,7 @@ SnapApp.RegionDB.setRegionLoadedDate = function (regionId, date) {
     newInfo[REGION_LOADED_DATE] = date;
     var changed                 = Regions.update({"_id": regionId}, {$set: newInfo});
     if (changed > 0) {
+        console.log("Updated region " + regionId + " loaded date to " + date);
         return regionId;
     }
     return null; //Nothing changed
@@ -134,6 +138,7 @@ SnapApp.RegionDB.addRegionMetadata = function (regionId, key, val) {
 
     var changed = Regions.update({"_id": regionId}, {$push: pushCmd});
     if (changed > 0) {
+        console.log("Added region " + regionId + " metadata " + key + ":" + val);
         return regionId;
     }
     return null; //Nothing changed

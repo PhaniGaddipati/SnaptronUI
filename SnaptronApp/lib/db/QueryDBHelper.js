@@ -210,6 +210,7 @@ SnapApp.QueryDB.insertQuery = function (queryDoc) {
     queryDoc[QRY_OWNER]        = Meteor.userId();
     var id                     = Queries.insert(queryDoc);
     SnapApp.UserDB.addQueryToUser(Meteor.userId(), id);
+    console.log("Inserted new query " + id + " with owner " + queryDoc[QRY_OWNER]);
     return id;
 };
 
@@ -230,6 +231,7 @@ SnapApp.QueryDB.addQueryRegion = function (queryId, regionId) {
 
     var changed = Queries.update({"_id": queryId}, {$addToSet: pushCmd});
     if (changed > 0) {
+        console.log("Inserted region " + regionId + " into " + queryId);
         return queryId;
     }
     return null; //Nothing changed
@@ -247,6 +249,7 @@ SnapApp.QueryDB.removeQueryRegion = function (queryId, regionId) {
     pullCmd[QRY_REGIONS] = regionId;
     var changed          = Queries.update(queryId, {$pull: pullCmd});
     if (changed > 0) {
+        console.log("Removed region " + regionId + " from " + queryId);
         return queryId;
     }
     return null;
@@ -275,6 +278,7 @@ SnapApp.QueryDB.addQueryFilter = function (queryId, field, opStr, val) {
 
         var changed = Queries.update({"_id": queryId}, {$addToSet: pushCmd});
         if (changed > 0) {
+            console.log("Inserted filter into " + queryId);
             return queryId;
         }
     }
@@ -293,6 +297,7 @@ SnapApp.QueryDB.removeQueryFilter = function (queryId, filter) {
     pullCmd[QRY_FILTERS] = filter;
     var changed          = Queries.update(queryId, {$pull: pullCmd});
     if (changed > 0) {
+        console.log("Removed filter from " + queryId);
         return queryId;
     }
     return null;
@@ -328,6 +333,7 @@ SnapApp.QueryDB.addGroupToQuery = function (queryId, groupName, junctions) {
 
     var changed = Queries.update(queryId, {$push: pushCmd});
     if (changed > 0) {
+        console.log("Inserted new group " + groupDoc["_id"] + " into " + queryId);
         return groupDoc["_id"];
     }
     return null;
@@ -348,6 +354,7 @@ SnapApp.QueryDB.removeGroupFromQuery = function (queryId, groupId) {
 
     var changed = Queries.update(queryId, {$pull: pullCmd});
     if (changed > 0) {
+        console.log("Removed group " + groupId + " from " + queryId);
         return queryId;
     }
     return null;
@@ -383,6 +390,94 @@ SnapApp.QueryDB.getGroupFromQuery = function (queryId, groupId) {
     for (var i = 0; i < groups.length; i++) {
         if (groups[i]["_id"] == groupId) {
             group = groups[i];
+            break;
+        }
+    }
+    return group;
+};
+
+
+/**
+ * Adds a new processor to the query.
+ *
+ * @param queryId
+ * @param type
+ * @param inputGroups
+ * @returns {*} The new processorId
+ */
+SnapApp.QueryDB.addProcessorToQuery = function (queryId, type, inputGroups, results) {
+    check(queryId, String);
+    check(type, String);
+
+    var processorDoc                         = {};
+    processorDoc["_id"]                      = new Meteor.Collection.ObjectID().valueOf();
+    processorDoc[QRY_PROCESSOR_TYPE]         = type;
+    processorDoc[QRY_PROCESSOR_INPUT_GROUPS] = inputGroups;
+    processorDoc[QRY_PROCESSOR_RESULTS]      = results;
+
+    var pushCmd             = {};
+    pushCmd[QRY_PROCESSORS] = processorDoc;
+
+    var changed = Queries.update(queryId, {$push: pushCmd});
+    if (changed > 0) {
+        console.log("Inserted new processor " + processorDoc["_id"] + " into " + queryId);
+        return processorDoc["_id"];
+    }
+    return null;
+};
+
+/**
+ * Removes the given processor by ID from the query.
+ * @param queryId
+ * @param processorId
+ * @returns {*}
+ */
+SnapApp.QueryDB.removeProcessorFromQuery = function (queryId, processorId) {
+    check(queryId, String);
+    check(processorId, String);
+
+    var pullCmd             = {};
+    pullCmd[QRY_PROCESSORS] = {"_id": processorId};
+
+    var changed = Queries.update(queryId, {$pull: pullCmd});
+    if (changed > 0) {
+        console.log("Removed processor " + processorId + " from " + queryId);
+        return queryId;
+    }
+    return null;
+};
+
+/**
+ * Returns all processors in an array from the given query.
+ * @param queryId
+ * @returns {*}
+ */
+SnapApp.QueryDB.getProcessorsFromQuery = function (queryId) {
+    check(queryId, String);
+    var query = SnapApp.QueryDB.getQuery(queryId);
+    if (query == null) {
+        return null;
+    }
+
+    return query[QRY_PROCESSORS];
+};
+
+
+/**
+ * Get a processor by ID from a query by ID
+ * @param queryId
+ * @param processorId
+ * @returns {*}
+ */
+SnapApp.QueryDB.getProcessorFromQuery = function (queryId, processorId) {
+    check(queryId, String);
+    check(processorId, String);
+
+    var group;
+    var processors = SnapApp.QueryDB.getProcessorsFromQuery(queryId);
+    for (var i = 0; i < processors.length; i++) {
+        if (processors[i]["_id"] == processorId) {
+            group = processors[i];
             break;
         }
     }

@@ -2,12 +2,36 @@
  * Created by Phani on 3/11/2016.
  */
 
-SnapApp.Processors.sampleNormalizedDifference = function (queryId, groupIdA, groupIdB) {
+if (Meteor.isServer) {
+    Meteor.methods({
+        /**
+         * Runs the new computation and inserts the results into
+         * the current query if the user's. Returns the processor ID
+         * of the inserted obj
+         *
+         * @param type
+         * @param inputGroups
+         */
+        "sampleNormalizedDifference": function (queryId, inputGroups) {
+            if (SnapApp.QueryDB.isQueryCurrentUsers(queryId)) {
+                if (!_.contains(_.keys(inputGroups), "A") || !_.contains(_.keys(inputGroups), "B")) {
+                    // Proper input groups not present
+                    return null;
+                }
+
+                var groupIdA = inputGroups["A"];
+                var groupIdB = inputGroups["B"];
+                var results  = sampleNormalizedDifference(queryId, groupIdA, groupIdB);
+                return SnapApp.QueryDB.addProcessorToQuery(queryId, "Sample Normalized Difference", inputGroups, results);
+            }
+            return null;
+        }
+    });
+}
+
+function sampleNormalizedDifference(queryId, groupIdA, groupIdB) {
     var A = getSampleCounts(queryId, groupIdA);
     var B = getSampleCounts(queryId, groupIdB);
-
-    console.log(A);
-    console.log(B);
 
     var allSamps = _.union(_.keys(A), _.keys(B));
     return _.map(allSamps, function (sample) {
@@ -20,7 +44,7 @@ SnapApp.Processors.sampleNormalizedDifference = function (queryId, groupIdA, gro
             "D": (bVal - aVal) / (bVal + aVal)
         };
     });
-};
+}
 
 function getSampleCounts(queryId, groupId) {
     var group   = SnapApp.QueryDB.getGroupFromQuery(queryId, groupId);

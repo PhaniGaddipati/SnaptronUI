@@ -49,8 +49,15 @@ Template.processorsPanel.onRendered(function () {
     selectedType.set(Template.instance().find("#processorType").value);
 });
 
-function onAnalyze() {
-
+function onAnalyze(evt, template) {
+    var type        = template.find("#processorType").value;
+    var fn          = SnapApp.Processors.Index[type][SnapApp.Processors.FUNCTION];
+    var inputGroups = {};
+    var inputs      = SnapApp.Processors.Index[selectedType.get()][SnapApp.Processors.INPUT_GROUPS];
+    for (var i = 0; i < inputs.length; i++) {
+        inputGroups[inputs[i]] = template.find("#" + inputs[i]).value;
+    }
+    Meteor.call(fn, Queries.findOne({})._id, inputGroups);
 }
 
 function validate(evt, template) {
