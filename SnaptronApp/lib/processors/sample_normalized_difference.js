@@ -4,27 +4,21 @@
 
 if (Meteor.isServer) {
     Meteor.methods({
-        /**
-         * Runs the new computation and inserts the results into
-         * the current query if the user's. Returns the processor ID
-         * of the inserted obj
-         *
-         * @param type
-         * @param inputGroups
-         */
         "sampleNormalizedDifference": function (queryId, inputGroups) {
-            if (SnapApp.QueryDB.isQueryCurrentUsers(queryId)) {
-                if (!_.contains(_.keys(inputGroups), "A") || !_.contains(_.keys(inputGroups), "B")) {
-                    // Proper input groups not present
-                    return null;
-                }
-
-                var groupIdA = inputGroups["A"];
-                var groupIdB = inputGroups["B"];
-                var results  = sampleNormalizedDifference(queryId, groupIdA, groupIdB);
-                return SnapApp.QueryDB.addProcessorToQuery(queryId, "Sample Normalized Difference", inputGroups, results);
+            this.unblock();
+            if (!_.contains(_.keys(inputGroups), "A") || !_.contains(_.keys(inputGroups), "B")) {
+                // Proper input groups not present
+                return null;
             }
-            return null;
+
+            var groupIdA = inputGroups["A"];
+            var groupIdB = inputGroups["B"];
+            var results  = sampleNormalizedDifference(queryId, groupIdA, groupIdB);
+
+            if (results == null) {
+                return null;
+            }
+            return Meteor.call("addProcessorToQuery", queryId, "Sample Normalized Difference", inputGroups, results);
         }
     });
 }

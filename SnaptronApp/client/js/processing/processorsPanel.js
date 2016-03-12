@@ -50,6 +50,7 @@ Template.processorsPanel.onRendered(function () {
 });
 
 function onAnalyze(evt, template) {
+    var queryId     = Queries.findOne({})._id;
     var type        = template.find("#processorType").value;
     var fn          = SnapApp.Processors.Index[type][SnapApp.Processors.FUNCTION];
     var inputGroups = {};
@@ -57,7 +58,7 @@ function onAnalyze(evt, template) {
     for (var i = 0; i < inputs.length; i++) {
         inputGroups[inputs[i]] = template.find("#" + inputs[i]).value;
     }
-    Meteor.call(fn, Queries.findOne({})._id, inputGroups);
+    Meteor.call(fn, queryId, inputGroups);
 }
 
 function validate(evt, template) {

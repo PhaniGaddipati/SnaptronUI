@@ -136,6 +136,34 @@ Meteor.methods({
             return SnapApp.QueryDB.removeGroupFromQuery(queryId, groupId);
         }
         return null;
+    },
+
+    /**
+     * If the user has permission, add the processor to the query.
+     * @param queryId
+     * @param type
+     * @param inputGroups
+     * @param results
+     * @returns {*}
+     */
+    "addProcessorToQuery": function (queryId, type, inputGroups, results) {
+        if (SnapApp.QueryDB.isQueryCurrentUsers(queryId)) {
+            return SnapApp.QueryDB.addProcessorToQuery(queryId, type, inputGroups, results);
+        }
+        return null;
+    },
+
+    /**
+     * If the user has permission, remove the processor from the query.
+     * @param queryId
+     * @param processorId
+     * @returns {*}
+     */
+    "removeProcessorFromQuery": function (queryId, processorId) {
+        if (SnapApp.QueryDB.isQueryCurrentUsers(queryId)) {
+            return SnapApp.QueryDB.removeProcessorFromQuery(queryId, processorId);
+        }
+        return null;
     }
 });
 
