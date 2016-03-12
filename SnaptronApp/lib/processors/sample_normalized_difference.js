@@ -1,10 +1,24 @@
 /**
  * Created by Phani on 3/11/2016.
+ *
+ * Sample Normalized Difference
+ *
+ * Computes the normalized difference between 2 input groups.
+ * The results are of the format
+ * {    "sample" : "some sampleId",
+ *      "A" : count of sample found in group A,
+ *      "B" : count of sample found in group B,
+ *      "D" : normalized ration (B-A)/(B+A)
+ * }
+ *
+ * The method is limited to the Top K results to prevent the syncing
+ * of very large data sets.
+ *
  */
 
 if (Meteor.isServer) {
     Meteor.methods({
-        "sampleNormalizedDifference": function (queryId, inputGroups) {
+        "sampleNormalizedDifference": function (queryId, inputGroups, k) {
             this.unblock();
             if (!_.contains(_.keys(inputGroups), "A") || !_.contains(_.keys(inputGroups), "B")) {
                 // Proper input groups not present
@@ -13,7 +27,7 @@ if (Meteor.isServer) {
 
             var groupIdA = inputGroups["A"];
             var groupIdB = inputGroups["B"];
-            var results  = sampleNormalizedDifference(queryId, groupIdA, groupIdB);
+            var results  = sampleNormalizedDifference(queryId, groupIdA, groupIdB, k);
 
             if (results == null) {
                 return null;
@@ -23,12 +37,12 @@ if (Meteor.isServer) {
     });
 }
 
-function sampleNormalizedDifference(queryId, groupIdA, groupIdB) {
+function sampleNormalizedDifference(queryId, groupIdA, groupIdB, k) {
     var A = getSampleCounts(queryId, groupIdA);
     var B = getSampleCounts(queryId, groupIdB);
 
-    var allSamps = _.union(_.keys(A), _.keys(B));
-    return _.map(allSamps, function (sample) {
+    var allSamps   = _.union(_.keys(A), _.keys(B));
+    var allResults = _.map(allSamps, function (sample) {
         var aVal = A[sample] || 0;
         var bVal = B[sample] || 0;
         return {
@@ -38,6 +52,8 @@ function sampleNormalizedDifference(queryId, groupIdA, groupIdB) {
             "D": (bVal - aVal) / (bVal + aVal)
         };
     });
+    var sorted     = _.sortBy(allResults, "D");
+    return _.last(sorted, k);
 }
 
 function getSampleCounts(queryId, groupId) {

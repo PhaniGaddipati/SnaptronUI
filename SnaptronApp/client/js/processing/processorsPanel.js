@@ -33,6 +33,12 @@ Template.processorsPanel.helpers({
             return group[QRY_GROUP_NAME] + " (" + len + " junctions)";
         }
         return group[QRY_GROUP_NAME] + " (1 junction)";
+    },
+    "limitResultsOpt": function () {
+        if (selectedType.get() == null) {
+            return false;
+        }
+        return SnapApp.Processors.Index[selectedType.get()][SnapApp.Processors.LIMIT];
     }
 });
 
@@ -51,6 +57,7 @@ Template.processorsPanel.onRendered(function () {
 
 function onAnalyze(evt, template) {
     var queryId     = Queries.findOne({})._id;
+    var k           = template.find("#topKResults").value;
     var type        = template.find("#processorType").value;
     var fn          = SnapApp.Processors.Index[type][SnapApp.Processors.FUNCTION];
     var inputGroups = {};
@@ -58,7 +65,7 @@ function onAnalyze(evt, template) {
     for (var i = 0; i < inputs.length; i++) {
         inputGroups[inputs[i]] = template.find("#" + inputs[i]).value;
     }
-    Meteor.call(fn, queryId, inputGroups);
+    Meteor.call(fn, queryId, inputGroups, k);
 }
 
 function validate(evt, template) {

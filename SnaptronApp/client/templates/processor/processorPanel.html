@@ -22,6 +22,17 @@
                         </select>
                     </div>
                 {{/each}}
+                {{#if limitResultsOpt}}
+                    <div class="form-group">
+                        <label class="control-label" for="topKResults">Top K Results</label>
+                        <select class="form-control" id="topKResults">
+                            <option>100</option>
+                            <option>50</option>
+                            <option>25</option>
+                            <option>10</option>
+                        </select>
+                    </div>
+                {{/if}}
                 <div class="form-group">
                     <button class="btn btn-primary pull-right {{#unless valid}}disabled{{/unless}}" id="analyzeBtn"
                             type="button">
