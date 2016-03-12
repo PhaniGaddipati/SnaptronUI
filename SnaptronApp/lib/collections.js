@@ -98,6 +98,7 @@ QRY_PROCESSORS             = "processors";
 QRY_PROCESSOR_TYPE         = "type";
 QRY_PROCESSOR_INPUT_GROUPS = "inputGroups";
 QRY_PROCESSOR_RESULTS      = "results";
+QRY_PROCESSOR_PARAMS       = "params";
 
 REGION_METADATA     = "metadata";
 REGION_LOADED_DATE  = "loadedDate";

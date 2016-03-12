@@ -146,9 +146,9 @@ Meteor.methods({
      * @param results
      * @returns {*}
      */
-    "addProcessorToQuery": function (queryId, type, inputGroups, results) {
+    "addProcessorToQuery": function (queryId, type, inputGroups, params, results) {
         if (SnapApp.QueryDB.isQueryCurrentUsers(queryId)) {
-            return SnapApp.QueryDB.addProcessorToQuery(queryId, type, inputGroups, results);
+            return SnapApp.QueryDB.addProcessorToQuery(queryId, type, inputGroups, params, results);
         }
         return null;
     },
@@ -434,7 +434,7 @@ SnapApp.QueryDB.getGroupFromQuery = function (queryId, groupId) {
  * @param inputGroups
  * @returns {*} The new processorId
  */
-SnapApp.QueryDB.addProcessorToQuery = function (queryId, type, inputGroups, results) {
+SnapApp.QueryDB.addProcessorToQuery = function (queryId, type, inputGroups, params, results) {
     check(queryId, String);
     check(type, String);
 
@@ -442,6 +442,7 @@ SnapApp.QueryDB.addProcessorToQuery = function (queryId, type, inputGroups, resu
     processorDoc["_id"]                      = new Meteor.Collection.ObjectID().valueOf();
     processorDoc[QRY_PROCESSOR_TYPE]         = type;
     processorDoc[QRY_PROCESSOR_INPUT_GROUPS] = inputGroups;
+    processorDoc[QRY_PROCESSOR_PARAMS]       = params;
     processorDoc[QRY_PROCESSOR_RESULTS]      = results;
 
     var pushCmd             = {};

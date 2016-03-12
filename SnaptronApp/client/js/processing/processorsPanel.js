@@ -34,11 +34,17 @@ Template.processorsPanel.helpers({
         }
         return group[QRY_GROUP_NAME] + " (1 junction)";
     },
-    "limitResultsOpt": function () {
+    "processorSelects": function () {
         if (selectedType.get() == null) {
             return false;
         }
-        return SnapApp.Processors.Index[selectedType.get()][SnapApp.Processors.LIMIT];
+        return SnapApp.Processors.Index[selectedType.get()][SnapApp.Processors.SELECTS];
+    },
+    "processorInputs": function () {
+        if (selectedType.get() == null) {
+            return false;
+        }
+        return SnapApp.Processors.Index[selectedType.get()][SnapApp.Processors.INPUTS];
     }
 });
 
@@ -56,16 +62,30 @@ Template.processorsPanel.onRendered(function () {
 });
 
 function onAnalyze(evt, template) {
-    var queryId     = Queries.findOne({})._id;
-    var k           = template.find("#topKResults").value;
-    var type        = template.find("#processorType").value;
-    var fn          = SnapApp.Processors.Index[type][SnapApp.Processors.FUNCTION];
+    var queryId = Queries.findOne({})._id;
+    var type    = template.find("#processorType").value;
+    var fn      = SnapApp.Processors.Index[type][SnapApp.Processors.FUNCTION];
+
     var inputGroups = {};
     var inputs      = SnapApp.Processors.Index[selectedType.get()][SnapApp.Processors.INPUT_GROUPS];
     for (var i = 0; i < inputs.length; i++) {
         inputGroups[inputs[i]] = template.find("#" + inputs[i]).value;
     }
-    Meteor.call(fn, queryId, inputGroups, k);
+
+    var params       = {};
+    var selectFields = SnapApp.Processors.Index[selectedType.get()][SnapApp.Processors.SELECTS];
+    for (var i = 0; i < selectFields.length; i++) {
+        var param     = selectFields[i][SnapApp.Processors.PARAM];
+        params[param] = template.find("#pSelect" + param).value;
+    }
+
+    var inputFields = SnapApp.Processors.Index[selectedType.get()][SnapApp.Processors.INPUTS];
+    for (var i = 0; i < inputFields.length; i++) {
+        var param     = inputFields[i][SnapApp.Processors.PARAM];
+        params[param] = template.find("#pInput" + param).value;
+    }
+
+    Meteor.call(fn, queryId, inputGroups, params);
 }
 
 function validate(evt, template) {

@@ -11,18 +11,27 @@
  *      "D" : normalized ration (B-A)/(B+A)
  * }
  *
- * The method is limited to the Top K results to prevent the syncing
- * of very large data sets.
+ * Expected parameters:
+ *      k: The top k results to return
+ *
+ * Optional parameters:
+ *      None
  *
  */
 
 if (Meteor.isServer) {
     Meteor.methods({
-        "sampleNormalizedDifference": function (queryId, inputGroups, k) {
+        "sampleNormalizedDifference": function (queryId, inputGroups, params) {
             this.unblock();
             if (!_.contains(_.keys(inputGroups), "A") || !_.contains(_.keys(inputGroups), "B")) {
                 // Proper input groups not present
                 return null;
+            }
+            var k;
+            if (!_.contains(_.keys(params), "k")) {
+                k = 100;
+            } else {
+                k = parseInt(params["k"]);
             }
 
             var groupIdA = inputGroups["A"];
@@ -32,7 +41,7 @@ if (Meteor.isServer) {
             if (results == null) {
                 return null;
             }
-            return Meteor.call("addProcessorToQuery", queryId, "Sample Normalized Difference", inputGroups, results);
+            return Meteor.call("addProcessorToQuery", queryId, "Sample Normalized Difference", inputGroups, params, results);
         }
     });
 }

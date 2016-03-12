@@ -22,17 +22,22 @@
                         </select>
                     </div>
                 {{/each}}
-                {{#if limitResultsOpt}}
+                {{#each processorSelects}}
                     <div class="form-group">
-                        <label class="control-label" for="topKResults">Top K Results</label>
-                        <select class="form-control" id="topKResults">
-                            <option>100</option>
-                            <option>50</option>
-                            <option>25</option>
-                            <option>10</option>
+                        <label class="control-label" for="pSelect{{this.param}}">{{this.name}}</label>
+                        <select class="form-control" id="pSelect{{this.param}}">
+                            {{#each this.opts}}
+                                <option>{{this}}</option>
+                            {{/each}}
                         </select>
                     </div>
-                {{/if}}
+                {{/each}}
+                {{#each processorInputs}}
+                    <div class="form-group">
+                        <label class="control-label" for="pSelect{{this.param}}">{{this.name}}</label>
+                        <input class="form-control" id="pSelect{{this.param}}" type="text">
+                    </div>
+                {{/each}}
                 <div class="form-group">
                     <button class="btn btn-primary pull-right {{#unless valid}}disabled{{/unless}}" id="analyzeBtn"
                             type="button">
