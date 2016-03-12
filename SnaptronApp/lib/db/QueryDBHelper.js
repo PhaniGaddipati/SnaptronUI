@@ -191,7 +191,8 @@ SnapApp.QueryDB.newQuery = function (regionIds, filters) {
     else {
         queryDoc[QRY_FILTERS] = filters;
     }
-    queryDoc[QRY_GROUPS] = [];
+    queryDoc[QRY_GROUPS]     = [];
+    queryDoc[QRY_PROCESSORS] = [];
     return SnapApp.QueryDB.insertQuery(queryDoc);
 };
 
