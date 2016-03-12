@@ -19,13 +19,28 @@
  *  filters:        Array of filters to perform on junctions. Each filter has the format:
  *                  {  "filter" : "junctions.xxx",
  *                      "op" : "some_mongo_operator",
- *                      "val" : some_value  }
+ *                      "val" : some_value
+ *                  }
  *  groups:         Array of user selected groups of junctionIds.
  *                  These junctions may no longer be in the query if the relevant region was removed,
  *                  or if a filter removes it. Each group has the format:
  *                  {   "_id" : "id"
  *                      "name" : "group name",
-   *                    "junctions" : [...] }
+ *                      "junctions" : [...]
+ *                  }
+ *
+ *  processors:     Array of processor configs and results. The processors use junction groups,
+ *                  which may be deleted after a processor is created. Each has the following format.
+ *                  inputGroup and type matches what's found in the index.
+ *                  {   "_id" : "id",
+ *                      "type" : "processor type key from index",
+ *                      "inputGroups" : {    "inputGroup[0]" : groupId,
+ *                                           "inputGroup[1]" : groupId,
+ *                                            ...
+ *                                      },
+ *                      "results" : someObj // null if not computed yet
+ *                  }
+ *
  *
  *  Regions
  *  --------
@@ -48,47 +63,52 @@
  */
 
 Users = Meteor.users;
-Queries = new Mongo.Collection("queries");
-Regions = new Mongo.Collection("regions");
+Queries   = new Mongo.Collection("queries");
+Regions   = new Mongo.Collection("regions");
 Junctions = new Mongo.Collection("junctions");
 
-USER_QRYS = "queries";
+USER_QRYS     = "queries";
 USER_USERNAME = "username";
-USER_EMAIL = "email";
+USER_EMAIL    = "email";
 
-MONGO_OPERATOR_EQ = "$eq";
-MONGO_OPERATOR_GT = "$gt";
-MONGO_OPERATOR_LT = "$lt";
+MONGO_OPERATOR_EQ  = "$eq";
+MONGO_OPERATOR_GT  = "$gt";
+MONGO_OPERATOR_LT  = "$lt";
 MONGO_OPERATOR_GTE = "$gte";
 MONGO_OPERATOR_LTE = "$lte";
 
-QRY_REGIONS = "regions";
-QRY_FILTERS = "filters";
+QRY_REGIONS      = "regions";
+QRY_FILTERS      = "filters";
 QRY_CREATED_DATE = "createdDate";
-QRY_OWNER = "owner";
-QRY_GROUPS = "groups";
-QRY_GROUP_NAME = "name";
-QRY_GROUP_JNCTS = "junctions";
+QRY_OWNER        = "owner";
+QRY_GROUPS       = "groups";
+QRY_GROUP_NAME   = "name";
+QRY_GROUP_JNCTS  = "junctions";
 
-QRY_FILTER_FIELD = "filter";
-QRY_FILTER_OP = "op";
-QRY_FILTER_VAL = "val";
+QRY_FILTER_FIELD        = "filter";
+QRY_FILTER_OP           = "op";
+QRY_FILTER_VAL          = "val";
 QRY_FILTER_SAMPLE_COUNT = "samples_count";
-QRY_FILTER_COV_SUM = "coverage_sum";
-QRY_FILTER_COV_AVG = "coverage_avg";
-QRY_FILTER_COV_MED = "coverage_median";
-QRY_FILTER_LENGTH = "length";
+QRY_FILTER_COV_SUM      = "coverage_sum";
+QRY_FILTER_COV_AVG      = "coverage_avg";
+QRY_FILTER_COV_MED      = "coverage_median";
+QRY_FILTER_LENGTH       = "length";
 
-REGION_METADATA = "metadata";
-REGION_LOADED_DATE = "loadedDate";
-REGION_JUNCTIONS = "junctions";
+QRY_PROCESSORS             = "processors";
+QRY_PROCESSOR_TYPE         = "type";
+QRY_PROCESSOR_INPUT_GROUPS = "inputGroups";
+QRY_PROCESSOR_RESULTS      = "results";
+
+REGION_METADATA     = "metadata";
+REGION_LOADED_DATE  = "loadedDate";
+REGION_JUNCTIONS    = "junctions";
 REGION_METADATA_KEY = "key";
 REGION_METADATA_VAL = "value";
 
-JNCT_ID_FIELD = "snaptron_id";
+JNCT_ID_FIELD      = "snaptron_id";
 JNCT_ANNOTATED_KEY = "annotated?";
-JNCT_SAMPLES_KEY = "samples";
-JNCT_COL_TYPES = {
+JNCT_SAMPLES_KEY   = "samples";
+JNCT_COL_TYPES     = {
     "DataSource:Type": "str",
     "snaptron_id": "str",
     "chromosome": "str",
