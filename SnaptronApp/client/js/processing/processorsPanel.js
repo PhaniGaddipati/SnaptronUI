@@ -5,7 +5,7 @@
 var selectedType = new ReactiveVar(null);
 var valid = new ReactiveVar(false);
 
-Template.processors.helpers({
+Template.processorsPanel.helpers({
     "processorTypes": function () {
         return _.keys(SnapApp.Processors.Index);
     },
@@ -29,7 +29,7 @@ Template.processors.helpers({
     }
 });
 
-Template.processors.events({
+Template.processorsPanel.events({
     "change #processorType": function (evt, template) {
         selectedType.set(template.find("#processorType").value);
         validate(evt, template);
@@ -38,7 +38,7 @@ Template.processors.events({
     "click #analyzeBtn": onAnalyze
 });
 
-Template.processors.onRendered(function () {
+Template.processorsPanel.onRendered(function () {
     selectedType.set(Template.instance().find("#processorType").value);
 });
 

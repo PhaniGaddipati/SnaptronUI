@@ -1,0 +1,32 @@
+<template name="groupsPanel">
+    <div class="panel panel-default col-xs-12 col-md-4">
+        <div class="panel-body">
+            <h4>Junction Groups</h4>
+            <p>Click a group to add it to the current selection</p>
+            {{#if isNoGroups}}
+                {{#if isUsersQuery}}
+                    <i>Select junctions to create groups</i>
+                {{else}}
+                    <i>Sign in to create groups</i>
+                {{/if}}
+            {{else}}
+                <ul>
+                    {{#each groups}}
+                        <li>
+                            <a href="#" class="text-info groupSel">
+                                {{groupText _id}}
+                            </a>
+                            {{#if isUsersQuery}}
+                                &nbsp;&nbsp;
+                                <a href="#" class="text-danger groupDel">
+                                    <i>(delete)</i>
+                                </a>
+                                <br>
+                            {{/if}}
+                        </li>
+                    {{/each}}
+                </ul>
+            {{/if}}
+        </div>
+    </div>
+</template>

@@ -2,25 +2,13 @@
  * Created by Phani on 3/3/2016.
  */
 
-Template.queryGroups.helpers({
+Template.groupsPanel.helpers({
     isUsersQuery: function () {
         return SnapApp.QueryDB.isQueryCurrentUsers(Queries.findOne()["_id"]);
     },
-    selectionTitle: function () {
-        SnapApp.selectedJnctIDsDep.depend();
-        var len = SnapApp.selectedJnctIDs.length;
-        if (len == 0)
-            return "No junctions selected";
-        if (len == 1)
-            return SnapApp.selectedJnctIDs.length + " junction selected";
-        return SnapApp.selectedJnctIDs.length + " junctions selected";
-    },
+
     isNoGroups: function () {
         return SnapApp.QueryDB.getGroupsFromQuery(Queries.findOne()["_id"]).length == 0
-    },
-    anyJunctionsSelected: function () {
-        SnapApp.selectedJnctIDsDep.depend();
-        return SnapApp.selectedJnctIDs.length > 0;
     },
     groups: function () {
         return SnapApp.QueryDB.getGroupsFromQuery(Queries.findOne()["_id"]);
@@ -41,15 +29,7 @@ Template.queryGroups.helpers({
     }
 });
 
-Template.queryGroups.events({
-    "click #clearSelectionBtn": function (evt) {
-        evt.preventDefault();
-        onClearSelection();
-    },
-    "click #addQryGroupBtn": function (evt, template) {
-        evt.preventDefault();
-        onAddGroup(template);
-    },
+Template.groupsPanel.events({
     "click .groupSel": function (evt, template) {
         evt.preventDefault();
         onSelectGroup(this._id);
@@ -68,15 +48,5 @@ function onSelectGroup(groupId) {
             SnapApp.selectedJnctIDs.push(jncts[i]);
         }
     }
-    SnapApp.selectedJnctIDsDep.changed();
-}
-
-function onAddGroup(template) {
-    var name = template.find("#addGroupInputName").value;
-    Meteor.call("addGroupToQuery", Queries.findOne()["_id"], name, SnapApp.selectedJnctIDs);
-}
-
-function onClearSelection() {
-    SnapApp.selectedJnctIDs = [];
     SnapApp.selectedJnctIDsDep.changed();
 }

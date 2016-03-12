@@ -1,0 +1,25 @@
+<template name="selectionPanel">
+    {{#if anyJunctionsSelected}}
+        <div class="panel panel-default col-xs-12">
+            <div class="panel-body">
+                <a data-toggle="collapse" href="#selectionCollapse" style="color:inherit;">
+                    <h4>{{selectionTitle}} <span class="caret"></span></h4>
+                </a>
+                <div id="selectionCollapse" class="panel-collapse collapse">
+                    {{> selectedTable}}
+                    <hr>
+                </div>
+                <br>
+                <div class="form-group form-inline">
+                    {{#if isUsersQuery}}
+                        <input type="text" class="form-control input-sm" placeholder="Name"
+                               id="addGroupInputName" size="35">
+                        <button class="btn btn-primary btn-sm" id="addQryGroupBtn">Add Group</button>
+                    {{/if}}
+                    <a href="#" id="clearSelectionBtn" class="btn btn-default btn-sm pull-right">Clear
+                        Selection</a>
+                </div>
+            </div>
+        </div>
+    {{/if}}
+</template>
