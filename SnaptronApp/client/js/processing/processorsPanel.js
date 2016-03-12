@@ -3,7 +3,7 @@
  */
 
 var selectedType = new ReactiveVar(null);
-var valid = new ReactiveVar(false);
+var valid        = new ReactiveVar(false);
 
 Template.processorsPanel.helpers({
     "processorTypes": function () {
@@ -54,7 +54,7 @@ function onAnalyze() {
 }
 
 function validate(evt, template) {
-    var inputs = SnapApp.Processors.Index[selectedType.get()][SnapApp.Processors.INPUT_GROUPS];
+    var inputs         = SnapApp.Processors.Index[selectedType.get()][SnapApp.Processors.INPUT_GROUPS];
     var selectedGroups = [];
     for (var i = 0; i < inputs.length; i++) {
         var val = template.find("#" + inputs[i]).value;

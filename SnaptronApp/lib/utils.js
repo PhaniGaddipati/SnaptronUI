@@ -49,8 +49,8 @@ getFilterFromFields = function (field, opStr, val) {
     var filter = {};
     if (!isNaN(val)) {
         filter[QRY_FILTER_FIELD] = field;
-        filter[QRY_FILTER_OP] = getOpFromOptionStr(opStr);
-        filter[QRY_FILTER_VAL] = val;
+        filter[QRY_FILTER_OP]    = getOpFromOptionStr(opStr);
+        filter[QRY_FILTER_VAL]   = val;
         return filter;
     }
 };

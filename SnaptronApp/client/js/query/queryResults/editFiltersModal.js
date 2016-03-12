@@ -48,9 +48,9 @@ Template.editFiltersModal.events({
 });
 
 function handleAddFilter(template) {
-    var field = template.find("#addFieldSelect").value;
-    var op = template.find("#addOpSelect").value;
-    var val = parseInt(template.find("#addValInput").value);
+    var field         = template.find("#addFieldSelect").value;
+    var op            = template.find("#addOpSelect").value;
+    var val           = parseInt(template.find("#addValInput").value);
     anyFiltersChanged = true;
     Meteor.call("addFilterToQuery", Queries.findOne()["_id"], field, op, val);
 }
@@ -61,7 +61,7 @@ function handleRemoveFilter(filter) {
 }
 
 function updateSelects() {
-    var options = SnapApp.JunctionDB.getJunctionNumberKeys();
+    var options   = SnapApp.JunctionDB.getJunctionNumberKeys();
     var selection = d3.select("#addFieldSelect")
         .selectAll("option")
         .data(options, function (opt) {

@@ -10,8 +10,8 @@ Template.rawData.helpers({
 
 function getJunctionTSV() {
     var junctions = Junctions.find().fetch();
-    var cols = Object.keys(junctions[0]);
-    var lines = junctions.map(function (jnct) {
+    var cols      = Object.keys(junctions[0]);
+    var lines     = junctions.map(function (jnct) {
         var vals = [];
         for (var i = 0; i < cols.length; i++) {
             vals.push(jnct[cols[i]]);

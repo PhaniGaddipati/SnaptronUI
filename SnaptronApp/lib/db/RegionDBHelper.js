@@ -30,7 +30,7 @@ SnapApp.RegionDB.getRegion = function (regionId) {
 };
 
 SnapApp.RegionDB.getRegionNoJunctions = function (regionId) {
-    var fields = {};
+    var fields               = {};
     fields[REGION_JUNCTIONS] = 0;
     return Regions.findOne({"_id": regionId}, {"fields": fields});
 };
@@ -56,10 +56,10 @@ SnapApp.RegionDB.findRegionsForQuery = function (queryId) {
  * @returns {820|1027|*|any}
  */
 SnapApp.RegionDB.newRegion = function (regionId) {
-    var regionDoc = {};
-    regionDoc["_id"] = regionId;
-    regionDoc[REGION_JUNCTIONS] = [];
-    regionDoc[REGION_METADATA] = [];
+    var regionDoc                 = {};
+    regionDoc["_id"]              = regionId;
+    regionDoc[REGION_JUNCTIONS]   = [];
+    regionDoc[REGION_METADATA]    = [];
     regionDoc[REGION_LOADED_DATE] = null;
     return Regions.insert(regionDoc);
 };
@@ -83,9 +83,9 @@ SnapApp.RegionDB.setRegionJunctions = function (regionId, junctionIds) {
     check(regionId, String);
     check(junctionIds, [String]);
 
-    var newInfo = {};
+    var newInfo               = {};
     newInfo[REGION_JUNCTIONS] = junctionIds;
-    var changed = Regions.update({"_id": regionId}, {$set: newInfo});
+    var changed               = Regions.update({"_id": regionId}, {$set: newInfo});
     if (changed > 0) {
         return regionId;
     }
@@ -103,9 +103,9 @@ SnapApp.RegionDB.setRegionLoadedDate = function (regionId, date) {
     check(regionId, String);
     check(date, Match.OneOf(Date, null));
 
-    var newInfo = {};
+    var newInfo                 = {};
     newInfo[REGION_LOADED_DATE] = date;
-    var changed = Regions.update({"_id": regionId}, {$set: newInfo});
+    var changed                 = Regions.update({"_id": regionId}, {$set: newInfo});
     if (changed > 0) {
         return regionId;
     }
@@ -126,11 +126,11 @@ SnapApp.RegionDB.addRegionMetadata = function (regionId, key, val) {
     if (Regions.findOne({"_id": regionId}) == null) {
         return null;
     }
-    var metadata = {};
+    var metadata                  = {};
     metadata[REGION_METADATA_KEY] = key;
     metadata[REGION_METADATA_VAL] = val;
-    var pushCmd = {};
-    pushCmd[REGION_METADATA] = metadata;
+    var pushCmd                   = {};
+    pushCmd[REGION_METADATA]      = metadata;
 
     var changed = Regions.update({"_id": regionId}, {$push: pushCmd});
     if (changed > 0) {

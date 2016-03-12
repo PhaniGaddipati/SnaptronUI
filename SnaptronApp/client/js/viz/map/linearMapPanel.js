@@ -3,13 +3,13 @@
  */
 var linearMapXScale;
 var linearMapXAxis;
-var zoom = null;
+var zoom              = null;
 var highlightedJnctID = new ReactiveVar(null, jnctsEqual);
 
 var colorByScale = new ReactiveVar();
-var colorByKey = null;
+var colorByKey   = null;
 
-var markerX = new ReactiveVar(-1);
+var markerX          = new ReactiveVar(-1);
 var visibleJunctions = new ReactiveVar([]);
 var jnctDomainStart;
 var jnctDomainStop;
@@ -26,11 +26,11 @@ Template.linearMap.events({
         if (selected === "None") {
             colorByKey = null;
         } else if (selected.startsWith("log(")) {
-            colorLog = true;
+            colorLog   = true;
             colorByKey = selected.replace("log(", "").replace(")", "");
         }
         else {
-            colorLog = false;
+            colorLog   = false;
             colorByKey = selected;
         }
         colorByScale.set(updateColorScale(colorByKey, colorLog, Junctions.find().fetch()));
@@ -81,10 +81,10 @@ function initControls() {
 }
 
 function initMap() {
-    var junctions = Junctions.find().fetch();
-    var _limits = getLimits(junctions);
+    var junctions   = Junctions.find().fetch();
+    var _limits     = getLimits(junctions);
     jnctDomainStart = _limits.start;
-    jnctDomainStop = _limits.stop;
+    jnctDomainStop  = _limits.stop;
     linearMapXScale = d3.scale.linear().range([0, SnapApp.Map.VIEWBOX_W])
         .domain([jnctDomainStart, jnctDomainStop]);
 
@@ -112,8 +112,8 @@ function initMap() {
 }
 
 function updateVisibleJunctions() {
-    var leftLim = linearMapXScale.invert(0);
-    var rightLim = linearMapXScale.invert(SnapApp.Map.VIEWBOX_W);
+    var leftLim   = linearMapXScale.invert(0);
+    var rightLim  = linearMapXScale.invert(SnapApp.Map.VIEWBOX_W);
     var minLength = linearMapXScale.invert(SnapApp.Map.MIN_DISPLAY_LENGTH_PX) - leftLim;
     visibleJunctions.set(Junctions.find({
         start: {"$gte": leftLim},
@@ -146,19 +146,19 @@ function updateJunctions() {
 }
 
 function junctionPath(jnct) {
-    var endpointY = (SnapApp.Map.VIEWBOX_H) / 2;
-    var startX = parseInt(linearMapXScale(jnct.start));
-    var endX = parseInt(linearMapXScale(jnct.end));
-    var range = endX - startX;
-    var cPoint1X = parseInt(startX + 2 * range / 6);
-    var cPoint2X = parseInt(startX + 4 * range / 6);
+    var endpointY    = (SnapApp.Map.VIEWBOX_H) / 2;
+    var startX       = parseInt(linearMapXScale(jnct.start));
+    var endX         = parseInt(linearMapXScale(jnct.end));
+    var range        = endX - startX;
+    var cPoint1X     = parseInt(startX + 2 * range / 6);
+    var cPoint2X     = parseInt(startX + 4 * range / 6);
     var annotatedMod = jnct[JNCT_ANNOTATED_KEY] ? -1 : 1;
-    var cPointY = (SnapApp.Map.VIEWBOX_H ) / 2 -
+    var cPointY      = (SnapApp.Map.VIEWBOX_H ) / 2 -
         annotatedMod * parseInt((SnapApp.Map.VIEWBOX_H / 2)
             * (parseFloat(range) / (SnapApp.Map.VIEWBOX_W / 3)));
     endpointY -= annotatedMod * SnapApp.Map.MID_AXIS_Y_OFF / 2;
-    cPointY = Math.max(0, cPointY);
-    cPointY = Math.min(SnapApp.Map.VIEWBOX_H, cPointY);
+    cPointY          = Math.max(0, cPointY);
+    cPointY          = Math.min(SnapApp.Map.VIEWBOX_H, cPointY);
     return "M" + startX + " " + endpointY + " C " + cPoint1X + " "
         + cPointY + " " + cPoint2X + " " + cPointY + " " + endX + " " + endpointY;
 }
@@ -197,7 +197,7 @@ function updateFrame() {
 
 function getLimits(junctions) {
     var start = 9007199254740990;
-    var stop = -1;
+    var stop  = -1;
     for (var i = 0; i < junctions.length; i++) {
         if (junctions[i].start < start) {
             start = junctions[i].start;
@@ -208,7 +208,7 @@ function getLimits(junctions) {
     }
     if (stop == -1) {
         start = 0;
-        stop = 1;
+        stop  = 1;
     }
     return {start: start, stop: stop};
 }
@@ -289,7 +289,7 @@ function updateMarker() {
         .attr("y2", SnapApp.Map.VIEWBOX_H)
         .attr("style", SnapApp.Map.MARKER_LINE_STYLE)
         .attr("pointer-events", "none");
-    var label = markerG.selectAll("#markerlabel").data([0]);
+    var label      = markerG.selectAll("#markerlabel").data([0]);
     label.enter()
         .append("g").attr("id", "markerlabel").attr("transform", "translate(0,0)");
     //Label box and text
@@ -316,7 +316,7 @@ function updateMarker() {
     text.text(function () {
         return numberWithCommas(parseInt(linearMapXScale.invert(markerX.get())));
     });
-    var w = d3.select("#markerlabeltext").node().getBBox().width;
+    var w       = d3.select("#markerlabeltext").node().getBBox().width;
     var xOffset = -10 - w / 2;
     if (markerX.get() - w - 50 <= 0) {
         //Goes offscreen, go to other side of line

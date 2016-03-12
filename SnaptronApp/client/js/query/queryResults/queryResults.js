@@ -20,7 +20,7 @@ Template.queryResults.helpers({
         return false;
     },
     errorMessage: function () {
-        var regions = Regions.find().fetch();
+        var regions    = Regions.find().fetch();
         var badRegions = [];
         for (var i = 0; i < regions.length; i++) {
             if (regions[i][REGION_LOADED_DATE] == null) {

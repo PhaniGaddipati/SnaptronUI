@@ -8,7 +8,7 @@ Meteor.publish("queries", function (queryId) {
     }
 
     var junctions = SnapApp.JunctionDB.findJunctionsForQuery(queryId);
-    var regions = SnapApp.RegionDB.findRegionsForQuery(queryId);
+    var regions   = SnapApp.RegionDB.findRegionsForQuery(queryId);
     console.log("Published " + junctions.count()
         + " junctions from " + regions.count() + " regions for id " + queryId);
 

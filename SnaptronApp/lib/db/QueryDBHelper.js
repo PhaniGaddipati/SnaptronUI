@@ -207,8 +207,8 @@ SnapApp.QueryDB.newQuery = function (regionIds, filters) {
  */
 SnapApp.QueryDB.insertQuery = function (queryDoc) {
     queryDoc[QRY_CREATED_DATE] = new Date();
-    queryDoc[QRY_OWNER] = Meteor.userId();
-    var id = Queries.insert(queryDoc);
+    queryDoc[QRY_OWNER]        = Meteor.userId();
+    var id                     = Queries.insert(queryDoc);
     SnapApp.UserDB.addQueryToUser(Meteor.userId(), id);
     return id;
 };
@@ -225,7 +225,7 @@ SnapApp.QueryDB.addQueryRegion = function (queryId, regionId) {
     check(queryId, String);
     check(regionId, String);
 
-    var pushCmd = {};
+    var pushCmd          = {};
     pushCmd[QRY_REGIONS] = regionId;
 
     var changed = Queries.update({"_id": queryId}, {$addToSet: pushCmd});
@@ -243,9 +243,9 @@ SnapApp.QueryDB.addQueryRegion = function (queryId, regionId) {
  */
 SnapApp.QueryDB.removeQueryRegion = function (queryId, regionId) {
     check(regionId, String);
-    var pullCmd = {};
+    var pullCmd          = {};
     pullCmd[QRY_REGIONS] = regionId;
-    var changed = Queries.update(queryId, {$pull: pullCmd});
+    var changed          = Queries.update(queryId, {$pull: pullCmd});
     if (changed > 0) {
         return queryId;
     }
@@ -270,7 +270,7 @@ SnapApp.QueryDB.addQueryFilter = function (queryId, field, opStr, val) {
 
     var filterDoc = getFilterFromFields(field, opStr, val);
     if (filterDoc != null) {
-        var pushCmd = {};
+        var pushCmd          = {};
         pushCmd[QRY_FILTERS] = filterDoc;
 
         var changed = Queries.update({"_id": queryId}, {$addToSet: pushCmd});
@@ -289,9 +289,9 @@ SnapApp.QueryDB.addQueryFilter = function (queryId, field, opStr, val) {
  */
 SnapApp.QueryDB.removeQueryFilter = function (queryId, filter) {
     check(queryId, String);
-    var pullCmd = {};
+    var pullCmd          = {};
     pullCmd[QRY_FILTERS] = filter;
-    var changed = Queries.update(queryId, {$pull: pullCmd});
+    var changed          = Queries.update(queryId, {$pull: pullCmd});
     if (changed > 0) {
         return queryId;
     }
@@ -318,12 +318,12 @@ SnapApp.QueryDB.addGroupToQuery = function (queryId, groupName, junctions) {
     if (junctions.length == 0) {
         return null;
     }
-    var groupDoc = {};
-    groupDoc["_id"] = new Meteor.Collection.ObjectID().valueOf();
-    groupDoc[QRY_GROUP_NAME] = groupName;
+    var groupDoc              = {};
+    groupDoc["_id"]           = new Meteor.Collection.ObjectID().valueOf();
+    groupDoc[QRY_GROUP_NAME]  = groupName;
     groupDoc[QRY_GROUP_JNCTS] = junctions;
 
-    var pushCmd = {};
+    var pushCmd         = {};
     pushCmd[QRY_GROUPS] = groupDoc;
 
     var changed = Queries.update(queryId, {$push: pushCmd});
@@ -343,7 +343,7 @@ SnapApp.QueryDB.removeGroupFromQuery = function (queryId, groupId) {
     check(queryId, String);
     check(groupId, String);
 
-    var pullCmd = {};
+    var pullCmd         = {};
     pullCmd[QRY_GROUPS] = {"_id": groupId};
 
     var changed = Queries.update(queryId, {$pull: pullCmd});

@@ -46,8 +46,8 @@ SnapApp.JunctionDB.addJunctions = function (junctions) {
 SnapApp.JunctionDB.findJunctionsForQuery = function (queryId) {
     check(queryId, String);
 
-    var query = SnapApp.QueryDB.getQuery(queryId);
-    var queryRegions = SnapApp.RegionDB.getRegions(query[QRY_REGIONS]);
+    var query          = SnapApp.QueryDB.getQuery(queryId);
+    var queryRegions   = SnapApp.RegionDB.getRegions(query[QRY_REGIONS]);
     var queryJunctions = new Set();
 
     for (var i = 0; i < queryRegions.length; i++) {
@@ -57,7 +57,7 @@ SnapApp.JunctionDB.findJunctionsForQuery = function (queryId) {
         }
     }
 
-    var filters = query[QRY_FILTERS];
+    var filters  = query[QRY_FILTERS];
     var selector = {
         "_id": {
             "$in": Array.from(queryJunctions)
@@ -67,9 +67,9 @@ SnapApp.JunctionDB.findJunctionsForQuery = function (queryId) {
     // Add query filters to the selector
     for (i = 0; i < filters.length; i++) {
         var filterDoc = filters[i];
-        var field = filterDoc[QRY_FILTER_FIELD];
-        var op = filterDoc[QRY_FILTER_OP];
-        var val = filterDoc[QRY_FILTER_VAL];
+        var field     = filterDoc[QRY_FILTER_FIELD];
+        var op        = filterDoc[QRY_FILTER_OP];
+        var val       = filterDoc[QRY_FILTER_VAL];
 
         var restriction = selector[field];
         if (restriction == null || restriction == undefined) {
@@ -83,7 +83,7 @@ SnapApp.JunctionDB.findJunctionsForQuery = function (queryId) {
 };
 
 SnapApp.JunctionDB.getJunctionNumberKeys = function () {
-    var keys = Object.keys(JNCT_COL_TYPES);
+    var keys       = Object.keys(JNCT_COL_TYPES);
     var numberKeys = [];
     for (var i = 0; i < keys.length; i++) {
         var type = JNCT_COL_TYPES[keys[i]];
@@ -95,7 +95,7 @@ SnapApp.JunctionDB.getJunctionNumberKeys = function () {
 };
 
 SnapApp.JunctionDB.getJunctionBoolKeys = function () {
-    var keys = Object.keys(JNCT_COL_TYPES);
+    var keys     = Object.keys(JNCT_COL_TYPES);
     var boolKeys = [];
     for (var i = 0; i < keys.length; i++) {
         var type = JNCT_COL_TYPES[keys[i]];

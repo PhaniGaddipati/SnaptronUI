@@ -17,7 +17,7 @@ SnapApp.UserDB.getUser = function (userId) {
 
 SnapApp.UserDB.addQueryToUser = function (userId, queryId) {
     if (userId != null) {
-        var pushDoc = {};
+        var pushDoc        = {};
         pushDoc[USER_QRYS] = queryId;
         Users.update(userId, {"$push": pushDoc});
     }

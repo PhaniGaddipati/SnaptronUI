@@ -3,6 +3,6 @@
  */
 SnapApp.Processors = {};
 
-SnapApp.Processors.FUNCTION = "function";
-SnapApp.Processors.DESCRIPTION = "description";
+SnapApp.Processors.FUNCTION     = "function";
+SnapApp.Processors.DESCRIPTION  = "description";
 SnapApp.Processors.INPUT_GROUPS = "inputGroups";

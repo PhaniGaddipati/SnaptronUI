@@ -9,7 +9,7 @@ Template.junctionTable.helpers({
     "tableSettings": function () {
         //Generate neat headers
         var tableColumns = Object.keys(Junctions.findOne());
-        var fields = [];
+        var fields       = [];
         for (var i = 0; i < tableColumns.length; i++) {
             fields.push({
                 key: tableColumns[i],

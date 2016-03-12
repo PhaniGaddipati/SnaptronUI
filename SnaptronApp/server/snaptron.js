@@ -52,7 +52,7 @@ function updateRegion(regionId) {
     try {
         console.log("Loading region " + regionId + "...");
         var responseTSV = Meteor.http.get(URL + snaptronQuery).content.trim();
-        var regionDoc = SnapApp.Parser.parseRegionResponse(regionId, responseTSV);
+        var regionDoc   = SnapApp.Parser.parseRegionResponse(regionId, responseTSV);
         SnapApp.RegionDB.upsertRegion(regionDoc);
         return regionId;
     } catch (err) {
@@ -86,9 +86,9 @@ function loadMissingRegionJunctions(regionId) {
         console.log("Loading " + toLoadJunctionIDs.length + " junctions for region (\"" + regionId + "\")");
         try {
             var snaptronQuery = "\"[{\"snaptron_id\":[\"" + toLoadJunctionIDs.join("\",\"") + "\"]}]\"";
-            var params = {"fields": snaptronQuery};
-            var responseTSV = Meteor.http.post(URL, {params: params}).content.trim();
-            var junctions = SnapApp.Parser.parseJunctionsResponse(responseTSV);
+            var params        = {"fields": snaptronQuery};
+            var responseTSV   = Meteor.http.post(URL, {params: params}).content.trim();
+            var junctions     = SnapApp.Parser.parseJunctionsResponse(responseTSV);
             SnapApp.JunctionDB.addJunctions(junctions);
             return regionId;
         } catch (err) {

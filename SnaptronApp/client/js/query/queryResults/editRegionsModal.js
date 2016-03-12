@@ -43,7 +43,7 @@ Template.editRegionsModal.helpers({
 });
 
 function handleAddRegion(template) {
-    var region = template.find("#addRegionInput").value;
+    var region      = template.find("#addRegionInput").value;
     anyRegionChange = true;
     Meteor.call("addRegionToQuery", Queries.findOne()["_id"], region);
 }

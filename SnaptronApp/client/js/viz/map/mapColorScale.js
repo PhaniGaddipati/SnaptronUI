@@ -7,7 +7,7 @@ updateColorScale = function (colorByKey, colorLog, junctions) {
     var colorScale;
     d3.select(".scale-container").selectAll("svg").remove();
     if (colorByKey != null && JNCT_COL_TYPES[colorByKey] !== "bool") {
-        var vals = _.pluck(junctions, colorByKey);
+        var vals       = _.pluck(junctions, colorByKey);
         var colorByMin = _.min(vals);
         var colorByMax = _.max(vals);
 
@@ -29,7 +29,7 @@ updateColorScale = function (colorByKey, colorLog, junctions) {
 function updateBar(colorScale) {
     var indicies = _.range(0, SnapApp.Map.SCALE_VIEWBOX_W);
 
-    var svg = d3.select(".scale-container").selectAll("svg")
+    var svg   = d3.select(".scale-container").selectAll("svg")
         .data([0]).enter()
         .append("svg")
         .classed("svg-content-responsive", true)

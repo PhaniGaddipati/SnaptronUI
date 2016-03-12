@@ -23,8 +23,8 @@ SnapApp.Processors.sampleNormalizedDifference = function (queryId, groupIdA, gro
 };
 
 function getSampleCounts(queryId, groupId) {
-    var group = SnapApp.QueryDB.getGroupFromQuery(queryId, groupId);
-    var jncts = SnapApp.JunctionDB.getJunctions(group[QRY_GROUP_JNCTS]);
+    var group   = SnapApp.QueryDB.getGroupFromQuery(queryId, groupId);
+    var jncts   = SnapApp.JunctionDB.getJunctions(group[QRY_GROUP_JNCTS]);
     var samples = _.flatten(_.map(jncts, getJnctSamples));
     return _.countBy(samples, _.identity)
 }
