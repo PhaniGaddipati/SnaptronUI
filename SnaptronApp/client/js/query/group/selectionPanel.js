@@ -28,6 +28,12 @@ Template.selectionPanel.events({
     "click #clearSelectionBtn": function (evt) {
         evt.preventDefault();
         onClearSelection();
+    },
+    "keypress #addGroupInputName": function (event, template) {
+        if (event.which === SnapApp.ENTER_KEY_CODE) {
+            event.preventDefault();
+            onAddGroup(template);
+        }
     }
 });
 
