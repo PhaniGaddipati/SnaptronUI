@@ -17,7 +17,7 @@
                         <label class="control-label" for="{{this}}">Group {{this}}</label>
                         <select class="form-control groupSelect" id="{{this}}">
                             {{#each queryGroups}}
-                                <option value="{{this._id}}">{{this.name}}</option>
+                                <option value="{{this._id}}">{{groupOptionText this}}</option>
                             {{/each}}
                         </select>
                     </div>

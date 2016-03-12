@@ -26,6 +26,13 @@ Template.processorsPanel.helpers({
     },
     "valid": function () {
         return valid.get();
+    },
+    "groupOptionText": function (group) {
+        var len = group[QRY_GROUP_JNCTS].length;
+        if (len > 1) {
+            return group[QRY_GROUP_NAME] + " (" + len + " junctions)";
+        }
+        return group[QRY_GROUP_NAME] + " (1 junction)";
     }
 });
 
