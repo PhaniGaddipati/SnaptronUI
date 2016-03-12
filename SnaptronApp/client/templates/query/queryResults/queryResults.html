@@ -20,7 +20,9 @@
         <row>
             {{> selectionPanel}}
             {{> groupsPanel}}
-            {{> processorsPanel}}
+            {{#if isCurrentUsers}}
+                {{> processorsPanel}}
+            {{/if}}
         </row>
         <br>
         <br>
