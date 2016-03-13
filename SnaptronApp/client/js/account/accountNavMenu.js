@@ -2,7 +2,7 @@
  * Created by Phani on 3/12/2016.
  */
 
-var signinErr = new ReactiveVar(false);
+var errorSignInOrRegister = new ReactiveVar(false);
 
 Template.accountNavMenu.onRendered(function () {
     $("#accountNavModal").on("shown.bs.modal", function () {
@@ -21,7 +21,7 @@ Template.accountNavMenu.helpers({
         return "ds";
     },
     "isError": function () {
-        return signinErr.get();
+        return errorSignInOrRegister.get();
     }
 });
 
@@ -44,14 +44,15 @@ Template.accountNavMenu.events({
     },
     "click #registerBtn": function (event, template) {
         event.preventDefault();
+        onRegister(template);
     },
     "click #accountNavMenuItem": function () {
-        signinErr.set(false);
+        errorSignInOrRegister.set(false);
     },
     "click #signOutBtn": function () {
         event.preventDefault();
         Meteor.logout();
-        signinErr.set(false);
+        errorSignInOrRegister.set(false);
     }
 });
 
@@ -60,7 +61,22 @@ function onSignIn(template) {
     var password = template.find("#passwordInput").value;
     Meteor.loginWithPassword(email, password, function (err) {
         if (err) {
-            signinErr.set(true);
+            errorSignInOrRegister.set(true);
+        }
+    });
+}
+
+function onRegister(template) {
+    var email    = template.find("#emailInput").value;
+    var password = template.find("#passwordInput").value;
+    Accounts.createUser({
+        "email": email,
+        "password": password
+    }, function (err) {
+        if (err) {
+            errorSignInOrRegister.set(true);
+        } else {
+            console.log("Registered new user " + Meteor.userId());
         }
     });
 }
