@@ -7,11 +7,18 @@ Meteor.publish("queries", function (queryId) {
         return [];
     }
 
-    var junctions = SnapApp.JunctionDB.findJunctionsForQuery(queryId);
-    var regions   = SnapApp.RegionDB.findRegionsForQuery(queryId);
-    console.log("Published " + junctions.count()
-        + " junctions from " + regions.count() + " regions for id " + queryId);
-
-    return [SnapApp.QueryDB.findQuery(queryId), junctions, regions]
+    console.log("Published query " + queryId);
+    return SnapApp.QueryDB.findQuery(queryId)
 });
 
+Meteor.publish("regions", function (queryId) {
+    var regions = SnapApp.RegionDB.findRegionsForQuery(queryId);
+    console.log("Published " + regions.count() + " regions for query " + queryId);
+    return regions;
+});
+
+Meteor.publish("junctions", function (queryId) {
+    var junctions = SnapApp.JunctionDB.findJunctionsForQuery(queryId);
+    console.log("Published " + junctions.count() + " junctions for query " + queryId);
+    return junctions;
+});

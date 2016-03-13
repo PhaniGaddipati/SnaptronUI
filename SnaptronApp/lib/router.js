@@ -10,7 +10,10 @@ Router.route('/usage');
 Router.route('/query/:queryId', {
     loadingTemplate: 'loadingQuery',
     waitOn: function () {
-        return Meteor.subscribe('queries', this.params["queryId"]);
+        var queryId = this.params["queryId"];
+        return [Meteor.subscribe('queries', queryId),
+            Meteor.subscribe('regions', queryId),
+            Meteor.subscribe('junctions', queryId)];
     },
     data: function () {
         return Queries.findOne();
