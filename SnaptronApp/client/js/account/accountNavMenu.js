@@ -16,7 +16,7 @@ Template.accountNavMenu.helpers({
     },
     "userEmail": function () {
         if (Meteor.user()) {
-            return Meteor.user()["emails"][0]["address"];
+            return Meteor.user()[USER_EMAILS][0][USER_EMAIL_ADDRESS];
         }
         return "ds";
     },
@@ -53,6 +53,13 @@ Template.accountNavMenu.events({
         event.preventDefault();
         Meteor.logout();
         errorSignInOrRegister.set(false);
+    },
+    "click #accountLink": function () {
+        event.preventDefault();
+        $('#accountNavModal').on('hidden.bs.modal', function () {
+            Router.go("/account");
+        });
+        $("#accountNavModal").modal("hide");
     }
 });
 

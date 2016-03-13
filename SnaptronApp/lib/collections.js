@@ -67,9 +67,12 @@ Queries   = new Mongo.Collection("queries");
 Regions   = new Mongo.Collection("regions");
 Junctions = new Mongo.Collection("junctions");
 
-USER_QRYS     = "queries";
-USER_USERNAME = "username";
-USER_EMAIL    = "email";
+USER_QRYS          = "queries";
+USER_USERNAME      = "username";
+USER_EMAILS        = "emails";
+USER_EMAIL_ADDRESS = "address";
+USER_PROFILE       = "profile";
+
 
 MONGO_OPERATOR_EQ  = "$eq";
 MONGO_OPERATOR_GT  = "$gt";

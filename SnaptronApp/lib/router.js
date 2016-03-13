@@ -7,6 +7,15 @@ Router.route('/', function () {
 });
 Router.route('/about');
 Router.route('/usage');
+Router.route('/account', {
+    waitOn: function () {
+        return [Meteor.subscribe('userQueriesAndRegions'),
+            Meteor.subscribe('userData')];
+    },
+    action: function () {
+        this.render('accountPage');
+    }
+});
 Router.route('/query/:queryId', {
     loadingTemplate: 'loadingQuery',
     waitOn: function () {
