@@ -36,6 +36,12 @@ Template.accountNavMenu.events({
             onSignIn(template);
         }
     },
+    "keypress #emailInput": function (event, template) {
+        if (event.which === SnapApp.ENTER_KEY_CODE) {
+            event.preventDefault();
+            $("#passwordInput").focus();
+        }
+    },
     "click #registerBtn": function (event, template) {
         event.preventDefault();
     },
