@@ -1,46 +1,37 @@
 <template name="accountNavMenu">
-    <a href="#" id="accountNavMenuItem" data-toggle="modal" data-target="#accountNavModal">
+    <ul class="nav navbar-nav navbar-right">
         {{#if isSignedIn}}
-            {{userEmail}}
+            <li><a href="/account">My Account</a></li>
+            <li><a href="/account" id="signOutBtn">Sign Out</a></li>
         {{else}}
-            Sign In/Join
+            <li>
+                <a href="#" id="accountNavMenuItem" data-toggle="modal" data-target="#accountNavModal">Sign In/Join</a>
+            </li>
         {{/if}}
-    </a>
+
+    </ul>
 
     <div class="modal fade" id="accountNavModal">
         <div class="modal-dialog modal-sm">
             <div class="modal-content">
                 <div class="modal-body" id="editFiltersBody">
-                    {{#if isSignedIn}}
-                        <h4>{{userEmail}}</h4>
-                        <hr>
-                        <form>
-                            <div class="form-group">
-                                <button class="btn btn-default btn-sm btn-block" id="accountLink">My Account</button>
-                            </div>
-                            <div class="form-group">
-                                <button class="btn btn-default btn-sm btn-block" id="signOutBtn">Sign Out</button>
-                            </div>
-                        </form>
-                    {{else}}
-                        {{#if isError}}
-                            <p class="text-warning">Check your information and try again</p>
-                        {{/if}}
-                        <form>
-                            <div class="form-group">
-                                <label class="control-label" for="emailInput">Email</label>
-                                <input class="form-control" id="emailInput" type="email">
-                            </div>
-                            <div class="form-group">
-                                <label class="control-label" for="passwordInput">Password</label>
-                                <input class="form-control" id="passwordInput" type="password">
-                            </div>
-                            <div class="form-group">
-                                <button class="btn btn-primary" id="signInBtn">Sign In</button>
-                                <a href="#" class="btn btn-link pull-right" id="registerBtn">Register</a>
-                            </div>
-                        </form>
+                    {{#if isError}}
+                        <p class="text-warning">Check your information and try again</p>
                     {{/if}}
+                    <form>
+                        <div class="form-group">
+                            <label class="control-label" for="emailInput">Email</label>
+                            <input class="form-control" id="emailInput" type="email">
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label" for="passwordInput">Password</label>
+                            <input class="form-control" id="passwordInput" type="password">
+                        </div>
+                        <div class="form-group">
+                            <button class="btn btn-primary" id="signInBtn">Sign In</button>
+                            <a href="#" class="btn btn-link pull-right" id="registerBtn">Register</a>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>

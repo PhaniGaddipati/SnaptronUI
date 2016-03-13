@@ -178,6 +178,17 @@ SnapApp.QueryDB.getQuery = function (queryId) {
 };
 
 /**
+ * Returns the querys of the given array of IDs
+ * @param queryId
+ * @returns {any}
+ */
+SnapApp.QueryDB.getQueries = function (queryIds) {
+    check(queryIds, [String]);
+    return Queries.find({"_id": {"$in": queryIds}}).fetch();
+};
+
+
+/**
  * Checks whether the queryId exists.
  * @param queryId
  * @returns {boolean} whether the queryId was found

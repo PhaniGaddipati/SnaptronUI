@@ -53,13 +53,6 @@ Template.accountNavMenu.events({
         event.preventDefault();
         Meteor.logout();
         errorSignInOrRegister.set(false);
-    },
-    "click #accountLink": function () {
-        event.preventDefault();
-        $('#accountNavModal').on('hidden.bs.modal', function () {
-            Router.go("/account");
-        });
-        $("#accountNavModal").modal("hide");
     }
 });
 
@@ -69,6 +62,8 @@ function onSignIn(template) {
     Meteor.loginWithPassword(email, password, function (err) {
         if (err) {
             errorSignInOrRegister.set(true);
+        } else {
+            $("#accountNavModal").modal("hide");
         }
     });
 }

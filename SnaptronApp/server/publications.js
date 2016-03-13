@@ -58,7 +58,7 @@ Meteor.publish("userData", function () {
  */
 Meteor.publish("userQueriesAndRegions", function () {
     if (this.userId) {
-        var queries     = SnapApp.UserDB.getUser(this.userId)[USER_QRYS];
+        var queries     = SnapApp.UserDB.getUserQueryIds(this.userId);
         var qrySelector = {
             "_id": {"$in": queries}
         };
@@ -68,7 +68,6 @@ Meteor.publish("userQueriesAndRegions", function () {
         qryFields[QRY_GROUPS]     = 0;
         qryFields[QRY_PROCESSORS] = 0;
         var queryCursor           = Queries.find(qrySelector, {fields: qryFields});
-
 
         var regions                    = _.flatten(_.pluck(queryCursor.fetch(), QRY_REGIONS));
         var regionSelector             = {
