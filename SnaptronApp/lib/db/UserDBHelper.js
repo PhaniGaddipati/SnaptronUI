@@ -5,6 +5,10 @@
 SnapApp.UserDB = {};
 
 Meteor.methods({
+    /**
+     * If the current user owns the query, remove it.
+     * @param queryId
+     */
     "removeQueryFromUser": function (queryId) {
         if (SnapApp.QueryDB.isQueryCurrentUsers(queryId)) {
             SnapApp.UserDB.removeQueryFromUser(Meteor.userId(), queryId);
@@ -19,10 +23,20 @@ if (Meteor.isServer) {
     });
 }
 
+/**
+ * Gets a user by user id.
+ * @param userId
+ * @returns {any}
+ */
 SnapApp.UserDB.getUser = function (userId) {
     return Users.findOne(userId);
 };
 
+/**
+ * Adds the query to the user.
+ * @param userId
+ * @param queryId
+ */
 SnapApp.UserDB.addQueryToUser = function (userId, queryId) {
     if (userId != null) {
         var pushDoc        = {};
@@ -32,6 +46,11 @@ SnapApp.UserDB.addQueryToUser = function (userId, queryId) {
     }
 };
 
+/**
+ * Removes the query from the user.
+ * @param userId
+ * @param queryId
+ */
 SnapApp.UserDB.removeQueryFromUser = function (userId, queryId) {
     if (userId != null) {
         var pullDoc        = {};
