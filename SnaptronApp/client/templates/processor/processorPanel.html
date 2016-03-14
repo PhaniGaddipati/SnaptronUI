@@ -1,20 +1,25 @@
 <template name="processorsPanel">
-    <div class="panel panel-default col-xs-12 col-md-4">
+    <div class="panel panel-default col-xs-12 col-md-8">
         <div class="panel-body">
-            <h4>Analyze</h4>
-            <form>
+            <h4>Analysis</h4>
+            <row>
+                <form class="col-xs-12 col-sm-6">
                 <div class="form-group">
-                    <label class="control-label" for="processorType">Method</label>
+                    <label class="control-label" for="processorType"><strong>Method</strong></label>
                     <select class="form-control" id="processorType">
                         {{#each processorTypes}}
                             <option>{{this}}</option>
                         {{/each}}
                     </select>
                     <i>{{selectedTypeDescription}}</i>
+                    <br>
+                    <br>
                 </div>
+                </form>
+                <form class="col-xs-12 col-sm-6">
                 {{#each processorGroups}}
                     <div class="form-group">
-                        <label class="control-label" for="{{this}}">Group {{this}}</label>
+                        <label class="control-label" for="{{this}}"><strong>Group {{this}}</strong></label>
                         <select class="form-control groupSelect" id="{{this}}">
                             {{#each queryGroups}}
                                 <option value="{{this._id}}">{{groupOptionText this}}</option>
@@ -24,7 +29,7 @@
                 {{/each}}
                 {{#each processorSelects}}
                     <div class="form-group">
-                        <label class="control-label" for="pSelect{{this.param}}">{{this.name}}</label>
+                        <label class="control-label" for="pSelect{{this.param}}"><strong>{{this.name}}</strong></label>
                         <select class="form-control" id="pSelect{{this.param}}">
                             {{#each this.opts}}
                                 <option>{{this}}</option>
@@ -34,7 +39,7 @@
                 {{/each}}
                 {{#each processorInputs}}
                     <div class="form-group">
-                        <label class="control-label" for="pSelect{{this.param}}">{{this.name}}</label>
+                        <label class="control-label" for="pSelect{{this.param}}"><strong>{{this.name}}</strong></label>
                         <input class="form-control" id="pSelect{{this.param}}" type="text">
                     </div>
                 {{/each}}
@@ -45,6 +50,7 @@
                     </button>
                 </div>
             </form>
+            </row>
         </div>
     </div>
 </template>
