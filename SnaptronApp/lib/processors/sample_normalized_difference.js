@@ -4,12 +4,23 @@
  * Sample Normalized Difference
  *
  * Computes the normalized difference between 2 input groups.
- * The results are of the format
+ * The results have two fields. The TOP_K result contains the top
+ * results in the following format:
  * {    "sample" : "some sampleId",
  *      "A" : count of sample found in group A,
  *      "B" : count of sample found in group B,
  *      "D" : normalized ration (B-A)/(B+A)
  * }
+ *
+ * The HIST result contains frequency data from the unabridged result set.
+ * The format of the histogram is an array of:
+ * {    "start" : the bin starting D,
+ *      "end"   : the bin ending D,
+ *      "count" : the frequency of this bin
+ * }
+ *
+ * The top K results are returned, as well as frequency information
+ * from the complete data set.
  *
  * Expected parameters:
  *      k: The top k results to return
@@ -18,6 +29,15 @@
  *      None
  *
  */
+
+const NUM_HIST_BINS    = 10;
+SnapApp.Processors.SND = {};
+
+SnapApp.Processors.SND.RESULTS_TOP_K     = "topk";
+SnapApp.Processors.SND.RESULTS_HIST      = "hist";
+SnapApp.Processors.SND.RESULT_HIST_START = "start";
+SnapApp.Processors.SND.RESULT_HIST_END   = "end";
+SnapApp.Processors.SND.RESULT_HIST_COUNT = "count";
 
 if (Meteor.isServer) {
     Meteor.methods({
@@ -47,7 +67,38 @@ function sampleNormalizedDifference(queryId, groupIdA, groupIdB, k) {
         };
     });
     var sorted     = _.sortBy(allResults, "D");
-    return _.last(sorted, k);
+    var results    = {};
+
+    results[SnapApp.Processors.SND.RESULTS_TOP_K] = _.last(sorted, k);
+    results[SnapApp.Processors.SND.RESULTS_HIST]  = getHistogram(sorted);
+
+    return results;
+}
+
+function getHistogram(results) {
+    var dat      = _.pluck(results, "D");
+    var min      = Math.floor(_.min(dat));
+    var max      = Math.ceil(_.max(dat));
+    var binDelta = (max - min) / NUM_HIST_BINS;
+
+    if (binDelta == 0) {
+        return {
+            min: dat.length
+        };
+    }
+
+    var counts = _.countBy(dat, function (d) {
+        return (d - min) / binDelta;
+    });
+    var hist   = [];
+    for (var i = 0; i < NUM_HIST_BINS; i++) {
+        var obj                                       = {};
+        obj[SnapApp.Processors.SND.RESULT_HIST_START] = min + i * binDelta;
+        obj[SnapApp.Processors.SND.RESULT_HIST_END]   = min + (i + 1) * binDelta;
+        obj[SnapApp.Processors.SND.RESULT_HIST_COUNT] = counts[i.toString()] || 0;
+        hist.push(obj);
+    }
+    return hist;
 }
 
 function getSampleCounts(queryId, groupId) {

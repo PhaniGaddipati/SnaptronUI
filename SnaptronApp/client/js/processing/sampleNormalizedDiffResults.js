@@ -34,7 +34,7 @@ Template.sampleNormalizedDiffResults.helpers({
         };
     },
     "resultsArr": function () {
-        return this[QRY_PROCESSOR_RESULTS];
+        return this[QRY_PROCESSOR_RESULTS][SnapApp.Processors.SND.RESULTS_TOP_K];
     },
     isCurrentUsers: function () {
         return SnapApp.QueryDB.isQueryCurrentUsers(Queries.findOne()["_id"]);

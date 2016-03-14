@@ -30,8 +30,6 @@
  * Group options are always displayed first, and selects are always displayed before inputs.
  */
 
-SnapApp.Processors = {};
-
 SnapApp.Processors.FUNCTION     = "function";
 SnapApp.Processors.DESCRIPTION  = "description";
 SnapApp.Processors.INPUT_GROUPS = "inputGroups";
@@ -46,7 +44,8 @@ SnapApp.Processors.TEMPLATE    = "template";
 SnapApp.Processors.Index = {
     "Sample Normalized Difference": {
         "function": "sampleNormalizedDifference",
-        "description": "Computes the normalized difference ratio (B-A)/(A+B) of sample expression across 2 groups, and returns the top K results",
+        "description": "Computes the normalized difference ratio (B-A)/(A+B) of sample expression across 2 groups," +
+        " and returns a histogram along with the top K results",
         "inputGroups": ["A", "B"],
         "selects": [
             {
