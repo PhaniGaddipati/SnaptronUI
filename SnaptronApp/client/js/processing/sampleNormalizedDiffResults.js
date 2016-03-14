@@ -6,7 +6,9 @@ const HIST_WIDTH  = 320;
 const HIST_HEIGHT = 300;
 const PADDING     = 25;
 
-var selectedBin = new ReactiveVar(null);
+Template.sampleNormalizedDiffResults.created = function () {
+    this.selectedBin = new ReactiveVar(null);
+};
 
 Template.sampleNormalizedDiffResults.onRendered(function () {
     updateHistogram(this);
@@ -50,12 +52,13 @@ Template.sampleNormalizedDiffResults.helpers({
         return SnapApp.QueryDB.isQueryCurrentUsers(Queries.findOne()["_id"]);
     },
     "selectionText": function () {
-        if (selectedBin.get() == null) {
-            return "<i>Hover over a bar for information</i>";
+        if (Template.instance().selectedBin.get() == null) {
+            return "<i>Hover over a bar for information</i><br>";
         } else {
-            return "<strong>Range: </strong>[" + selectedBin.get()[SnapApp.Processors.SND.RESULT_HIST_START].toFixed(2)
-                + ", " + selectedBin.get()[SnapApp.Processors.SND.RESULT_HIST_END].toFixed(2) + ")<br>"
-                + "<strong>Count: </strong>" + selectedBin.get()[SnapApp.Processors.SND.RESULT_HIST_COUNT];
+            var selectedBin = Template.instance().selectedBin.get();
+            return "<strong>Range: </strong>[" + selectedBin[SnapApp.Processors.SND.RESULT_HIST_START].toFixed(2)
+                + ", " + selectedBin[SnapApp.Processors.SND.RESULT_HIST_END].toFixed(2) + ")<br>"
+                + "<strong>Count: </strong>" + selectedBin[SnapApp.Processors.SND.RESULT_HIST_COUNT];
         }
     }
 });
@@ -105,7 +108,12 @@ function updateHistogram(template) {
         .attr("fill", "steelblue")
         .attr("stroke", "black")
         .attr("stroke-width", 1)
-        .on("mouseover", onMouseOver);
+        .on("mouseover", function (obj) {
+            template.selectedBin.set(obj);
+        })
+        .on("mouseout", function () {
+            template.selectedBin.set(null);
+        });
 
     var xAxis = d3.svg.axis()
         .scale(x)
@@ -121,8 +129,4 @@ function updateHistogram(template) {
         .attr("class", "y axis")
         .attr("transform", "translate(" + PADDING * 2 + ", 0)")
         .call(yAxis);
-}
-
-function onMouseOver(obj) {
-    selectedBin.set(obj);
 }
