@@ -2,9 +2,9 @@
  * Created by Phani on 3/13/2016.
  */
 
-const HIST_WIDTH  = 300;
+const HIST_WIDTH  = 320;
 const HIST_HEIGHT = 300;
-const PADDING     = 15;
+const PADDING     = 25;
 
 var selectedBin = new ReactiveVar(null);
 
