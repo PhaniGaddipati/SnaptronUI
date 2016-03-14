@@ -24,11 +24,17 @@
     </row>
     <hr>
     <ul class="nav nav-tabs">
-        <li class="active"><a href="#results" data-toggle="tab" aria-expanded="true">Results</a></li>
+        <li class=""><a href="#results{{this._id}}" data-toggle="tab" aria-expanded="false">Results</a></li>
+        <li class="active"><a href="#histogram{{this._id}}" data-toggle="tab" aria-expanded="true">Histogram</a></li>
     </ul>
     <div class="tab-content">
-        <div class="tab-pane active" id="results">
+        <div class="tab-pane" id="results{{this._id}}">
             {{> reactiveTable collection=resultsArr settings=tableSettings}}
+        </div>
+        <div class="tab-pane active" id="histogram{{this._id}}">
+            <br>
+            <svg id="hist{{this._id}}">
+            </svg>
         </div>
     </div>
     {{#if isCurrentUsers}}

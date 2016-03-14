@@ -30,7 +30,7 @@
  *
  */
 
-const NUM_HIST_BINS    = 10;
+const NUM_HIST_BINS    = 15;
 SnapApp.Processors.SND = {};
 
 SnapApp.Processors.SND.RESULTS_TOP_K     = "topk";
@@ -77,24 +77,16 @@ function sampleNormalizedDifference(queryId, groupIdA, groupIdB, k) {
 
 function getHistogram(results) {
     var dat      = _.pluck(results, "D");
-    var min      = Math.floor(_.min(dat));
-    var max      = Math.ceil(_.max(dat));
-    var binDelta = (max - min) / NUM_HIST_BINS;
-
-    if (binDelta == 0) {
-        return {
-            min: dat.length
-        };
-    }
+    var binDelta = 2 / (NUM_HIST_BINS);
 
     var counts = _.countBy(dat, function (d) {
-        return (d - min) / binDelta;
+        return parseInt(Math.min(NUM_HIST_BINS - 1, Math.floor((d + 1) / binDelta))).toString();
     });
     var hist   = [];
     for (var i = 0; i < NUM_HIST_BINS; i++) {
         var obj                                       = {};
-        obj[SnapApp.Processors.SND.RESULT_HIST_START] = min + i * binDelta;
-        obj[SnapApp.Processors.SND.RESULT_HIST_END]   = min + (i + 1) * binDelta;
+        obj[SnapApp.Processors.SND.RESULT_HIST_START] = -1 + i * binDelta;
+        obj[SnapApp.Processors.SND.RESULT_HIST_END]   = -1 + (i + 1) * binDelta;
         obj[SnapApp.Processors.SND.RESULT_HIST_COUNT] = counts[i.toString()] || 0;
         hist.push(obj);
     }
