@@ -44,5 +44,10 @@ function onClearSelection() {
 
 function onAddGroup(template) {
     var name = template.find("#addGroupInputName").value;
-    Meteor.call("addGroupToQuery", Queries.findOne()["_id"], name, SnapApp.selectedJnctIDs);
+    Meteor.call("addGroupToQuery", Queries.findOne()["_id"], name,
+        SnapApp.selectedJnctIDs, function (err) {
+            if (!err) {
+                onClearSelection();
+            }
+        });
 }
