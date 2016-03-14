@@ -38,7 +38,9 @@
  *                                           "inputGroup[1]" : groupId,
  *                                            ...
  *                                      },
- *                      "results" : someObj // null if not computed yet
+ *                      "results" : someObj,
+ *                      "params" : {    "someParam" : someVal, ...}
+ *
  *                  }
  *
  *

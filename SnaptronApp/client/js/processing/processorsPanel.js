@@ -85,7 +85,9 @@ function onAnalyze(evt, template) {
         params[param] = template.find("#pInput" + param).value;
     }
 
-    Meteor.call(fn, queryId, inputGroups, params);
+    Meteor.call(fn, queryId, inputGroups, params, function (err, result) {
+        Meteor.call("addProcessorToQuery", queryId, type, inputGroups, params, result);
+    });
 }
 
 function validate(evt, template) {

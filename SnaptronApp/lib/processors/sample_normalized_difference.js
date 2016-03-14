@@ -23,25 +23,10 @@ if (Meteor.isServer) {
     Meteor.methods({
         "sampleNormalizedDifference": function (queryId, inputGroups, params) {
             this.unblock();
-            if (!_.contains(_.keys(inputGroups), "A") || !_.contains(_.keys(inputGroups), "B")) {
-                // Proper input groups not present
+            if (!validateInput(inputGroups, params)) {
                 return null;
             }
-            var k;
-            if (!_.contains(_.keys(params), "k")) {
-                k = 100;
-            } else {
-                k = parseInt(params["k"]);
-            }
-
-            var groupIdA = inputGroups["A"];
-            var groupIdB = inputGroups["B"];
-            var results  = sampleNormalizedDifference(queryId, groupIdA, groupIdB, k);
-
-            if (results == null) {
-                return null;
-            }
-            return Meteor.call("addProcessorToQuery", queryId, "Sample Normalized Difference", inputGroups, params, results);
+            return sampleNormalizedDifference(queryId, inputGroups["A"], inputGroups["B"], params["k"]);
         }
     });
 }
@@ -78,4 +63,22 @@ function getJnctSamples(jnct) {
         return [];
     }
     return jnct[JNCT_SAMPLES_KEY].split(",");
+}
+
+function validateInput(inputGroups, params) {
+    if (!_.contains(_.keys(inputGroups), "A") || !_.contains(_.keys(inputGroups), "B")) {
+        // Proper input groups not present
+        return false;
+    }
+    var k;
+    if (!_.contains(_.keys(params), "k")) {
+        return false;
+    } else {
+        k = parseInt(params["k"]);
+        if (!_.isFinite(k) || k <= 0) {
+            // Invalid k value
+            return false;
+        }
+    }
+    return true;
 }

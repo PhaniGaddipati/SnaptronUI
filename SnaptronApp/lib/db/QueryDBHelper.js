@@ -443,6 +443,8 @@ SnapApp.QueryDB.getGroupFromQuery = function (queryId, groupId) {
  * @param queryId
  * @param type
  * @param inputGroups
+ * @param params
+ * @param results
  * @returns {*} The new processorId
  */
 SnapApp.QueryDB.addProcessorToQuery = function (queryId, type, inputGroups, params, results) {
