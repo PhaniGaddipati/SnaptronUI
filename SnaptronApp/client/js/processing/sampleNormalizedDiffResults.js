@@ -6,6 +6,8 @@ const HIST_WIDTH  = 300;
 const HIST_HEIGHT = 300;
 const PADDING     = 15;
 
+var selectedBin = new ReactiveVar(null);
+
 Template.sampleNormalizedDiffResults.onRendered(function () {
     updateHistogram(this);
 });
@@ -44,8 +46,17 @@ Template.sampleNormalizedDiffResults.helpers({
     "resultsArr": function () {
         return this[QRY_PROCESSOR_RESULTS][SnapApp.Processors.SND.RESULTS_TOP_K];
     },
-    isCurrentUsers: function () {
+    "isCurrentUsers": function () {
         return SnapApp.QueryDB.isQueryCurrentUsers(Queries.findOne()["_id"]);
+    },
+    "selectionText": function () {
+        if (selectedBin.get() == null) {
+            return "<i>Hover over a bar for information</i>";
+        } else {
+            return "<strong>Range: </strong>[" + selectedBin.get()[SnapApp.Processors.SND.RESULT_HIST_START].toFixed(2)
+                + ", " + selectedBin.get()[SnapApp.Processors.SND.RESULT_HIST_END].toFixed(2) + ")<br>"
+                + "<strong>Count: </strong>" + selectedBin.get()[SnapApp.Processors.SND.RESULT_HIST_COUNT];
+        }
     }
 });
 
@@ -66,7 +77,7 @@ function updateHistogram(template) {
         .range([PADDING, HIST_WIDTH - PADDING]);
     var y        = d3.scale.linear()
         .domain([0, _.max(_.pluck(data, SnapApp.Processors.SND.RESULT_HIST_COUNT))])
-        .range([0, HIST_HEIGHT - PADDING * 2]);
+        .range([HIST_HEIGHT - PADDING * 2, PADDING]);
 
     var svg = d3.select("#hist" + template.data._id)
         .attr("width", HIST_WIDTH + PADDING)
@@ -81,22 +92,37 @@ function updateHistogram(template) {
             return x(obj[SnapApp.Processors.SND.RESULT_HIST_START]) + PADDING;
         })
         .attr("y", function (obj) {
-            return HIST_HEIGHT - y(obj[SnapApp.Processors.SND.RESULT_HIST_COUNT]) - PADDING * 2;
+            return y(obj[SnapApp.Processors.SND.RESULT_HIST_COUNT]);
         })
         .attr("width", function (obj) {
             return x(obj[SnapApp.Processors.SND.RESULT_HIST_END])
                 - x(obj[SnapApp.Processors.SND.RESULT_HIST_START]);
         })
         .attr("height", function (obj) {
-            return y(obj[SnapApp.Processors.SND.RESULT_HIST_COUNT]);
+            return Math.max(0,
+                HIST_HEIGHT - PADDING * 2 - y(obj[SnapApp.Processors.SND.RESULT_HIST_COUNT]));
         })
-        .attr("fill", "steelblue");
+        .attr("fill", "steelblue")
+        .attr("stroke", "black")
+        .attr("stroke-width", 1)
+        .on("mouseover", onMouseOver);
 
     var xAxis = d3.svg.axis()
         .scale(x)
         .orient("bottom");
+    var yAxis = d3.svg.axis()
+        .scale(y)
+        .orient("left");
     svg.append("g")
         .attr("class", "x axis")
         .attr("transform", "translate(" + PADDING + ", " + (HIST_HEIGHT - PADDING * 2) + ")")
         .call(xAxis);
+    svg.append("g")
+        .attr("class", "y axis")
+        .attr("transform", "translate(" + PADDING * 2 + ", 0)")
+        .call(yAxis);
+}
+
+function onMouseOver(obj) {
+    selectedBin.set(obj);
 }

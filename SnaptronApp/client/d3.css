@@ -1,0 +1,10 @@
+.axis line, .axis path, .xaxis line, .xaxis path {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+}
+
+.axis text, .xaxis text {
+    text-shadow: 0 1px 0 #fff;
+    cursor: move;
+}
