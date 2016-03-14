@@ -1,0 +1,38 @@
+<template name="sampleNormalizedDiffResults">
+    <h4><i>Sample Normalized Difference</i></h4>
+    <row>
+        <div class="col-xs-6">
+            <h5>Parameters</h5>
+            <ul>
+                {{#each paramsList}}
+                    <li>
+                        <strong>{{this.key}}: </strong><i>{{this.val}}</i>
+                    </li>
+                {{/each}}
+            </ul>
+        </div>
+        <div class="col-xs-6">
+            <h5>Input Groups</h5>
+            <ul>
+                {{#each groupsList}}
+                    <li>
+                        <strong>{{this.key}}: </strong><i>{{this.val}}</i>
+                    </li>
+                {{/each}}
+            </ul>
+        </div>
+    </row>
+    <hr>
+    <ul class="nav nav-tabs">
+        <li class="active"><a href="#results" data-toggle="tab" aria-expanded="true">Results</a></li>
+    </ul>
+    <div class="tab-content">
+        <div class="tab-pane active" id="results">
+            {{> reactiveTable collection=resultsArr settings=tableSettings}}
+        </div>
+    </div>
+    {{#if isCurrentUsers}}
+        <button href="#" class="btn btn-sm btn-link text-danger pull-right" id="removeProcessor">Delete</button>
+        <br>
+    {{/if}}
+</template>

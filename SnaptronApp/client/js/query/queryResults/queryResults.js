@@ -37,5 +37,12 @@ Template.queryResults.helpers({
     },
     isLoggedIn: function () {
         return Meteor.userId() != null;
+    },
+    processors: function () {
+        return SnapApp.QueryDB.getProcessorsFromQuery(Queries.findOne()["_id"]);
+    },
+    processorTemplate: function () {
+        var type = this[QRY_PROCESSOR_TYPE];
+        return SnapApp.Processors.Index[type][SnapApp.Processors.TEMPLATE];
     }
 });

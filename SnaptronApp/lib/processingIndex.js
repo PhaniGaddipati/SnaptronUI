@@ -20,7 +20,8 @@
  *                  "param": "variableName",
  *                  "name": "Human readable name of parameter",
  *              },
- *              ... ]
+ *              ... ],
+ *          "template" : "someTemplateName" // The template to render the results
  *      }
  *
  * Selects allow for parameters that must be chosen from a given list of options.
@@ -40,6 +41,7 @@ SnapApp.Processors.NAME        = "name";
 SnapApp.Processors.SELECTS     = "selects";
 SnapApp.Processors.SELECT_OPTS = "opts";
 SnapApp.Processors.INPUTS      = "inputs";
+SnapApp.Processors.TEMPLATE    = "template";
 
 SnapApp.Processors.Index = {
     "Sample Normalized Difference": {
@@ -53,6 +55,7 @@ SnapApp.Processors.Index = {
                 "opts": [100, 50, 25, 10]
             }
         ],
-        "inputs": []
+        "inputs": [],
+        "template": "sampleNormalizedDiffResults"
     }
 };

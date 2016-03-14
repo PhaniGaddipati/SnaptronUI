@@ -25,6 +25,14 @@
             {{/if}}
         </row>
         <br>
+        <row>
+            {{#each processors}}
+                <div class="panel panel-success col-xs-12 col-md-6 col-lg-4">
+                    {{> Template.dynamic template=processorTemplate}}
+                </div>
+            {{/each}}
+        </row>
+        <br>
         <br>
         <row>
             <a class="col-xs-12 text-left" style="color:inherit;" href="#junctionTableCollapse" data-toggle="collapse">
