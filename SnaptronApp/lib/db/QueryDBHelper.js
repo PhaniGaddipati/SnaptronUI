@@ -164,6 +164,13 @@ Meteor.methods({
             return SnapApp.QueryDB.removeProcessorFromQuery(queryId, processorId);
         }
         return null;
+    },
+
+    "changeQueryName": function (queryId, newName) {
+        if (SnapApp.QueryDB.isQueryCurrentUsers(queryId)) {
+            return SnapApp.QueryDB.setQueryName(queryId, newName);
+        }
+        return null;
     }
 });
 
@@ -232,6 +239,7 @@ SnapApp.QueryDB.newQuery = function (regionIds, filters) {
     }
     queryDoc[QRY_GROUPS]     = [];
     queryDoc[QRY_PROCESSORS] = [];
+    queryDoc[QRY_NAME]       = null;
     return SnapApp.QueryDB.insertQuery(queryDoc);
 };
 
@@ -525,6 +533,15 @@ SnapApp.QueryDB.getProcessorFromQuery = function (queryId, processorId) {
         }
     }
     return group;
+};
+
+SnapApp.QueryDB.setQueryName = function (queryId, newName) {
+    check(queryId, String);
+
+    var setCmd       = {};
+    setCmd[QRY_NAME] = newName;
+    console.log("Setting query " + queryId + " name to " + newName);
+    return Queries.update(queryId, {"$set": setCmd});
 };
 
 /**

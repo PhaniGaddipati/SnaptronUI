@@ -28,11 +28,17 @@
                     <ul class="list-group">
                         {{#each queries}}
                             <li class="list-group-item">
-                                <a class="btn btn-danger btn-xs removeQryBtn">Remove</a>
-                                <a class="btn btn-default btn-xs"
-                                   href="/query/{{this._id}}">View</a>
-                                <strong>Date: </strong>{{queryDate this}},
-                                <strong>Regions: </strong>{{regions this}}
+                                <a href="/query/{{this._id}}">
+                                    <h5 class="list-group-item-heading">
+                                        <b>{{{queryName this}}}</b>
+                                    </h5>
+                                </a>
+                                &nbsp;&nbsp;&nbsp;&nbsp;<strong>Date: </strong>{{queryDate this}}
+                                <br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;<strong>Regions: </strong>{{regions this}}
+                                <br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;<a
+                                    class="btn btn-danger btn-xs removeQryBtn pull-right">Remove</a>
                             </li>
                         {{/each}}
                     </ul>

@@ -1,6 +1,13 @@
 /**
  * Created by Phani on 3/12/2016.
  */
+
+Template.overviewPanel.onRendered(function () {
+    $('#editQueryNameModal').on('shown.bs.modal', function () {
+        $('#editQueryNameInput').focus();
+    })
+});
+
 Template.overviewPanel.events({
     "click #copyQueryBtn": function () {
         Meteor.call("copyQuery", Queries.findOne()["_id"], function (err, newId) {
@@ -11,11 +18,28 @@ Template.overviewPanel.events({
                 Router.go('/query/' + newId);
             }
         })
+    },
+    "click #editQueryNameBtn": function (evt, template) {
+        evt.preventDefault();
+        onChangeQueryName(template);
+    },
+    "keypress #editQueryNameInput": function (event, template) {
+        if (event.which === SnapApp.ENTER_KEY_CODE) {
+            event.preventDefault();
+            onChangeQueryName(template);
+        }
     }
 });
 
 
 Template.overviewPanel.helpers({
+    queryName: function () {
+        var name = Queries.findOne()[QRY_NAME];
+        if (name == undefined || name == null) {
+            return "<i>Unnamed</i>";
+        }
+        return name;
+    },
     regions: function () {
         var regionIds = Queries.findOne()[QRY_REGIONS];
         return regionIds.join(", ").toUpperCase();
@@ -47,3 +71,15 @@ Template.overviewPanel.helpers({
         return Meteor.userId() != null;
     }
 });
+
+function onChangeQueryName(template) {
+    var name = template.find("#editQueryNameInput").value;
+    if (name != null && name != undefined) {
+        name = name.trim();
+        if (name === "") {
+            name = null;
+        }
+    }
+    Meteor.call("changeQueryName", Queries.findOne()._id, name);
+    $("#editQueryNameModal").modal("hide");
+}

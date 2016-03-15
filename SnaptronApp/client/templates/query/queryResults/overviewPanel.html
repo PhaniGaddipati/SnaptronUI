@@ -1,7 +1,15 @@
 <template name="overviewPanel">
     <div class="panel panel-info">
         <div class="panel-heading">
-            <h2 class="panel-title">Overview</h2>
+            <h2 class="panel-title">
+                {{#if isCurrentUsers}}
+                    <a href="#" class="text-danger" data-toggle="modal" data-target="#editQueryNameModal">
+                        {{{queryName}}} - Overview
+                    </a>
+                {{else}}
+                    {{{queryName}}} - Overview
+                {{/if}}
+            </h2>
         </div>
         <div class="panel-body">
             <row>
@@ -65,6 +73,28 @@
                     </div>
                 </row>
             </row>
+        </div>
+    </div>
+
+    <div class="modal" id="editQueryNameModal" data-keyboard="false">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Set Query Name</h4>
+                </div>
+                <div class="modal-body" id="editFiltersBody">
+                    <form>
+                        <div class="form-group input-group">
+                            <input type="text" class="form-control" id="editQueryNameInput">
+                            <span class="input-group-btn">
+                                <button class="btn btn-default pull-right" id="editQueryNameBtn" type="button">
+                                    Change
+                                </button>
+                            </span>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 </template>

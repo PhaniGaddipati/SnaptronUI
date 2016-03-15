@@ -29,6 +29,12 @@ Template.accountPage.helpers({
     queryDate: function (query) {
         var date = query[QRY_CREATED_DATE];
         return moment(date).format("MMMM Do, YYYY");
+    },
+    queryName: function (query) {
+        if (query[QRY_NAME] == null) {
+            return "<i>Unnamed</i>";
+        }
+        return query[QRY_NAME];
     }
 });
 
