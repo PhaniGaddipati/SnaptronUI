@@ -42,7 +42,11 @@ SnapApp.RegionDB.hasRegion = function (regionId) {
 
 SnapApp.RegionDB.findRegionsForQuery = function (queryId) {
     check(queryId, String);
-    var regionIds = SnapApp.QueryDB.getQuery(queryId)[QRY_REGIONS];
+    var query = SnapApp.QueryDB.getQuery(queryId);
+    if (query == null) {
+        return null;
+    }
+    var regionIds = query[QRY_REGIONS];
     return Regions.find({
         "_id": {
             "$in": regionIds

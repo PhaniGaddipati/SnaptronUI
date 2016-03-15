@@ -105,7 +105,7 @@ function getJnctSamples(jnct) {
         console.warn("Warning: Passed a junction without a samples keys: " + jnct);
         return [];
     }
-    return jnct[JNCT_SAMPLES_KEY].split(",");
+    return jnct[JNCT_SAMPLES_KEY];
 }
 
 function validateInput(inputGroups, params) {

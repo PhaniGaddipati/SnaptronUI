@@ -47,6 +47,9 @@ SnapApp.JunctionDB.findJunctionsForQuery = function (queryId) {
     check(queryId, String);
 
     var query          = SnapApp.QueryDB.getQuery(queryId);
+    if (query == null) {
+        return null;
+    }
     var queryRegions   = SnapApp.RegionDB.getRegions(query[QRY_REGIONS]);
     var queryJunctions = new Set();
 

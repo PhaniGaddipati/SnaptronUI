@@ -21,6 +21,9 @@ Meteor.publish("queries", function (queryId) {
  */
 Meteor.publish("regions", function (queryId) {
     var regions = SnapApp.RegionDB.findRegionsForQuery(queryId);
+    if (regions == null) {
+        return [];
+    }
     console.log("Published " + regions.count() + " regions for query " + queryId);
     return regions;
 });
@@ -30,6 +33,9 @@ Meteor.publish("regions", function (queryId) {
  */
 Meteor.publish("junctions", function (queryId) {
     var junctions = SnapApp.JunctionDB.findJunctionsForQuery(queryId);
+    if (junctions == null) {
+        return [];
+    }
     console.log("Published " + junctions.count() + " junctions for query " + queryId);
     return junctions;
 });
