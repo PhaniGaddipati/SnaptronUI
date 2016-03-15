@@ -13,17 +13,24 @@ Template.home.events({
     "click #httbtn": function (event) {
         event.preventDefault();
         submitPlainQuery("htt");
+    },
+    "click #alkbtn": function (event) {
+        event.preventDefault();
+        submitPlainQuery("alk");
     }
 });
 
 function submitPlainQuery(region) {
-    Meteor.call("submitQuery", region, [], [], [], function (err, id) {
-        Session.set("loadingQuery", false);
-        if (err) {
-            console.log(err);
-            //TODO ui message of error
-        } else {
-            Router.go('/query/' + id);
-        }
-    });
+    if (!Session.get("loadingQuery")) {
+        Session.set("loadingQuery", true);
+        Meteor.call("submitQuery", region, [], [], [], function (err, id) {
+            Session.set("loadingQuery", false);
+            if (err) {
+                console.log(err);
+                //TODO ui message of error
+            } else {
+                Router.go('/query/' + id);
+            }
+        });
+    }
 }
