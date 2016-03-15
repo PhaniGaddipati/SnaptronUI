@@ -77,14 +77,15 @@ function updateHistogram(template) {
     var max      = data[numElems - 1][SnapApp.Processors.SND.RESULT_HIST_END];
     var x        = d3.scale.linear()
         .domain([min, max])
-        .range([PADDING, HIST_WIDTH - PADDING]);
+        .range([PADDING, HIST_WIDTH - PADDING * 2]);
     var y        = d3.scale.linear()
         .domain([0, _.max(_.pluck(data, SnapApp.Processors.SND.RESULT_HIST_COUNT))])
         .range([HIST_HEIGHT - PADDING * 2, PADDING]);
 
     var svg = d3.select("#hist" + template.data._id)
-        .attr("width", HIST_WIDTH + PADDING)
-        .attr("height", HIST_HEIGHT);
+        .attr("preserveAspectRatio", "xMinYMin meet")
+        .attr("viewBox", "0 0 " + HIST_WIDTH + " " + HIST_HEIGHT)
+        .classed("svg-content-responsive", true);
 
     var bars = svg.selectAll(".bar").data(data);
     bars.enter()
