@@ -9,6 +9,7 @@
  *  email:          Users email (and sign in)
  *  password
  *  queries:        Array of queries that the user added. This may include queries that the user doesn't own
+ *  starredQueries:        Array of queries that the user starred
  *
  * Queries
  * --------
@@ -71,6 +72,7 @@ Regions   = new Mongo.Collection("regions");
 Junctions = new Mongo.Collection("junctions");
 
 USER_QRYS          = "queries";
+USER_STARRED_QRYS  = "starredQueries";
 USER_USERNAME      = "username";
 USER_EMAILS        = "emails";
 USER_EMAIL_ADDRESS = "address";

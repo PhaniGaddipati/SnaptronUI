@@ -13,12 +13,19 @@ Meteor.methods({
         if (SnapApp.QueryDB.isQueryCurrentUsers(queryId)) {
             SnapApp.UserDB.removeQueryFromUser(Meteor.userId(), queryId);
         }
+    },
+    "addStarredQueryToUser": function (queryId) {
+        SnapApp.UserDB.addStarredQueryToUser(Meteor.userId(), queryId);
+    },
+    "removeStarredQueryFromUser": function (queryId) {
+        SnapApp.UserDB.removeStarredQueryFromUser(Meteor.userId(), queryId);
     }
 });
 
 if (Meteor.isServer) {
     Accounts.onCreateUser(function (options, user) {
-        user[USER_QRYS] = [];
+        user[USER_QRYS]         = [];
+        user[USER_STARRED_QRYS] = [];
         return user;
     });
 }
@@ -65,4 +72,33 @@ SnapApp.UserDB.getUserQueryIds = function (userId) {
         return SnapApp.UserDB.getUser(userId)[USER_QRYS];
     }
     return [];
+};
+
+SnapApp.UserDB.getUserStarredQueryIds = function (userId) {
+    if (userId != null) {
+        var result = SnapApp.UserDB.getUser(userId)[USER_STARRED_QRYS];
+        if (result == undefined) {
+            return [];
+        }
+        return result;
+    }
+    return [];
+};
+
+SnapApp.UserDB.addStarredQueryToUser = function (userId, queryId) {
+    if (userId != null) {
+        var pushDoc                = {};
+        pushDoc[USER_STARRED_QRYS] = queryId;
+        Users.update(userId, {"$addToSet": pushDoc});
+        console.log("Added starred query " + queryId + " to user " + userId);
+    }
+};
+
+SnapApp.UserDB.removeStarredQueryFromUser = function (userId, queryId) {
+    if (userId != null) {
+        var pullDoc                = {};
+        pullDoc[USER_STARRED_QRYS] = queryId;
+        Users.update(userId, {"$pull": pullDoc});
+        console.log("Removed starred query " + queryId + " from user " + userId);
+    }
 };

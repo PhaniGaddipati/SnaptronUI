@@ -9,6 +9,13 @@
                 {{else}}
                     {{{queryName}}} - Overview
                 {{/if}}
+                {{#if isLoggedIn}}
+                    {{#if isQueryStarred}}
+                        <i class="fa fa-star pull-right" id="unstarQuery"></i>
+                    {{else}}
+                        <i class="fa fa-star-o pull-right" id="starQuery"></i>
+                    {{/if}}
+                {{/if}}
             </h2>
         </div>
         <div class="panel-body">
@@ -58,7 +65,7 @@
                 <row>
                     <div class="col-md-6">
                         <div class="col-xs-12">
-                            <strong>Filters</strong>
+                            <strong><i class="fa fa-filter"></i> Filters</strong>
                             {{#if isCurrentUsers}}
                                 &nbsp;(<a href="#" id="editFiltersBtn"
                                           class="text-danger"

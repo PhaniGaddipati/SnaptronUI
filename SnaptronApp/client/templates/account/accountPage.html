@@ -3,10 +3,9 @@
     {{> navbar}}
     <div class="container">
         {{#if isSignedIn}}
-            <div class="panel panel-info">
-                <div class="panel-heading">
-                    <h3 class="panel-title">Account Information</h3>
-                </div>
+            <div class="panel panel-info col-xs-12">
+                <br>
+                <h1 class="panel-title"><strong>Account Information</strong></h1>
                 <div class="panel-body">
                     <p>
                         <strong>Email</strong>: {{userEmail}}
@@ -20,31 +19,64 @@
                     </p>
                 </div>
             </div>
-
-            <div class="panel panel-info">
-                <div class="panel-heading">
+            <br>
+            <row>
+                <div class="panel panel-info col-xs-12 col-md-6">
+                    <br>
                     <h3 class="panel-title">Queries</h3>
+                    <div class="panel-body">
+                        {{#if hasQueries}}
+                            <ul class="list-group">
+                                {{#each queries}}
+                                    <li class="list-group-item">
+                                        <a href="/query/{{this._id}}">
+                                            <h5 class="list-group-item-heading">
+                                                <b>{{{queryName this}}}</b>
+                                            </h5>
+                                        </a>
+                                        &nbsp;&nbsp;&nbsp;&nbsp;<strong>Date: </strong>{{queryDate this}}
+                                        <br>
+                                        &nbsp;&nbsp;&nbsp;&nbsp;<strong>Regions: </strong>{{regions this}}
+                                        <br>
+                                        &nbsp;&nbsp;&nbsp;&nbsp;<a
+                                            class="btn btn-danger btn-xs removeQryBtn pull-right">Remove</a>
+                                    </li>
+                                {{/each}}
+                            </ul>
+                        {{else}}
+                            <i>You have no queries currently</i>
+                        {{/if}}
+                    </div>
                 </div>
-                <div class="panel-body">
-                    <ul class="list-group">
-                        {{#each queries}}
-                            <li class="list-group-item">
-                                <a href="/query/{{this._id}}">
-                                    <h5 class="list-group-item-heading">
-                                        <b>{{{queryName this}}}</b>
-                                    </h5>
-                                </a>
-                                &nbsp;&nbsp;&nbsp;&nbsp;<strong>Date: </strong>{{queryDate this}}
-                                <br>
-                                &nbsp;&nbsp;&nbsp;&nbsp;<strong>Regions: </strong>{{regions this}}
-                                <br>
-                                &nbsp;&nbsp;&nbsp;&nbsp;<a
-                                    class="btn btn-danger btn-xs removeQryBtn pull-right">Remove</a>
-                            </li>
-                        {{/each}}
-                    </ul>
+                <br>
+                <div class="panel panel-info col-xs-12 col-md-6">
+                    <br>
+                    <h3 class="panel-title"><span class="fa fa-star"></span> Starred Queries</h3>
+                    <div class="panel-body">
+                        {{#if hasStarredQueries}}
+                            <ul class="list-group">
+                                {{#each starredQueries}}
+                                    <li class="list-group-item">
+                                        <a href="/query/{{this._id}}">
+                                            <h5 class="list-group-item-heading">
+                                                <b>{{{queryName this}}}</b>
+                                            </h5>
+                                        </a>
+                                        &nbsp;&nbsp;&nbsp;&nbsp;<strong>Date: </strong>{{queryDate this}}
+                                        <br>
+                                        &nbsp;&nbsp;&nbsp;&nbsp;<strong>Regions: </strong>{{regions this}}
+                                        <br>
+                                        &nbsp;&nbsp;&nbsp;&nbsp;<a
+                                            class="btn btn-danger btn-xs unstarQryBtn pull-right">Remove</a>
+                                    </li>
+                                {{/each}}
+                            </ul>
+                        {{else}}
+                            <i>You have no queries starred</i>
+                        {{/if}}
+                    </div>
                 </div>
-            </div>
+            </row>
         {{else}}
             <div class="jumbotron">
                 <p>Please <a href="#" id="accountNavMenuItem"

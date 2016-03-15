@@ -22,7 +22,8 @@ Router.route('/query/:queryId', {
         var queryId = this.params["queryId"];
         return [Meteor.subscribe('queries', queryId),
             Meteor.subscribe('regions', queryId),
-            Meteor.subscribe('junctions', queryId)];
+            Meteor.subscribe('junctions', queryId),
+            Meteor.subscribe('userData')];
     },
     data: function () {
         return Queries.findOne();

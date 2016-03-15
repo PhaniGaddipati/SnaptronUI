@@ -28,6 +28,14 @@ Template.overviewPanel.events({
             event.preventDefault();
             onChangeQueryName(template);
         }
+    },
+    "click #starQuery": function (evt) {
+        evt.preventDefault();
+        Meteor.call("addStarredQueryToUser", Queries.findOne()._id);
+    },
+    "click #unstarQuery": function (evt) {
+        evt.preventDefault();
+        Meteor.call("removeStarredQueryFromUser", Queries.findOne()._id);
     }
 });
 
@@ -69,6 +77,9 @@ Template.overviewPanel.helpers({
     },
     isLoggedIn: function () {
         return Meteor.userId() != null;
+    },
+    isQueryStarred: function () {
+        return SnapApp.UserDB.getUserStarredQueryIds(Meteor.userId()).indexOf(Queries.findOne()["_id"]) > -1;
     }
 });
 

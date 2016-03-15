@@ -45,8 +45,9 @@ Meteor.publish("junctions", function (queryId) {
  */
 Meteor.publish("userData", function () {
     if (this.userId) {
-        var fields        = {};
-        fields[USER_QRYS] = 1;
+        var fields                = {};
+        fields[USER_QRYS]         = 1;
+        fields[USER_STARRED_QRYS] = 1;
         return Users.find({_id: this.userId}, {fields: fields});
     } else {
         this.ready();
@@ -64,7 +65,8 @@ Meteor.publish("userData", function () {
  */
 Meteor.publish("userQueriesAndRegions", function () {
     if (this.userId) {
-        var queries     = SnapApp.UserDB.getUserQueryIds(this.userId);
+        var queries     = _.union(SnapApp.UserDB.getUserQueryIds(this.userId),
+            SnapApp.UserDB.getUserStarredQueryIds(this.userId));
         var qrySelector = {
             "_id": {"$in": queries}
         };

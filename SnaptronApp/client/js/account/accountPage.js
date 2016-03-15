@@ -31,6 +31,17 @@ Template.accountPage.helpers({
             SnapApp.UserDB.getUserQueryIds(Meteor.userId()))
             , QRY_CREATED_DATE);
     },
+    "hasQueries": function () {
+        return SnapApp.UserDB.getUserQueryIds(Meteor.userId()).length > 0;
+    },
+    "starredQueries": function () {
+        return SnapApp.QueryDB.getQueries(
+            SnapApp.UserDB.getUserStarredQueryIds(Meteor.userId()));
+    },
+    "hasStarredQueries": function () {
+        var starred = SnapApp.UserDB.getUserStarredQueryIds(Meteor.userId());
+        return starred != undefined && starred.length > 0;
+    },
     "regions": function (query) {
         return _.pluck(SnapApp.RegionDB.findRegionsForQuery(query._id).fetch(), "_id").join(", ");
     },
@@ -53,6 +64,10 @@ Template.accountPage.events({
     "click .removeQryBtn": function (evt) {
         evt.preventDefault();
         onRemoveQuery(this);
+    },
+    "click .unstarQryBtn": function (evt) {
+        evt.preventDefault();
+        onUnstarQuery(this);
     },
     "click #changePasswordButton": function (evt, template) {
         evt.preventDefault();
@@ -97,4 +112,8 @@ function onChangePassword(template) {
 
 function onRemoveQuery(query) {
     Meteor.call("removeQueryFromUser", query["_id"]);
+}
+
+function onUnstarQuery(query) {
+    Meteor.call("removeStarredQueryFromUser", query["_id"]);
 }
