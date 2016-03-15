@@ -15,7 +15,8 @@
                         <strong>Queries</strong>: {{numQueries}}
                     </p>
                     <p>
-                        <strong>Password</strong>: <a href="#" id="changePassword">Change</a>
+                        <strong>Password</strong>: <a href="#" id="changePassword" data-toggle="modal"
+                                                      data-target="#changePasswordModal">Change</a>
                     </p>
                 </div>
             </div>
@@ -52,6 +53,37 @@
                     to see your account</p>
             </div>
         {{/if}}
+    </div>
+
+    <div class="modal" id="changePasswordModal" data-keyboard="false">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Change Password</h4>
+                </div>
+                <div class="modal-body">
+                    <p class="text-warning">{{changePasswordError}}</p>
+                    <form>
+                        <div class="form-group">
+                            <label for="oldPasswordInput">Current Password</label>
+                            <input type="password" class="form-control" id="oldPasswordInput">
+                        </div>
+                        <div class="form-group">
+                            <label for="newPasswordInput">New Password</label>
+                            <input type="password" class="form-control" id="newPasswordInput">
+                        </div>
+                        <div class="form-group">
+                            <label for="newPasswordInputConfirm">Confirm New Password</label>
+                            <input type="password" class="form-control" id="newPasswordInputConfirm">
+                        </div>
+                        <div class="form-group">
+                            <button class="btn btn-primary pull-right" id="changePasswordButton">Change</button>
+                        </div>
+                    </form>
+                    <br><br>
+                </div>
+            </div>
+        </div>
     </div>
     </body>
 </template>

@@ -2,6 +2,14 @@
  * Created by Phani on 3/13/2016.
  */
 
+var changePwdErrorMsg = new ReactiveVar("");
+
+Template.accountPage.onRendered(function () {
+    $('#changePasswordModal').on('shown.bs.modal', function () {
+        $('#oldPasswordInput').focus();
+    })
+});
+
 Template.accountPage.helpers({
     "isSignedIn": function () {
         return Meteor.userId() != null;
@@ -35,14 +43,57 @@ Template.accountPage.helpers({
             return "<i>Unnamed</i>";
         }
         return query[QRY_NAME];
+    },
+    changePasswordError: function () {
+        return changePwdErrorMsg.get();
     }
 });
 
 Template.accountPage.events({
-    "click .removeQryBtn": function () {
+    "click .removeQryBtn": function (evt) {
+        evt.preventDefault();
         onRemoveQuery(this);
+    },
+    "click #changePasswordButton": function (evt, template) {
+        evt.preventDefault();
+        onChangePassword(template);
+    },
+    "keypress #oldPasswordInput": function (event) {
+        if (event.which === SnapApp.ENTER_KEY_CODE) {
+            event.preventDefault();
+            $("#newPasswordInput").focus();
+        }
+    },
+    "keypress #newPasswordInput": function (event) {
+        if (event.which === SnapApp.ENTER_KEY_CODE) {
+            event.preventDefault();
+            $("newPasswordInputConfirm").focus();
+        }
+    },
+    "keypress #newPasswordInputConfirm": function (event, template) {
+        if (event.which === SnapApp.ENTER_KEY_CODE) {
+            event.preventDefault();
+            onChangePassword(template);
+        }
     }
 });
+
+function onChangePassword(template) {
+    var currentPwd    = template.find("#oldPasswordInput").value;
+    var newPwd        = template.find("#newPasswordInput").value;
+    var newPwdConfirm = template.find("#newPasswordInputConfirm").value;
+    if (newPwd != newPwdConfirm) {
+        changePwdErrorMsg.set("New passwords don't match");
+    } else {
+        Accounts.changePassword(currentPwd, newPwd, function (err) {
+            if (err) {
+                changePwdErrorMsg.set("Failed to change your password");
+            } else {
+                $("#changePasswordModal").modal("hide");
+            }
+        })
+    }
+}
 
 function onRemoveQuery(query) {
     Meteor.call("removeQueryFromUser", query["_id"]);
