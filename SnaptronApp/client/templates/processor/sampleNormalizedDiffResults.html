@@ -32,11 +32,13 @@
             {{> reactiveTable collection=resultsArr settings=tableSettings}}
         </div>
         <div class="tab-pane active" id="histogram{{this._id}}">
-            <br>
+            <br><br>
             {{{selectionText}}}
             <br>
+            <p class="text-center"><strong>Normalized Difference Histogram</strong></p>
             <svg id="hist{{this._id}}">
             </svg>
+            <p class="text-center"><b><i>D</i></b></p>
         </div>
     </div>
     {{#if isCurrentUsers}}

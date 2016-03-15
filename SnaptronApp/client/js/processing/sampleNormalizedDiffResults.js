@@ -3,7 +3,7 @@
  */
 
 const HIST_WIDTH  = 320;
-const HIST_HEIGHT = 300;
+const HIST_HEIGHT = 280;
 const PADDING     = 25;
 
 Template.sampleNormalizedDiffResults.created = function () {
@@ -80,7 +80,7 @@ function updateHistogram(template) {
         .range([PADDING, HIST_WIDTH - PADDING * 2]);
     var y        = d3.scale.linear()
         .domain([0, _.max(_.pluck(data, SnapApp.Processors.SND.RESULT_HIST_COUNT))])
-        .range([HIST_HEIGHT - PADDING * 2, PADDING]);
+        .range([HIST_HEIGHT - PADDING, PADDING]);
 
     var svg = d3.select("#hist" + template.data._id)
         .attr("preserveAspectRatio", "xMinYMin meet")
@@ -104,7 +104,7 @@ function updateHistogram(template) {
         })
         .attr("height", function (obj) {
             return Math.max(0,
-                HIST_HEIGHT - PADDING * 2 - y(obj[SnapApp.Processors.SND.RESULT_HIST_COUNT]));
+                HIST_HEIGHT - PADDING - y(obj[SnapApp.Processors.SND.RESULT_HIST_COUNT]));
         })
         .attr("fill", "steelblue")
         .attr("stroke", "black")
@@ -124,7 +124,7 @@ function updateHistogram(template) {
         .orient("left");
     svg.append("g")
         .attr("class", "x axis")
-        .attr("transform", "translate(" + PADDING + ", " + (HIST_HEIGHT - PADDING * 2) + ")")
+        .attr("transform", "translate(" + PADDING + ", " + (HIST_HEIGHT - PADDING) + ")")
         .call(xAxis);
     svg.append("g")
         .attr("class", "y axis")
