@@ -6,7 +6,79 @@
     <body>
     {{> navbar}}
     <div class="container">
-        This will be the usage page.
+        <div class="alert alert-dismissible alert-info">
+            <button type="button" class="close" data-dismiss="alert">x</button>
+            <h4>Under Construction</h4>
+            <p>This website is under active development. Features may be broken, inconsistent, or missing. If you notice
+                something, please <a href="https://github.com/PhaniGaddipati/SnaptronUI/issues">submit an issue on
+                    GitHub</a>.</p>
+        </div>
+
+        <h1>Overview</h1>
+        <p>
+            Snaptron allows you to explore exon-exon junctions from the Intropolis database (see <a
+                href="/about">About</a>).
+            All information is accessible, including junction evidence and sample information. Aditionally, you can
+            perform
+            simple analysis on sets of junctions.
+        </p>
+
+        <h1>Accounts</h1>
+        <p>While querying is allowed without a user account, signing in opens up access to more features, including</p>
+        <ul>
+            <li><strong>Editing</strong>: Change the name, filters, regions, etc. on queries you own</li>
+            <li><strong>Managing</strong>: Keep track of the queries you have made as well as starred</li>
+            <li><strong>Analysis</strong>: Perform analysis on junctions</li>
+            <li><strong>Persistence</strong>: Everything you do is automatically saved</li>
+        </ul>
+        <p>
+            Registering only requires an email address and a password. Some features described will assume that you are
+            signed in. Visit your account page <a href="/account">here</a>.
+        </p>
+
+        <h1>Basic Usage</h1>
+        <h2>Viewing a Region</h2>
+        <p>
+            From the <a href="/">Home</a> page, create a new query by entering a region and submitting. If you are
+            signed in,
+            new queries will automatically be added to your account. Regions can be in one of the following formats.
+        </p>
+        <ul>
+            <li><strong>Gene Name</strong>: The name, such as <code>CD99</code> to lookup. The largest extent
+                corresponding to the
+                gene will be used.
+            </li>
+            <li><strong>Gene Extent</strong>: The format <code>chr#:x-y</code>, where <code>#</code> is the chromosome
+                number, <code>x</code> is
+                the starting position, and <code>y</code> is the ending position
+            </li>
+        </ul>
+        <p>
+            Multiple regions can be queried at the same time by using a comma separated list. For example: <code>CD99,
+            DRD4</code>.
+            Including too many
+            regions may result in many junctions being returned, and may make it more difficult to view genes
+            separately. The regions that are a part of a query can be edited in the Overview Panel of the results page.
+        </p>
+
+        <h2>Filtering</h2>
+        <p>
+            Filters allow you to narrow down the junction set for a given region. Junctions can be filtered according to
+            any number of attributes, and multiple filters can be used together. The first opportunity to filter is from
+            the home page. By expanding the "Advanced Options" panel, the initial result set can be filtered. This can
+            be useful if the entered region(s) are large.
+        </p>
+        <p>
+            Filters can be modified (if you own the query) by using the <code>Edit</code> link in the overview panel.
+            The page must be reloaded anytime filters are changed. Filters are applied in the order they appear, and
+            junction must pass all filters for it to appear.
+        </p>
+
+        <h2>Junction Map</h2>
+
+        <h2>Junction Data Table</h2>
+
+        <h1>Analysis</h1>
     </div>
     </body>
 </template>
