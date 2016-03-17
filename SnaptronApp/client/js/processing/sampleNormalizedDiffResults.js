@@ -78,6 +78,13 @@ Template.sampleNormalizedDiffResults.helpers({
             return "";
         }
         return val;
+    },
+    "notes": function () {
+        var notes = this[QRY_PROCESSOR_PARAMS]["notes"];
+        if (notes == undefined || notes == null || notes.trim() === "") {
+            return "<i>None</i>";
+        }
+        return notes;
     }
 });
 

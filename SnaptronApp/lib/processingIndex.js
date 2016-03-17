@@ -30,7 +30,7 @@
  * Group options are always displayed first, and selects are always displayed before inputs.
  */
 
-SnapApp.Processors.FUNCTION     = "function";
+SnapApp.Processors.FUNCTION = "function";
 SnapApp.Processors.DESCRIPTION  = "description";
 SnapApp.Processors.INPUT_GROUPS = "inputGroups";
 
@@ -54,7 +54,10 @@ SnapApp.Processors.Index = {
                 "opts": [100, 50, 25, 10]
             }
         ],
-        "inputs": [],
+        "inputs": [{
+            "param": "notes",
+            "name": "Notes"
+        }],
         "template": "sampleNormalizedDiffResults"
     }
 };
