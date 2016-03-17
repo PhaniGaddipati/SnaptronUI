@@ -5,6 +5,14 @@
         {{#if isCurrentUsers}}
             {{> editFiltersModal}}
             {{> editRegionsModal}}
+            {{#if isAbandonedByUser}}
+                <div class="alert alert-dismissible alert-info">
+                    <button type="button" class="close" data-dismiss="alert">&#10006;</button>
+                    <h4>Orphaned Query</h4>
+                    You own this query but have removed it from your account. <a href="#" id="addOwnedQryBtn">Add it
+                    back</a>
+                </div>
+            {{/if}}
         {{/if}}
         {{#if isError}}
             <div class="alert alert-dismissible alert-danger">

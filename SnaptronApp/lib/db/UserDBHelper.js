@@ -6,6 +6,16 @@ SnapApp.UserDB = {};
 
 Meteor.methods({
     /**
+     * Add the query to the users owned queries list if they are
+     * the owner.
+     * @param queryId
+     */
+    "addQueryToUser": function (queryId) {
+        if (SnapApp.QueryDB.isQueryCurrentUsers(queryId)) {
+            SnapApp.UserDB.addQueryToUser(Meteor.userId(), queryId);
+        }
+    },
+    /**
      * If the current user owns the query, remove it.
      * @param queryId
      */
@@ -14,9 +24,17 @@ Meteor.methods({
             SnapApp.UserDB.removeQueryFromUser(Meteor.userId(), queryId);
         }
     },
+    /**
+     * Adds a query as "starred" to the current user.
+     * @param queryId
+     */
     "addStarredQueryToUser": function (queryId) {
         SnapApp.UserDB.addStarredQueryToUser(Meteor.userId(), queryId);
     },
+    /**
+     * Removes a starred from the current user.
+     * @param queryId
+     */
     "removeStarredQueryFromUser": function (queryId) {
         SnapApp.UserDB.removeStarredQueryFromUser(Meteor.userId(), queryId);
     }

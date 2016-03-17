@@ -5,6 +5,9 @@
 Template.queryResults.events({
     "shown.bs.collapse #junctionTableCollapse": function () {
         $("html, body").animate({scrollTop: $(document).height()}, "slow");
+    },
+    "click #addOwnedQryBtn": function () {
+        Meteor.call("addQueryToUser", Queries.findOne()._id);
     }
 });
 
@@ -44,5 +47,9 @@ Template.queryResults.helpers({
     processorTemplate: function () {
         var type = this[QRY_PROCESSOR_TYPE];
         return SnapApp.Processors.Index[type][SnapApp.Processors.TEMPLATE];
+    },
+    isAbandonedByUser: function () {
+        return (SnapApp.QueryDB.isQueryCurrentUsers(Queries.findOne()["_id"])
+        && SnapApp.UserDB.getUserQueryIds(Meteor.userId()).indexOf(Queries.findOne()["_id"]) == -1);
     }
 });
