@@ -9,7 +9,7 @@
  * {    "sample" : "some sampleId",
  *      "A" : count of sample found in group A,
  *      "B" : count of sample found in group B,
- *      "D" : normalized ration (B-A)/(B+A)
+ *      "D" : normalized ration (B-A)/(B+A+1)
  * }
  *
  * The HIST result contains frequency data from the unabridged result set.
@@ -63,7 +63,7 @@ function sampleNormalizedDifference(queryId, groupIdA, groupIdB, k) {
             "A": aVal,
             "B": bVal,
             "sample": sample,
-            "D": (bVal - aVal) / (bVal + aVal + 2)
+            "D": (bVal - aVal) / (bVal + aVal + 1)
         };
     });
     var sorted     = _.sortBy(allResults, "D");
