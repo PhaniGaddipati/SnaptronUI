@@ -34,9 +34,9 @@ SnapApp.Map.JNCT_NORMAL_COLOR      = "black";
 SnapApp.Map.JNCT_BOOL_TRUE_COLOR   = "#d9230f";
 SnapApp.Map.JNCT_HIGHLIGHT_COLOR   = "#3a87ad";
 SnapApp.Map.JNCT_SELECTED_COLOR    = "#33BCFF";
-SnapApp.Map.JNCT_NORMAL_WIDTH      = 3;
-SnapApp.Map.JNCT_HIGHLIGHTED_WIDTH = 4;
-SnapApp.Map.JNCT_SELECTED_WIDTH    = 5;
+SnapApp.Map.JNCT_NORMAL_WIDTH      = 4;
+SnapApp.Map.JNCT_HIGHLIGHTED_WIDTH = 5;
+SnapApp.Map.JNCT_SELECTED_WIDTH    = 6;
 
 /**
  * Color scale constants.
