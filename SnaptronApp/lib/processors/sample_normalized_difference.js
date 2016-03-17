@@ -52,8 +52,8 @@ if (Meteor.isServer) {
 }
 
 function sampleNormalizedDifference(queryId, groupIdA, groupIdB, k) {
-    var A = getSampleCounts(queryId, groupIdA);
-    var B = getSampleCounts(queryId, groupIdB);
+    var A = getSampleCoverages(queryId, groupIdA);
+    var B = getSampleCoverages(queryId, groupIdB);
 
     var allSamps   = _.union(_.keys(A), _.keys(B));
     var allResults = _.map(allSamps, function (sample) {
@@ -63,7 +63,7 @@ function sampleNormalizedDifference(queryId, groupIdA, groupIdB, k) {
             "A": aVal,
             "B": bVal,
             "sample": sample,
-            "D": (bVal - aVal) / (bVal + aVal)
+            "D": (bVal - aVal) / (bVal + aVal + 2)
         };
     });
     var sorted     = _.sortBy(allResults, "D");
@@ -93,19 +93,33 @@ function getHistogram(results) {
     return hist;
 }
 
-function getSampleCounts(queryId, groupId) {
-    var group   = SnapApp.QueryDB.getGroupFromQuery(queryId, groupId);
-    var jncts   = SnapApp.JunctionDB.getJunctions(group[QRY_GROUP_JNCTS]);
-    var samples = _.flatten(_.map(jncts, getJnctSamples));
-    return _.countBy(samples, _.identity)
+function getSampleCoverages(queryId, groupId) {
+    var group = SnapApp.QueryDB.getGroupFromQuery(queryId, groupId);
+    var jncts = SnapApp.JunctionDB.getJunctions(group[QRY_GROUP_JNCTS]);
+
+    /**
+     * The result of this is an object with keys being a sample, and the
+     * value is an array of objects with {"samp":samp,"cov":cov}
+     */
+    var grouped = _.groupBy(_.flatten(_.map(jncts, getJnctSampleCoverages)), "samp");
+    var result  = {};
+    _.each(_.keys(grouped), function (sample) {
+        //Sum all of the coverages for this sample
+        result[sample] = _.reduce(_.pluck(grouped[sample], "cov"), function (memo, num) {
+            return memo + num;
+        }, 0);
+    });
+
+    return result;
 }
 
-function getJnctSamples(jnct) {
-    if (!_.contains(_.keys(jnct), JNCT_SAMPLES_KEY)) {
-        console.warn("Warning: Passed a junction without a samples keys: " + jnct);
-        return [];
-    }
-    return jnct[JNCT_SAMPLES_KEY];
+function getJnctSampleCoverages(jnct) {
+    return _.map(_.range(0, jnct[JNCT_SAMPLES_KEY].length), function (i) {
+        return {
+            "samp": jnct[JNCT_SAMPLES_KEY][i],
+            "cov": jnct[JNCT_COVERAGE_KEY][i]
+        };
+    })
 }
 
 function validateInput(inputGroups, params) {

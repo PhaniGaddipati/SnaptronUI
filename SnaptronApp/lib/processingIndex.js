@@ -44,7 +44,7 @@ SnapApp.Processors.TEMPLATE    = "template";
 SnapApp.Processors.Index = {
     "Sample Normalized Difference": {
         "function": "sampleNormalizedDifference",
-        "description": "Computes the normalized difference ratio (B-A)/(A+B) of sample expression across 2 groups," +
+        "description": "Computes the normalized difference ratio (B-A)/(A+B+2) of sample expression across 2 groups," +
         " and returns a histogram along with the top K results",
         "inputGroups": ["A", "B"],
         "selects": [
