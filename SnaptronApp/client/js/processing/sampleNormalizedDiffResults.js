@@ -15,14 +15,6 @@ Template.sampleNormalizedDiffResults.onRendered(function () {
 });
 
 Template.sampleNormalizedDiffResults.helpers({
-    "paramsList": function () {
-        return _.map(this[QRY_PROCESSOR_PARAMS], function (val, key) {
-            return {
-                "key": key,
-                "val": val
-            }
-        });
-    },
     "groupsList": function () {
         return _.map(this[QRY_PROCESSOR_INPUT_GROUPS], function (val, key) {
             var grp = SnapApp.QueryDB.getGroupFromQuery(Queries.findOne()._id, val);
@@ -42,7 +34,26 @@ Template.sampleNormalizedDiffResults.helpers({
             "showColumnToggles": false,
             "showFilter": false,
             "rowsPerPage": 5,
-            "fields": ["sample", "A", "B", "D"]
+            "fields": [
+                {
+                    key: "sample",
+                    label: "Sample ID"
+                },
+                {
+                    key: "A",
+                    label: "A"
+                },
+                {
+                    key: "B",
+                    label: "B"
+                },
+                {
+                    key: "D",
+                    label: "D",
+                    sortOrder: 0,
+                    sortDirection: "descending"
+                }
+            ]
         };
     },
     "resultsArr": function () {
@@ -60,6 +71,13 @@ Template.sampleNormalizedDiffResults.helpers({
                 + ", " + selectedBin[SnapApp.Processors.SND.RESULT_HIST_END].toFixed(2) + ")<br>"
                 + "<strong>Count: </strong>" + selectedBin[SnapApp.Processors.SND.RESULT_HIST_COUNT];
         }
+    },
+    "kParam": function () {
+        var val = this[QRY_PROCESSOR_PARAMS]["k"];
+        if (val == undefined) {
+            return "";
+        }
+        return val;
     }
 });
 

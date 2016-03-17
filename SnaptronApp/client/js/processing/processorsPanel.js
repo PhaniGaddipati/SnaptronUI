@@ -53,7 +53,7 @@ Template.processorsPanel.events({
         selectedType.set(template.find("#processorType").value);
         validate(evt, template);
     },
-    "click .groupSelect": validate,
+    "change .groupSelect": validate,
     "click #analyzeBtn": onAnalyze
 });
 

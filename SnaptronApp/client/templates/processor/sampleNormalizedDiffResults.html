@@ -1,31 +1,18 @@
 <template name="sampleNormalizedDiffResults">
-    <h4><i>Sample Normalized Difference</i></h4>
-    <row>
-        <div class="col-xs-6">
-            <h5>Parameters</h5>
-            <ul>
-                {{#each paramsList}}
-                    <li>
-                        <strong>{{this.key}}: </strong><i>{{this.val}}</i>
-                    </li>
-                {{/each}}
-            </ul>
-        </div>
-        <div class="col-xs-6">
-            <h5>Input Groups</h5>
-            <ul>
-                {{#each groupsList}}
-                    <li>
-                        <strong>{{this.key}}: </strong><i>{{this.val}}</i>
-                    </li>
-                {{/each}}
-            </ul>
-        </div>
-    </row>
-    <hr>
+    <h4>Sample Normalized Difference <i class="fa fa-bar-chart pull-right"></i></h4>
+    <br>
+    <ul>
+        {{#each groupsList}}
+            <li>
+                <strong>Group {{this.key}}: </strong>{{this.val}}
+            </li>
+        {{/each}}
+    </ul>
+    <br>
     <ul class="nav nav-tabs">
         <li class="active"><a href="#histogram{{this._id}}" data-toggle="tab" aria-expanded="true">Histogram</a></li>
-        <li class=""><a href="#results{{this._id}}" data-toggle="tab" aria-expanded="false">Top K</a></li>
+        <li class=""><a href="#results{{this._id}}" data-toggle="tab" aria-expanded="false">Top {{kParam}}</a>
+        </li>
     </ul>
     <div class="tab-content">
         <div class="tab-pane" id="results{{this._id}}">
