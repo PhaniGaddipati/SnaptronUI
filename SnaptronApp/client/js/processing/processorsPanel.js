@@ -56,8 +56,8 @@ Template.processorsPanel.events({
     "change .groupSelect": validate,
     "click #analyzeBtn": onAnalyze,
     "keypress .paramInputField": function (evt) {
-        if (event.which === SnapApp.ENTER_KEY_CODE) {
-            event.preventDefault();
+        if (evt.which === SnapApp.ENTER_KEY_CODE) {
+            evt.preventDefault();
         }
     }
 });

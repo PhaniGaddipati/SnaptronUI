@@ -94,32 +94,19 @@ function getHistogram(results) {
 }
 
 function getSampleCoverages(queryId, groupId) {
-    var group = SnapApp.QueryDB.getGroupFromQuery(queryId, groupId);
-    var jncts = SnapApp.JunctionDB.getJunctions(group[QRY_GROUP_JNCTS]);
+    var group  = SnapApp.QueryDB.getGroupFromQuery(queryId, groupId);
+    var jncts  = SnapApp.JunctionDB.getJunctions(group[QRY_GROUP_JNCTS]);
+    var result = {};
 
-    /**
-     * The result of this is an object with keys being a sample, and the
-     * value is an array of objects with {"samp":samp,"cov":cov}
-     */
-    var grouped = _.groupBy(_.flatten(_.map(jncts, getJnctSampleCoverages)), "samp");
-    var result  = {};
-    _.each(_.keys(grouped), function (sample) {
-        //Sum all of the coverages for this sample
-        result[sample] = _.reduce(_.pluck(grouped[sample], "cov"), function (memo, num) {
-            return memo + num;
-        }, 0);
+    _.each(jncts, function (jnct) {
+        var samples   = jnct[JNCT_SAMPLES_KEY];
+        var coverages = jnct[JNCT_COVERAGE_KEY];
+        for (var i = 0; i < samples.length; i++) {
+            result[samples[i]] = (result[samples[i]] || 0) + coverages[i];
+        }
     });
 
     return result;
-}
-
-function getJnctSampleCoverages(jnct) {
-    return _.map(_.range(0, jnct[JNCT_SAMPLES_KEY].length), function (i) {
-        return {
-            "samp": jnct[JNCT_SAMPLES_KEY][i],
-            "cov": jnct[JNCT_COVERAGE_KEY][i]
-        };
-    })
 }
 
 function validateInput(inputGroups, params) {
