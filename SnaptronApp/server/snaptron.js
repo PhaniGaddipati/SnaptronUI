@@ -4,7 +4,8 @@
  * This file proves querying functions to get information from the snaptron server
  */
 
-const URL = "http://stingray.cs.jhu.edu:8443/snaptron";
+const SNAPTRON_URL = "http://stingray.cs.jhu.edu:8443/snaptron";
+const SAMPLE_URL   = "http://stingray.cs.jhu.edu:8443/samples";
 
 SnapApp.Snaptron = {};
 
@@ -22,7 +23,7 @@ SnapApp.Snaptron.updateQuery = function (queryId) {
             if (!SnapApp.RegionDB.hasRegion(regionIds[i])) {
                 SnapApp.RegionDB.newRegion(regionIds[i]);
             }
-            var region = SnapApp.RegionDB.getRegionNoJunctions(regionIds[i]);
+            var region = SnapApp.RegionDB.getRegion(regionIds[i]);
             if (region[REGION_LOADED_DATE] == null ||
                 (new Date().getTime() - region[REGION_LOADED_DATE]) > REGION_REFRESH_TIME) {
                 updateRegion(region["_id"]);
@@ -35,13 +36,39 @@ SnapApp.Snaptron.updateQuery = function (queryId) {
 };
 
 /**
+ * Loads the missing samples for the given junctions and adds them to the db.
+ * @param junctionIds
+ * @returns {*}
+ */
+SnapApp.Snaptron.loadMissingJunctionSamples = function (junctionIds) {
+    var junctions     = SnapApp.JunctionDB.getJunctions(junctionIds);
+    var samplesToLoad = _.filter(_.uniq(_.flatten(_.pluck(junctions, JNCT_SAMPLES_KEY))), function (sampleId) {
+        return !SnapApp.SampleDB.hasSample(sampleId);
+    });
+    console.log("Loading " + samplesToLoad.length + " samples for " + junctionIds.length + " junctions");
+    try {
+        var sampleQuery = "\"[{\"ids\":[\"" + samplesToLoad.join("\",\"") + "\"]}]\"";
+        var params      = {"fields": sampleQuery};
+        var responseTSV = Meteor.http.post(SAMPLE_URL, {params: params}).content.trim();
+        var samples     = SnapApp.Parser.parseSampleResponse(responseTSV);
+        SnapApp.SampleDB.addSamples(samples);
+        return junctionIds;
+    } catch (err) {
+        console.error("Error in loadMissingJunctionSamples");
+        console.error(err);
+        return null;
+    }
+};
+
+
+/**
  * Loads the metadata and junctions list for a given region.
  * If the region document doesn't exist, it will be created.
  * @param regionId
  * @returns {*}
  */
 function updateRegion(regionId) {
-    var snaptronQuery = URL + "?regions=" + regionId + "&contains=1&fields=snaptron_id";
+    var snaptronQuery = SNAPTRON_URL + "?regions=" + regionId + "&contains=1&fields=snaptron_id";
     if (!SnapApp.RegionDB.hasRegion(regionId)) {
         console.log("Region with id " + regionId + " doesn't exist, creating it.");
         if (SnapApp.RegionDB.newRegion(regionId) == null) {
@@ -51,7 +78,7 @@ function updateRegion(regionId) {
     }
     try {
         console.log("Loading region " + regionId + "...");
-        var responseTSV = Meteor.http.get(URL + snaptronQuery).content.trim();
+        var responseTSV = Meteor.http.get(SNAPTRON_URL + snaptronQuery).content.trim();
         var regionDoc   = SnapApp.Parser.parseRegionResponse(regionId, responseTSV);
         SnapApp.RegionDB.upsertRegion(regionDoc);
         return regionId;
@@ -85,9 +112,9 @@ function loadMissingRegionJunctions(regionId) {
     if (toLoadJunctionIDs.length > 0) {
         console.log("Loading " + toLoadJunctionIDs.length + " junctions for region (\"" + regionId + "\")");
         try {
-            var snaptronQuery = "\"[{\"snaptron_id\":[\"" + toLoadJunctionIDs.join("\",\"") + "\"]}]\"";
+            var snaptronQuery = "\"[{\"ids\":[\"" + toLoadJunctionIDs.join("\",\"") + "\"]}]\"";
             var params        = {"fields": snaptronQuery};
-            var responseTSV   = Meteor.http.post(URL, {params: params}).content.trim();
+            var responseTSV   = Meteor.http.post(SNAPTRON_URL, {params: params}).content.trim();
             var junctions     = SnapApp.Parser.parseJunctionsResponse(responseTSV);
             SnapApp.JunctionDB.addJunctions(junctions);
             return regionId;
@@ -99,4 +126,3 @@ function loadMissingRegionJunctions(regionId) {
     }
     return regionId;
 }
-

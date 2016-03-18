@@ -70,6 +70,15 @@ Users = Meteor.users;
 Queries   = new Mongo.Collection("queries");
 Regions   = new Mongo.Collection("regions");
 Junctions = new Mongo.Collection("junctions");
+Samples   = new Mongo.Collection("samples");
+
+MONGO_OPERATOR_EQ  = "$eq";
+MONGO_OPERATOR_GT  = "$gt";
+MONGO_OPERATOR_LT  = "$lt";
+MONGO_OPERATOR_GTE = "$gte";
+MONGO_OPERATOR_LTE = "$lte";
+
+SAMPLE_ID_FIELD = "intropolis_sample_id_i";
 
 USER_QRYS          = "queries";
 USER_STARRED_QRYS  = "starredQueries";
@@ -77,13 +86,6 @@ USER_USERNAME      = "username";
 USER_EMAILS        = "emails";
 USER_EMAIL_ADDRESS = "address";
 USER_PROFILE       = "profile";
-
-
-MONGO_OPERATOR_EQ  = "$eq";
-MONGO_OPERATOR_GT  = "$gt";
-MONGO_OPERATOR_LT  = "$lt";
-MONGO_OPERATOR_GTE = "$gte";
-MONGO_OPERATOR_LTE = "$lte";
 
 QRY_NAME         = "name";
 QRY_REGIONS      = "regions";

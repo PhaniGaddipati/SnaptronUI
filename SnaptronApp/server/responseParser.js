@@ -84,7 +84,9 @@ SnapApp.Parser.parseJunctionsResponse = function (responseTSV) {
     var headers   = lines[0].split("\t");
     var junctions = [];
 
-    for (var i = 1; i < lines.length; i++) {
+    // Line 1 is data types, ignoring it for now, it's hardcoded
+
+    for (var i = 2; i < lines.length; i++) {
         if (lines[i] && 0 != lines[i].length) {
             var elems       = lines[i].split("\t");
             var junctionDoc = {};
@@ -102,6 +104,40 @@ SnapApp.Parser.parseJunctionsResponse = function (responseTSV) {
     }
 
     return junctions;
+};
+
+/**
+ * Parses the response for a samples request
+ * @param responseTSV
+ * @returns {Array} An array of the parsed samples
+ */
+SnapApp.Parser.parseSampleResponse = function (responseTSV) {
+    check(responseTSV, String);
+    // Get rid of commented lines
+    responseTSV.replace(/[#].+/g, "");
+
+    var lines   = responseTSV.split("\n");
+    var headers = lines[0].split("\t");
+    var samples = [];
+
+    for (var i = 1; i < lines.length; i++) {
+        if (lines[i] && 0 != lines[i].length) {
+            var elems     = lines[i].split("\t");
+            var sampleDoc = {};
+
+            for (var col = 0; col < elems.length; col++) {
+                if (headers[col] == SAMPLE_ID_FIELD) {
+                    sampleDoc["_id"] = elems[col];
+                } else {
+                    sampleDoc[headers[col]] = elems[col];
+                }
+            }
+
+            samples.push(sampleDoc);
+        }
+    }
+
+    return samples;
 };
 
 function castMember(toCast, type) {

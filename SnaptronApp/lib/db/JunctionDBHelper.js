@@ -13,7 +13,7 @@ SnapApp.JunctionDB.getJunctions = function (junctionIds) {
     }).fetch();
 };
 
-getJunction = function (junctionId) {
+SnapApp.JunctionDB.getJunction = function (junctionId) {
     check(junctionId, String);
     return Junctions.findOne({"_id": junctionId});
 };
