@@ -56,7 +56,7 @@ SnapApp.Processors.Index = {
             {
                 "param": "k",
                 "name": "Top K Results",
-                "opts": [100, 50, 25, 10]
+                "opts": [250, 100, 50, 25, 10]
             }
         ],
         "inputs": [{

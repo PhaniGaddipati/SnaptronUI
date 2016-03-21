@@ -55,14 +55,16 @@ Meteor.publish("processorElements", function (queryId, processorId) {
     check(processorId, String);
 
     var processor = SnapApp.QueryDB.getProcessorFromQuery(queryId, processorId);
-    var index     = SnapApp.Processors.Index[processor[QRY_PROCESSOR_TYPE]];
-    if (processor == null || index[SnapApp.Processors.PUBLISH_FUNCTION] == null) {
+    if (!processor) {
+        return [];
+    }
+    var index = SnapApp.Processors.Index[processor[QRY_PROCESSOR_TYPE]];
+    if (index[SnapApp.Processors.PUBLISH_FUNCTION] == null) {
         // Nothing to publish
         return [];
-    } else {
-        console.log("Delegating publishing of processorElements for " + processorId);
-        return index[SnapApp.Processors.PUBLISH_FUNCTION](processor);
     }
+    console.log("Delegating publishing of processorElements for " + processorId);
+    return index[SnapApp.Processors.PUBLISH_FUNCTION](processor);
 });
 
 /**
