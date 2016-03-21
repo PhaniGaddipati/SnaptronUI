@@ -19,7 +19,14 @@
     </ul>
     <div class="tab-content">
         <div class="tab-pane" id="results{{this._id}}">
-            {{> reactiveTable collection=resultsArr settings=tableSettings}}
+            {{#if Template.subscriptionsReady}}
+                {{> reactiveTable collection=resultsArr settings=tableSettings}}
+            {{else}}
+                <p class="text-center text-muted">Sample information is loading</p>
+                <div class="progress progress-striped active">
+                    <div class="progress-bar" style="width: 100%"></div>
+                </div>
+            {{/if}}
         </div>
         <div class="tab-pane active" id="histogram{{this._id}}">
             <br>

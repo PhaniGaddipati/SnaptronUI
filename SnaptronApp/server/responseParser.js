@@ -82,6 +82,10 @@ SnapApp.Parser.parseJunctionsResponse = function (responseTSV) {
 
     var lines     = responseTSV.split("\n");
     var headers   = lines[0].split("\t");
+    _.each(headers, function (val, index) {
+        //'.' and '$' not supported as keys in Mongo, replace with '_'
+        headers[index] = val.replace(".", "_").replace("$", "_");
+    });
     var junctions = [];
 
     // Line 1 is data types, ignoring it for now, it's hardcoded
@@ -118,6 +122,10 @@ SnapApp.Parser.parseSampleResponse = function (responseTSV) {
 
     var lines   = responseTSV.split("\n");
     var headers = lines[0].split("\t");
+    _.each(headers, function (val, index) {
+        //'.' and '$' not supported as keys in Mongo, replace with '_'
+        headers[index] = val.replace(".", "_").replace("$", "_");
+    });
     var samples = [];
 
     for (var i = 1; i < lines.length; i++) {

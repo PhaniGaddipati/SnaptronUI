@@ -16,12 +16,16 @@ Meteor.methods({
     }
 });
 
-SnapApp.SampleDB.getSamples = function (sampleIds) {
+SnapApp.SampleDB.findSamples = function (sampleIds) {
     return Samples.find({
         "_id": {
             "$in": sampleIds
         }
-    }).fetch();
+    });
+};
+
+SnapApp.SampleDB.getSamples = function (sampleIds) {
+    return SnapApp.SampleDB.findSamples(sampleIds).fetch();
 };
 
 SnapApp.SampleDB.getSamplesForJunctions = function (junctionIds) {

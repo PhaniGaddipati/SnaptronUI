@@ -7,6 +7,8 @@
  * on updating error.
  */
 Meteor.publish("queries", function (queryId) {
+    check(queryId, String);
+
     if (SnapApp.Snaptron.updateQuery(queryId) == null) {
         // Failed
         return [];
@@ -20,6 +22,8 @@ Meteor.publish("queries", function (queryId) {
  * Publishes the regions relevant to the given query ID.
  */
 Meteor.publish("regions", function (queryId) {
+    check(queryId, String);
+
     var regions = SnapApp.RegionDB.findRegionsForQuery(queryId);
     if (regions == null) {
         return [];
@@ -32,12 +36,33 @@ Meteor.publish("regions", function (queryId) {
  * Publishes the junctions relevant to the given query ID.
  */
 Meteor.publish("junctions", function (queryId) {
+    check(queryId, String);
+
     var junctions = SnapApp.JunctionDB.findJunctionsForQuery(queryId);
     if (junctions == null) {
         return [];
     }
     console.log("Published " + junctions.count() + " junctions for query " + queryId);
     return junctions;
+});
+
+/**
+ * Publishes the elements relevant to a processor. The publishing is delegated
+ * to the processor's publishFunction as defined in the index.
+ */
+Meteor.publish("processorElements", function (queryId, processorId) {
+    check(queryId, String);
+    check(processorId, String);
+
+    var processor = SnapApp.QueryDB.getProcessorFromQuery(queryId, processorId);
+    var index     = SnapApp.Processors.Index[processor[QRY_PROCESSOR_TYPE]];
+    if (processor == null || index[SnapApp.Processors.PUBLISH_FUNCTION] == null) {
+        // Nothing to publish
+        return [];
+    } else {
+        console.log("Delegating publishing of processorElements for " + processorId);
+        return index[SnapApp.Processors.PUBLISH_FUNCTION](processor);
+    }
 });
 
 /**

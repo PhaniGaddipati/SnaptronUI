@@ -6,8 +6,11 @@
  *
  *      processorName: {
  *          "function": "meteorMethodName",
+ *              // Function to return what should be published for the results template, given the QRY_PROCESSOR object
+ *          "publishFunction": function,
  *          "description": "a description of this processor",
- *          "inputGroups": ["group1", ...], // An array of N different groups required, with the given group name
+ *              // An array of N different groups required, with the given group name
+ *          "inputGroups": ["group1", ...],
  *          "selects": [
  *              {
  *                  "param": "variableName",
@@ -31,8 +34,9 @@
  */
 
 SnapApp.Processors.FUNCTION = "function";
-SnapApp.Processors.DESCRIPTION  = "description";
-SnapApp.Processors.INPUT_GROUPS = "inputGroups";
+SnapApp.Processors.PUBLISH_FUNCTION = "publishFunction";
+SnapApp.Processors.DESCRIPTION      = "description";
+SnapApp.Processors.INPUT_GROUPS     = "inputGroups";
 
 SnapApp.Processors.PARAM       = "param";
 SnapApp.Processors.NAME        = "name";
@@ -44,6 +48,7 @@ SnapApp.Processors.TEMPLATE    = "template";
 SnapApp.Processors.Index = {
     "Sample Normalized Difference": {
         "function": "sampleNormalizedDifference",
+        "publishFunction": SnapApp.Processors.SND.loadAndPublish,
         "description": "Computes the normalized difference ratio (B-A)/(A+B+1) of sample expression across 2 groups," +
         " and returns a histogram along with the top K results",
         "inputGroups": ["A", "B"],

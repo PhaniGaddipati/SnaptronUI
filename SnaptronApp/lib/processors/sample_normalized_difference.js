@@ -33,7 +33,9 @@
 const NUM_HIST_BINS    = 15;
 SnapApp.Processors.SND = {};
 
-SnapApp.Processors.SND.RESULTS_TOP_K     = "topk";
+SnapApp.Processors.SND.RESULTS_TOP_K        = "topk";
+SnapApp.Processors.SND.RESULTS_TOP_K_SAMPLE = "sample";
+
 SnapApp.Processors.SND.RESULTS_HIST      = "hist";
 SnapApp.Processors.SND.RESULT_HIST_START = "start";
 SnapApp.Processors.SND.RESULT_HIST_END   = "end";
@@ -109,6 +111,12 @@ function getSampleCoverages(queryId, groupId) {
     return result;
 }
 
+/**
+ * Ensures that the given groups are unique and a k is given.
+ * @param inputGroups
+ * @param params
+ * @returns {boolean}
+ */
 function validateInput(inputGroups, params) {
     if (!_.contains(_.keys(inputGroups), "A") || !_.contains(_.keys(inputGroups), "B")) {
         // Proper input groups not present
@@ -126,3 +134,15 @@ function validateInput(inputGroups, params) {
     }
     return true;
 }
+
+SnapApp.Processors.SND.loadAndPublish = function (processor) {
+    if (processor[QRY_PROCESSOR_RESULTS] == null) {
+        return [];
+    }
+    var sampleIds = _.pluck(processor[QRY_PROCESSOR_RESULTS][SnapApp.Processors.SND.RESULTS_TOP_K],
+        SnapApp.Processors.SND.RESULTS_TOP_K_SAMPLE);
+    SnapApp.Snaptron.loadMissingSamples(sampleIds);
+    var resultCursor = SnapApp.SampleDB.findSamples(sampleIds);
+    console.log("Publishing " + resultCursor.count() + " samples for SND processor " + processor._id);
+    return resultCursor;
+};

@@ -6,9 +6,10 @@ const HIST_WIDTH  = 320;
 const HIST_HEIGHT = 280;
 const PADDING     = 25;
 
-Template.sampleNormalizedDiffResults.created = function () {
+Template.sampleNormalizedDiffResults.onCreated(function () {
     this.selectedBin = new ReactiveVar(null);
-};
+    this.subscribe("processorElements", Queries.findOne()._id, this.data._id);
+});
 
 Template.sampleNormalizedDiffResults.onRendered(function () {
     updateHistogram(this);

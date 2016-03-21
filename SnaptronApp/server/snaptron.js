@@ -41,23 +41,34 @@ SnapApp.Snaptron.updateQuery = function (queryId) {
  * @returns {*}
  */
 SnapApp.Snaptron.loadMissingJunctionSamples = function (junctionIds) {
-    var junctions     = SnapApp.JunctionDB.getJunctions(junctionIds);
-    var samplesToLoad = _.filter(_.uniq(_.flatten(_.pluck(junctions, JNCT_SAMPLES_KEY))), function (sampleId) {
+    var junctions = SnapApp.JunctionDB.getJunctions(junctionIds);
+    var sampleIds = _.uniq(_.flatten(_.pluck(junctions, JNCT_SAMPLES_KEY)));
+    return SnapApp.Snaptron.loadMissingSamples(sampleIds);
+};
+
+/**
+ * Loads the given samples, if they have not already been loaded.
+ * @param sampleIds
+ */
+SnapApp.Snaptron.loadMissingSamples = function (sampleIds) {
+    var samplesToLoad = _.filter(sampleIds, function (sampleId) {
         return !SnapApp.SampleDB.hasSample(sampleId);
     });
-    console.log("Loading " + samplesToLoad.length + " samples for " + junctionIds.length + " junctions");
-    try {
-        var sampleQuery = "\"[{\"ids\":[\"" + samplesToLoad.join("\",\"") + "\"]}]\"";
-        var params      = {"fields": sampleQuery};
-        var responseTSV = Meteor.http.post(SAMPLE_URL, {params: params}).content.trim();
-        var samples     = SnapApp.Parser.parseSampleResponse(responseTSV);
-        SnapApp.SampleDB.addSamples(samples);
-        return junctionIds;
-    } catch (err) {
-        console.error("Error in loadMissingJunctionSamples");
-        console.error(err);
-        return null;
+    if (samplesToLoad.length > 0) {
+        console.log("Loading " + samplesToLoad.length + " samples");
+        try {
+            var sampleQuery = "\"[{\"ids\":[\"" + samplesToLoad.join("\",\"") + "\"]}]\"";
+            var params      = {"fields": sampleQuery};
+            var responseTSV = Meteor.http.post(SAMPLE_URL, {params: params}).content.trim();
+            var samples     = SnapApp.Parser.parseSampleResponse(responseTSV);
+            SnapApp.SampleDB.addSamples(samples);
+        } catch (err) {
+            console.error("Error in loadMissingSamples");
+            console.error(err);
+            return null;
+        }
     }
+    return sampleIds;
 };
 
 
