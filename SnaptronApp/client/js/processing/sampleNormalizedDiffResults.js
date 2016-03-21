@@ -89,13 +89,6 @@ Template.sampleNormalizedDiffResults.helpers({
     }
 });
 
-Template.sampleNormalizedDiffResults.events({
-    "click #removeProcessor": function (evt) {
-        evt.preventDefault();
-        Meteor.call("removeProcessorFromQuery", Queries.findOne()._id, this._id);
-    }
-});
-
 function updateHistogram(template) {
     var data     = template.data[QRY_PROCESSOR_RESULTS][SnapApp.Processors.SND.RESULTS_HIST];
     var numElems = data.length;

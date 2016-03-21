@@ -36,6 +36,17 @@
         <row>
             {{#each processors}}
                 <div class="panel panel-success col-xs-12 col-md-6 col-lg-4">
+                    <br>
+                    <i class="fa fa-bar-chart"></i>
+                    <strong> Analysis Results</strong>
+                    {{#if isCurrentUsers}}
+                        <a href="#" class="text-danger pull-right" id="removeProcessor">
+                            <i class="fa fa-trash"></i>
+                        </a>
+                        <br>
+                    {{/if}}
+                    <a href="#" class="text-muted"></a>
+                    <hr>
                     {{> Template.dynamic template=processorTemplate}}
                 </div>
             {{/each}}

@@ -2,14 +2,21 @@
  * Created by Phani on 2/14/2016.
  */
 
+var expandedProcessor = new ReactiveVar(null);
+
 Template.queryResults.events({
     "shown.bs.collapse #junctionTableCollapse": function () {
         $("html, body").animate({scrollTop: $(document).height()}, "slow");
     },
     "click #addOwnedQryBtn": function () {
         Meteor.call("addQueryToUser", Queries.findOne()._id);
+    },
+    "click #removeProcessor": function (evt) {
+        evt.preventDefault();
+        Meteor.call("removeProcessorFromQuery", Queries.findOne()._id, this._id);
     }
 });
+
 
 Template.queryResults.helpers({
     isError: function () {
