@@ -5,6 +5,13 @@
 SnapApp.SampleDB = {};
 
 Meteor.methods({
+    /**
+     * Returns samples relevant to the given junctions.
+     * Not found samples are loaded if specified.
+     * @param junctionIds
+     * @param loadIfMissing
+     * @returns {*|any}
+     */
     getSamplesForJunctions: function (junctionIds, loadIfMissing) {
         if (loadIfMissing === undefined) {
             loadIfMissing = false;
@@ -16,6 +23,11 @@ Meteor.methods({
     }
 });
 
+/**
+ * Finds samples given by an array of IDs.
+ * @param sampleIds
+ * @returns {Cursor}
+ */
 SnapApp.SampleDB.findSamples = function (sampleIds) {
     return Samples.find({
         "_id": {
@@ -24,15 +36,38 @@ SnapApp.SampleDB.findSamples = function (sampleIds) {
     });
 };
 
+/**
+ * Gets samples given by an array of IDs.
+ * @param sampleIds
+ * @returns {*|any}
+ */
 SnapApp.SampleDB.getSamples = function (sampleIds) {
     return SnapApp.SampleDB.findSamples(sampleIds).fetch();
 };
 
-SnapApp.SampleDB.getSamplesForJunctions = function (junctionIds) {
+/**
+ * Finds all samples a part of junctions given by ID.
+ * @param junctionIds
+ */
+SnapApp.SampleDB.findSamplesForJunctions = function (junctionIds) {
     var junctions = SnapApp.JunctionDB.getJunctions(junctionIds);
-    return SnapApp.SampleDB.getSamples(_.flatten(_.pluck(junctions, JNCT_SAMPLES_KEY)));
+    return SnapApp.SampleDB.findSamples(_.flatten(_.pluck(junctions, JNCT_SAMPLES_KEY)));
 };
 
+/**
+ * Get all samples that are a part of the junctions given by ID.
+ * @param junctionIds
+ * @returns {*|any}
+ */
+SnapApp.SampleDB.getSamplesForJunctions = function (junctionIds) {
+    return SnapApp.SampleDB.findSamplesForJunctions(junctionIds).fetch();
+};
+
+/**
+ * Get a particular sample by ID.
+ * @param sampleId
+ * @returns {any}
+ */
 SnapApp.SampleDB.getSample = function (sampleId) {
     check(sampleId, String);
     return Samples.findOne({"_id": sampleId});

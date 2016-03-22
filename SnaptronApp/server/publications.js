@@ -47,6 +47,26 @@ Meteor.publish("junctions", function (queryId) {
 });
 
 /**
+ * Publishes samples that a part of the given junctions by ID.
+ */
+Meteor.publish("samplesForJunctions", function (junctionIds, limit) {
+    check(junctionIds, [String]);
+    check(limit, Number);
+
+    SnapApp.Snaptron.loadMissingJunctionSamples(junctionIds);
+    var junctions = SnapApp.JunctionDB.getJunctions(junctionIds);
+    var sampleIds = _.flatten(_.pluck(junctions, JNCT_SAMPLES_KEY));
+    var samples   = Samples.find({
+        "_id": {
+            "$in": sampleIds
+        }
+    }, {
+        limit: limit
+    });
+    console.log("Published " + Math.min(samples.count(), limit) + " samples for " + junctionIds.length + " junctions");
+    return samples;
+});
+/**
  * Publishes the elements relevant to a processor. The publishing is delegated
  * to the processor's publishFunction as defined in the index.
  */

@@ -2,7 +2,7 @@
  * Created by Phani on 3/4/2016.
  */
 
-Template.selectedTable.helpers({
+Template.selectedJunctionTable.helpers({
     "junctionTableCollection": function () {
         SnapApp.selectedJnctIDsDep.depend();
         return SnapApp.JunctionDB.getJunctions(SnapApp.selectedJnctIDs);

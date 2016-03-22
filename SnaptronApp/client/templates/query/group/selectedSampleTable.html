@@ -1,0 +1,14 @@
+<template name="selectedSampleTable">
+    <div style="max-width:100%;overflow-x:auto;">
+        <br>
+        <strong>Note: Large sample sets may be limited</strong>
+        {{#if Template.subscriptionsReady}}
+            {{> reactiveTable collection=sampleTableCollection settings=tableSettings}}
+        {{else}}
+            <p class="text-center text-muted">Sample information is loading</p>
+            <div class="progress progress-striped active">
+                <div class="progress-bar" style="width: 100%"></div>
+            </div>
+        {{/if}}
+    </div>
+</template>
