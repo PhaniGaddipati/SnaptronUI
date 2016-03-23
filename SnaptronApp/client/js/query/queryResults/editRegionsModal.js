@@ -6,7 +6,8 @@
 var anyRegionChange = false;
 
 Template.editRegionsModal.events({
-    "click #modalDoneBtn": function () {
+    "click #editRegionsDoneBtn": function (evt, template) {
+        Modal.hide(template);
         if (anyRegionChange) {
             document.location.reload(true);
         }

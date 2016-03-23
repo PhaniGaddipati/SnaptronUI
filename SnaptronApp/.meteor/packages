@@ -20,6 +20,7 @@ http
 check
 ejson
 twbs:bootstrap
+peppelg:bootstrap-3-modal
 iron:router
 d3js:d3
 momentjs:moment

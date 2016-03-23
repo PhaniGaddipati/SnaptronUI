@@ -28,7 +28,8 @@ Template.editFiltersModal.helpers({
 });
 
 Template.editFiltersModal.events({
-    "click #modalDoneBtn": function () {
+    "click #editFiltersDoneBtn": function (evt, template) {
+        Modal.hide(template);
         if (anyFiltersChanged) {
             document.location.reload(true);
         }

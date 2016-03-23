@@ -36,6 +36,14 @@ Template.overviewPanel.events({
     "click #unstarQuery": function (evt) {
         evt.preventDefault();
         Meteor.call("removeStarredQueryFromUser", Queries.findOne()._id);
+    },
+    "click #editRegionsBtn": function (evt) {
+        evt.preventDefault();
+        Modal.show("editRegionsModal");
+    },
+    "click #editFiltersBtn": function (evt) {
+        evt.preventDefault();
+        Modal.show("editFiltersModal");
     }
 });
 

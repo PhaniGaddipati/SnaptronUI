@@ -1,0 +1,27 @@
+<template name="accountModal">
+    <div class="modal fade" id="accountNavModal">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-body" id="editFiltersBody">
+                    {{#if isError}}
+                        <p class="text-warning">Check your information and try again</p>
+                    {{/if}}
+                    <form>
+                        <div class="form-group">
+                            <label class="control-label" for="emailInput">Email</label>
+                            <input class="form-control" id="emailInput" type="email">
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label" for="passwordInput">Password</label>
+                            <input class="form-control" id="passwordInput" type="password">
+                        </div>
+                        <div class="form-group">
+                            <button class="btn btn-primary" id="signInBtn">Sign In</button>
+                            <a href="#" class="btn btn-link pull-right" id="registerBtn">Register</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
