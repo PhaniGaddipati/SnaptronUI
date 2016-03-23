@@ -89,6 +89,16 @@ Template.sampleNormalizedDiffResults.helpers({
     }
 });
 
+Template.sampleNormalizedDiffResults.events({
+    "click .reactive-table tbody tr": onRowClicked
+});
+
+
+function onRowClicked(evt) {
+    evt.preventDefault();
+    Modal.show("sampleInformationModal", SnapApp.SampleDB.getSample(this[SnapApp.Processors.SND.RESULTS_TOP_K_SAMPLE]));
+}
+
 function updateHistogram(template) {
     var data     = template.data[QRY_PROCESSOR_RESULTS][SnapApp.Processors.SND.RESULTS_HIST];
     var numElems = data.length;

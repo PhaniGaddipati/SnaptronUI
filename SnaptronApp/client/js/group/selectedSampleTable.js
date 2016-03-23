@@ -3,7 +3,7 @@
  */
 
 var SAMPLE_LIMIT  = 100;
-var INCLUDED_KEYS = ["run_accession_s", "sample_accession_s", "experiment_accession_s", "study_accession_s", "submission_accession_s", "sra_ID_s", "run_ID_s"];
+var INCLUDED_KEYS = ["_id", "run_accession_s", "sample_accession_s", "experiment_accession_s", "study_accession_s", "submission_accession_s", "sra_ID_s", "run_ID_s"];
 
 Template.selectedSampleTable.onCreated(function () {
     var self = this;
@@ -38,6 +38,18 @@ Template.selectedSampleTable.helpers({
     }
 });
 
+Template.selectedSampleTable.events({
+    "click .reactive-table tbody tr": onRowClicked
+});
+
+function onRowClicked(evt) {
+    evt.preventDefault();
+    Modal.show("sampleInformationModal", this);
+}
+
 function formatHeaderText(str) {
-    return str.replace("_s", "").replace("_t", "").toUpperCase().replace(/_/g, " ").trim();
+    if (str.endsWith("_s") || str.endsWith("_t")) {
+        str = str.substring(0, str.length - 2);
+    }
+    return str.toUpperCase().replace(/_/g, " ").trim();
 }

@@ -8,3 +8,8 @@
     text-shadow: 0 1px 0 #fff;
     cursor: move;
 }
+
+.sampleInformation {
+    max-height: 200px;
+    overflow-y: auto;
+}

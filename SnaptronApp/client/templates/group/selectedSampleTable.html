@@ -1,7 +1,7 @@
 <template name="selectedSampleTable">
     <div style="max-width:100%;overflow-x:auto;">
         <br>
-        <strong>Note: Large sample sets may be limited</strong>
+        <strong>Note: Large sample sets may be limited. Click a sample row for more information.</strong>
         {{#if Template.subscriptionsReady}}
             {{> reactiveTable collection=sampleTableCollection settings=tableSettings}}
         {{else}}

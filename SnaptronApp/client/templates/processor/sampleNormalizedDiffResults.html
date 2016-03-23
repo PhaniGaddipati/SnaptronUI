@@ -19,6 +19,7 @@
     <div class="tab-content">
         <div class="tab-pane" id="results{{this._id}}">
             {{#if Template.subscriptionsReady}}
+                <p class="text-center">Click a row for more sample information</p>
                 {{> reactiveTable collection=resultsArr settings=tableSettings}}
             {{else}}
                 <p class="text-center text-muted">Sample information is loading</p>
