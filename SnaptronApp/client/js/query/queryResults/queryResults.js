@@ -4,6 +4,11 @@
 
 var expandedProcessor = new ReactiveVar(null);
 
+Template.queryResults.onRendered(function () {
+    SnapApp.selectedJnctIDs = [];
+    SnapApp.selectedJnctIDsDep.changed();
+});
+
 Template.queryResults.events({
     "shown.bs.collapse #junctionTableCollapse": function () {
         $("html, body").animate({scrollTop: $(document).height()}, "slow");
