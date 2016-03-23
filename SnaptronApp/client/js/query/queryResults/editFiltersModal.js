@@ -49,9 +49,15 @@ Template.editFiltersModal.events({
 });
 
 function handleAddFilter(template) {
-    var field         = template.find("#addFieldSelect").value;
-    var op            = template.find("#addOpSelect").value;
-    var val           = parseInt(template.find("#addValInput").value);
+    var field      = template.find("#addFieldSelect").value;
+    var op         = template.find("#addOpSelect").value;
+    var valStr     = template.find("#addValInput").value.toLowerCase();
+    var multiplier = 1;
+    if (valStr.endsWith("k")) {
+        multiplier = 1000;
+        valStr     = valStr.replace("k", "");
+    }
+    var val           = parseInt(valStr) * multiplier;
     anyFiltersChanged = true;
     Meteor.call("addFilterToQuery", Queries.findOne()["_id"], field, op, val);
 }
