@@ -1,7 +1,15 @@
 <template name="selectedSampleTable">
     <div style="max-width:100%;overflow-x:auto;">
-        <br>
-        <strong>Note: Large sample sets may be limited. Click a sample row for more information.</strong>
+        <form>
+            <div class="form-group input-group">
+                <input type="text" class="form-control" placeholder="Search Samples" id="searchSamplesInput">
+                    <span class="input-group-btn">
+                        <button class="btn btn-default pull-right" id="searchSamplesBtn" type="button">
+                            Search
+                        </button>
+                    </span>
+            </div>
+        </form>
         {{#if Template.subscriptionsReady}}
             {{> reactiveTable collection=sampleTableCollection settings=tableSettings}}
         {{else}}
@@ -11,4 +19,6 @@
             </div>
         {{/if}}
     </div>
+    <br>
+    <strong>Note: Large sample sets may be limited. Click a sample row for more information.</strong>
 </template>

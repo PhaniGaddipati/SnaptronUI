@@ -2,14 +2,15 @@
  * Created by Phani on 3/22/2016.
  */
 
-var SAMPLE_LIMIT  = 100;
-var INCLUDED_KEYS = ["_id", "run_accession_s", "study_title_t", "sra_ID_s"];
+var sampleSearchQuery = new ReactiveVar("");
+var INCLUDED_KEYS     = ["_id", "run_accession_s", "study_title_t", "sra_ID_s"];
 
 Template.selectedSampleTable.onCreated(function () {
     var self = this;
+
     self.autorun(function () {
         SnapApp.selectedJnctIDsDep.depend();
-        self.subscribe("samplesForJunctions", SnapApp.selectedJnctIDs, SAMPLE_LIMIT);
+        self.subscribe("samplesForJunctions", SnapApp.selectedJnctIDs, sampleSearchQuery.get());
     });
 });
 
@@ -27,7 +28,7 @@ Template.selectedSampleTable.helpers({
             };
         });
         return {
-            "showColumnToggles": true,
+            "showColumnToggles": false,
             "showFilter": false,
             "rowsPerPage": 5,
             "responsive": true,
@@ -39,8 +40,19 @@ Template.selectedSampleTable.helpers({
 });
 
 Template.selectedSampleTable.events({
-    "click .reactive-table tbody tr": onRowClicked
+    "click .reactive-table tbody tr": onRowClicked,
+    "click #searchSamplesBtn": onSearch,
+    "keypress #searchSamplesInput": function (evt, template) {
+        if (evt.which === SnapApp.ENTER_KEY_CODE) {
+            onSearch(evt, template);
+        }
+    }
 });
+
+function onSearch(evt, template) {
+    evt.preventDefault();
+    sampleSearchQuery.set(template.find("#searchSamplesInput").value);
+}
 
 function onRowClicked(evt) {
     evt.preventDefault();
