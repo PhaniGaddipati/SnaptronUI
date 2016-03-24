@@ -3,7 +3,7 @@
  */
 
 var SAMPLE_LIMIT  = 100;
-var INCLUDED_KEYS = ["_id", "run_accession_s", "sample_accession_s", "experiment_accession_s", "study_accession_s", "submission_accession_s", "sra_ID_s", "run_ID_s"];
+var INCLUDED_KEYS = ["_id", "run_accession_s", "study_title_t", "sra_ID_s"];
 
 Template.selectedSampleTable.onCreated(function () {
     var self = this;
