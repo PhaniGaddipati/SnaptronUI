@@ -72,6 +72,13 @@ Regions   = new Mongo.Collection("regions");
 Junctions = new Mongo.Collection("junctions");
 Samples   = new Mongo.Collection("samples");
 
+if (Meteor.isServer) {
+    // Index all text attributes
+    Samples._ensureIndex({
+        "$**": "text"
+    });
+}
+
 MONGO_OPERATOR_EQ  = "$eq";
 MONGO_OPERATOR_GT  = "$gt";
 MONGO_OPERATOR_LT  = "$lt";
