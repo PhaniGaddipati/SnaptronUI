@@ -20,13 +20,20 @@ Template.selectedSampleTable.helpers({
     },
     "tableSettings": function () {
         var samp   = Samples.findOne();
-        var fields = _.map(_.keys(samp), function (key) {
+        var fields = _.map(_.without(_.keys(samp), "score"), function (key) {
             return {
                 key: key,
                 label: formatHeaderText(key),
                 hidden: (INCLUDED_KEYS.indexOf(key) == -1)
             };
         });
+        fields.push({
+            key: "score",
+            hidden: true,
+            sortDirection: "descending",
+            sortOrder: 0
+        });
+
         return {
             "showColumnToggles": false,
             "showFilter": false,
