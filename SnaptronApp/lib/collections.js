@@ -76,6 +76,19 @@ if (Meteor.isServer) {
     // Index all text attributes
     Samples._ensureIndex({
         "$**": "text"
+    }, {
+        weights: {
+            run_accession_s: 10,
+            sample_accession_s: 10,
+            experiment_accession_s: 10,
+            study_accession_s: 10,
+            experiment_title_t: 10,
+            study_title_t: 10,
+            study_abstract_t: 5,
+            study_type_t: 5,
+            sample_attribute_t: 5,
+            cell_type_t: 5
+        }
     });
 }
 
