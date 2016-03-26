@@ -3,25 +3,27 @@
     {{> navbar}}
     <div class="container">
         {{#if isSignedIn}}
-            <div class="panel panel-info col-xs-12">
-                <br>
-                <h1 class="panel-title"><strong>Account Information</strong></h1>
-                <div class="panel-body">
-                    <p>
-                        <strong>Email</strong>: {{userEmail}}
-                    </p>
-                    <p>
-                        <strong>Queries</strong>: {{numQueries}}
-                    </p>
-                    <p>
-                        <strong>Password</strong>: <a href="#" id="changePassword" data-toggle="modal"
-                                                      data-target="#changePasswordModal">Change</a>
-                    </p>
+            <div class="row">
+                <div class="panel panel-info col-xs-12">
+                    <br>
+                    <h1 class="panel-title"><strong>Account Information</strong></h1>
+                    <div class="panel-body">
+                        <p>
+                            <strong>Email</strong>: {{userEmail}}
+                        </p>
+                        <p>
+                            <strong>Queries</strong>: {{numQueries}}
+                        </p>
+                        <p>
+                            <strong>Password</strong>: <a href="#" id="changePassword" data-toggle="modal"
+                                                          data-target="#changePasswordModal">Change</a>
+                        </p>
+                    </div>
                 </div>
             </div>
             <br>
             <div class="row">
-                <div class="panel panel-info col-xs-12 col-md-6">
+                <div class="panel panel-default col-xs-12 col-md-6">
                     <br>
                     <h3 class="panel-title">Queries</h3>
                     <div class="panel-body">
@@ -48,8 +50,7 @@
                         {{/if}}
                     </div>
                 </div>
-                <br>
-                <div class="panel panel-info col-xs-12 col-md-6">
+                <div class="panel panel-default col-xs-12 col-md-6">
                     <br>
                     <h3 class="panel-title"><span class="fa fa-star"></span> Starred Queries</h3>
                     <div class="panel-body">
