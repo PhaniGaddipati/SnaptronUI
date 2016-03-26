@@ -22,41 +22,39 @@
             <div class="row">
                 <div class="col-md-6">
                     <div class="row">
-                        <div class="col-xs-4">
+                        <div class="col-md-4 col-xs-12">
                             <strong>Regions</strong>
                             {{#if isCurrentUsers}}
                                 &nbsp;(<a href="#" id="editRegionsBtn" class="text-danger">Edit</a>)
                             {{/if}}
                         </div>
-                        <div class="col-xs-8">
+                        <div class="col-md-8 col-xs-12">
                             {{regions}}
                         </div>
                     </div>
-                    <br>
                     <div class="row">
-                        <strong class="col-xs-4">Junctions</strong>
-                        <div class="col-xs-8">
+                        <strong class="col-md-4 col-xs-12">Junctions</strong>
+                        <div class="col-md-8 col-xs-12">
                             {{numJunctions}}
                         </div>
                     </div>
-                    <br>
                     <div class="row">
-                        <strong class="col-xs-4">Query&nbsp;Date</strong>
-                        <div class="col-xs-8">
+                        <strong class="col-md-4" col-xs-12>Query&nbsp;Date</strong>
+                        <div class="col-md-8 col-xs-12">
                             {{queryDate}}
                         </div>
                     </div>
-                    <br>
                     <div class="row">
-                        {{#if isCurrentUsers}}
-                        {{else}}
-                            {{#if isLoggedIn}}
-                                <i class="btn btn-link" id="copyQueryBtn">Copy query to your account</i>
-                            {{else}}
+                        <div class="col-xs-12">
+                            {{#unless isCurrentUsers}}
                                 <br>
-                                <i>Sign in to edit queries</i>
-                            {{/if}}
-                        {{/if}}
+                                {{#if isLoggedIn}}
+                                    <i class="btn btn-link" id="copyQueryBtn">Copy query to your account</i>
+                                {{else}}
+                                    <i>Sign in to edit queries</i>
+                                {{/if}}
+                            {{/unless}}
+                        </div>
                     </div>
                 </div>
                 <div class="row">
