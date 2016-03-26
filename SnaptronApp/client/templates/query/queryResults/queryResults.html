@@ -23,15 +23,12 @@
         <h2>Map</h2>
         {{> linearMap}}
         <br>
-        <row>
+        <div class="row">
             {{> selectionPanel}}
             {{> groupsPanel}}
             {{#if isCurrentUsers}}
                 {{> processorsPanel}}
             {{/if}}
-        </row>
-        <br>
-        <row>
             {{#each processors}}
                 <div class="panel panel-success col-xs-12 col-md-6 col-lg-4">
                     <br>
@@ -48,10 +45,10 @@
                     {{> Template.dynamic template=processorTemplate}}
                 </div>
             {{/each}}
-        </row>
+        </div>
         <br>
         <br>
-        <row>
+        <div class="row">
             <a class="col-xs-12 text-left" style="color:inherit;" href="#junctionTableCollapse" data-toggle="collapse">
                 <h2>All Junction Data <span class="caret"></span>
                 </h2>
@@ -59,7 +56,7 @@
             <div id="junctionTableCollapse" class="well panel-collapse panel-body collapse col-xs-12">
                 {{> junctionTable}}
             </div>
-        </row>
+        </div>
         <br>
         <br>
         <br>
