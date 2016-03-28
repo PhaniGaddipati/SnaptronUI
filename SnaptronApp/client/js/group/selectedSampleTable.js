@@ -11,6 +11,7 @@ Template.selectedSampleTable.onCreated(function () {
     self.samples        = new ReactiveVar([]);
     self.autorun(function () {
         SnapApp.selectedJnctIDsDep.depend();
+        self.samplesLoading.set(true);
         Meteor.call("searchSamplesForJunctions", SnapApp.selectedJnctIDs,
             INCLUDED_KEYS, sampleSearchQuery.get(), 50,
             function (err, result) {
@@ -28,7 +29,7 @@ Template.selectedSampleTable.helpers({
         return Template.instance().samples.get();
     },
     "tableSettings": function () {
-        var samp   = Template.instance().samples[0];
+        var samp   = Template.instance().samples.get()[0];
         var fields = [];
         if (samp) {
             fields = _.map(_.without(_.keys(samp), "score"), function (key) {
