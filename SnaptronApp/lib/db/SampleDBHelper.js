@@ -41,6 +41,50 @@ Meteor.methods({
     }
 });
 
+if (Meteor.isServer) {
+    Meteor.methods({
+        /**
+         * Searches the sample set for the given junctions using the text index (if a query if given)
+         * and returns the samples found.
+         * @param junctionIds
+         * @param keysToInclude
+         * @param searchQuery
+         * @returns {any}
+         */
+        searchSamplesForJunctions: function (junctionIds, keysToInclude, searchQuery, limit) {
+            check(junctionIds, [String]);
+            check(searchQuery, Match.OneOf(String, null, undefined));
+
+
+            SnapApp.Snaptron.loadMissingJunctionSamples(junctionIds);
+            var junctions = SnapApp.JunctionDB.getJunctions(junctionIds);
+            var sampleIds = _.flatten(_.pluck(junctions, JNCT_SAMPLES_KEY));
+
+            var query = {
+                "_id": {
+                    "$in": sampleIds
+                }
+            };
+            var proj  = {limit: limit};
+            if (keysToInclude) {
+                var fields = {};
+                _.each(keysToInclude, function (key) {
+                    fields[key] = 1;
+                });
+                proj.fields = fields;
+            }
+
+            if (searchQuery && searchQuery.trim() !== "") {
+                query["$text"] = {$search: searchQuery};
+                proj["fields"] = {score: {$meta: "textScore"}};
+                proj["sort"]   = {score: {$meta: "textScore"}};
+            }
+
+            return Samples.find(query, proj).fetch();
+        }
+    })
+}
+
 /**
  * Finds samples given by an array of IDs.
  * @param sampleIds

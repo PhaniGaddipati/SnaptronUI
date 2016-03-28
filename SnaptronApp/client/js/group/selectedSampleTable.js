@@ -6,33 +6,45 @@ var sampleSearchQuery = new ReactiveVar("");
 var INCLUDED_KEYS     = ["_id", "run_accession_s", "study_title_t", "sra_ID_s"];
 
 Template.selectedSampleTable.onCreated(function () {
-    var self = this;
-
+    var self            = this;
+    self.samplesLoading = new ReactiveVar(true);
+    self.samples        = new ReactiveVar([]);
     self.autorun(function () {
         SnapApp.selectedJnctIDsDep.depend();
-        self.subscribe("samplesForJunctions", SnapApp.selectedJnctIDs, INCLUDED_KEYS, sampleSearchQuery.get());
+        Meteor.call("searchSamplesForJunctions", SnapApp.selectedJnctIDs,
+            INCLUDED_KEYS, sampleSearchQuery.get(), 50,
+            function (err, result) {
+                self.samples.set(result);
+                self.samplesLoading.set(false);
+            });
     });
 });
 
 Template.selectedSampleTable.helpers({
+    "samplesLoading": function () {
+        return Template.instance().samplesLoading.get();
+    },
     "sampleTableCollection": function () {
-        return SnapApp.SampleDB.findSamplesForJunctions(SnapApp.selectedJnctIDs);
+        return Template.instance().samples.get();
     },
     "tableSettings": function () {
-        var samp   = Samples.findOne();
-        var fields = _.map(_.without(_.keys(samp), "score"), function (key) {
-            return {
-                key: key,
-                label: formatHeaderText(key),
-                hidden: (INCLUDED_KEYS.indexOf(key) == -1)
-            };
-        });
-        fields.push({
-            key: "score",
-            hidden: true,
-            sortDirection: "descending",
-            sortOrder: 0
-        });
+        var samp   = Template.instance().samples[0];
+        var fields = [];
+        if (samp) {
+            fields = _.map(_.without(_.keys(samp), "score"), function (key) {
+                return {
+                    key: key,
+                    label: formatHeaderText(key),
+                    hidden: (INCLUDED_KEYS.indexOf(key) == -1)
+                };
+            });
+            fields.push({
+                key: "score",
+                hidden: true,
+                sortDirection: "descending",
+                sortOrder: 0
+            });
+        }
 
         return {
             "showColumnToggles": false,

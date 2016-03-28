@@ -2,8 +2,6 @@
  * Created by Phani on 2/13/2016.
  */
 
-var SAMPLE_LIMIT = 50;
-
 /**
  * Updates the query and publishes it. Publishes nothing
  * on updating error.
@@ -67,43 +65,6 @@ Meteor.publish("queryJunctions", function (queryId) {
     return junctions;
 });
 
-/**
- * Publishes samples that a part of the given junctions by ID.
- * If samples weren't loaded, they are loaded via Snaptron first.
- */
-Meteor.publish("samplesForJunctions", function (junctionIds, keysToInclude, searchQuery) {
-    check(junctionIds, [String]);
-    check(searchQuery, Match.OneOf(String, null, undefined));
-
-
-    SnapApp.Snaptron.loadMissingJunctionSamples(junctionIds);
-    var junctions = SnapApp.JunctionDB.getJunctions(junctionIds);
-    var sampleIds = _.flatten(_.pluck(junctions, JNCT_SAMPLES_KEY));
-
-    var query = {
-        "_id": {
-            "$in": sampleIds
-        }
-    };
-    var proj  = {limit: SAMPLE_LIMIT};
-    if (keysToInclude) {
-        var fields = {};
-        _.each(keysToInclude, function (key) {
-            fields[key] = 1;
-        });
-        proj.fields = fields;
-    }
-
-    if (searchQuery && searchQuery.trim() !== "") {
-        query["$text"] = {$search: searchQuery};
-        proj["fields"] = {score: {$meta: "textScore"}};
-        proj["sort"]   = {score: {$meta: "textScore"}};
-    }
-
-    var samples = Samples.find(query, proj);
-    console.log("Published " + Math.min(samples.count(), SAMPLE_LIMIT) + " samples for " + junctionIds.length + " junctions");
-    return samples;
-});
 /**
  * Publishes the elements relevant to a processor. The publishing is delegated
  * to the processor's publishFunction as defined in the index.
