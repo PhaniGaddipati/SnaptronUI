@@ -2,8 +2,6 @@
 
 A webapp frontend to query exon-exon junction data from the [Intropolis database](https://github.com/nellore/intropolis) via [Snaptron](https://github.com/ChristopherWilks/snaptron)
 
-Development deployment available at http://snaptron.meteor.com/
-
 ## Prerequisites
 - [MeteorJS](https://www.meteor.com/)
 
