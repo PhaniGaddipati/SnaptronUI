@@ -96,7 +96,7 @@ Template.sampleNormalizedDiffResults.events({
 
 function onRowClicked(evt) {
     evt.preventDefault();
-    Modal.show("sampleInformationModal", SnapApp.SampleDB.getSample(this[SnapApp.Processors.SND.RESULTS_TOP_K_SAMPLE]));
+    Modal.show("sampleInformationModal", {sampleId: this[SnapApp.Processors.SND.RESULTS_TOP_K_SAMPLE]});
 }
 
 function updateHistogram(template) {

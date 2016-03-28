@@ -50,10 +50,12 @@ Meteor.publish("junctions", function (queryId) {
 
 /**
  * Publishes samples that a part of the given junctions by ID.
+ * If samples weren't loaded, they are loaded via Snaptron first.
  */
-Meteor.publish("samplesForJunctions", function (junctionIds, searchQuery) {
+Meteor.publish("samplesForJunctions", function (junctionIds, keysToInclude, searchQuery) {
     check(junctionIds, [String]);
     check(searchQuery, Match.OneOf(String, null, undefined));
+
 
     SnapApp.Snaptron.loadMissingJunctionSamples(junctionIds);
     var junctions = SnapApp.JunctionDB.getJunctions(junctionIds);
@@ -65,6 +67,13 @@ Meteor.publish("samplesForJunctions", function (junctionIds, searchQuery) {
         }
     };
     var proj  = {limit: SAMPLE_LIMIT};
+    if (keysToInclude) {
+        var fields = {};
+        _.each(keysToInclude, function (key) {
+            fields[key] = 1;
+        });
+        proj.fields = fields;
+    }
 
     if (searchQuery && searchQuery.trim() !== "") {
         query["$text"] = {$search: searchQuery};

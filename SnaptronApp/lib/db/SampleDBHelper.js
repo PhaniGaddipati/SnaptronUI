@@ -13,6 +13,7 @@ Meteor.methods({
      * @returns {*|any}
      */
     getSamplesForJunctions: function (junctionIds, loadIfMissing) {
+        check(junctionIds, [String]);
         if (loadIfMissing === undefined) {
             loadIfMissing = false;
         }
@@ -20,6 +21,23 @@ Meteor.methods({
             SnapApp.Snaptron.loadMissingJunctionSamples(junctionIds);
         }
         return SnapApp.SampleDB.getSamplesForJunctions(junctionIds);
+    },
+
+    /**
+     * Gets the sample by ID, loading if requested and missing.
+     * @param sampleId
+     * @param loadIfMissing
+     */
+    getSample: function (sampleId, loadIfMissing) {
+        check(sampleId, String);
+
+        if (loadIfMissing === undefined) {
+            loadIfMissing = false;
+        }
+        if (loadIfMissing && Meteor.isServer) {
+            SnapApp.Snaptron.loadMissingSamples([sampleId]);
+        }
+        return SnapApp.SampleDB.getSample(sampleId);
     }
 });
 

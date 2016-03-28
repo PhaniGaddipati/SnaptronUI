@@ -136,13 +136,5 @@ function validateInput(inputGroups, params) {
 }
 
 SnapApp.Processors.SND.loadAndPublish = function (processor) {
-    if (processor[QRY_PROCESSOR_RESULTS] == null) {
-        return [];
-    }
-    var sampleIds = _.pluck(processor[QRY_PROCESSOR_RESULTS][SnapApp.Processors.SND.RESULTS_TOP_K],
-        SnapApp.Processors.SND.RESULTS_TOP_K_SAMPLE);
-    SnapApp.Snaptron.loadMissingSamples(sampleIds);
-    var resultCursor = SnapApp.SampleDB.findSamples(sampleIds);
-    console.log("Publishing " + resultCursor.count() + " samples for SND processor " + processor._id);
-    return resultCursor;
+    return [];
 };

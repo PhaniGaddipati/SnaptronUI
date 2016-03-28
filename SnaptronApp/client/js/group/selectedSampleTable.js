@@ -10,7 +10,7 @@ Template.selectedSampleTable.onCreated(function () {
 
     self.autorun(function () {
         SnapApp.selectedJnctIDsDep.depend();
-        self.subscribe("samplesForJunctions", SnapApp.selectedJnctIDs, sampleSearchQuery.get());
+        self.subscribe("samplesForJunctions", SnapApp.selectedJnctIDs, INCLUDED_KEYS, sampleSearchQuery.get());
     });
 });
 
@@ -63,7 +63,7 @@ function onSearch(evt, template) {
 
 function onRowClicked(evt) {
     evt.preventDefault();
-    Modal.show("sampleInformationModal", this);
+    Modal.show("sampleInformationModal", {sampleId: this._id});
 }
 
 function formatHeaderText(str) {

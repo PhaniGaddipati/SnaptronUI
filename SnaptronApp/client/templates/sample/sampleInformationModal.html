@@ -6,15 +6,19 @@
                     <h4 class="modal-title">Sample Information</h4>
                 </div>
                 <div class="modal-body">
-                    {{#each keys}}
-                        <div class="row">
-                            <strong class="col-lg-2 col-xs-12">{{keyName this}}</strong>
-                            <div class="sampleInformation col-lg-10 col-xs-12">
-                                {{{keyVal this}}}
+                    {{#if loadingSample}}
+                        <p class="text-muted text-center">Loading sample information</p>
+                    {{else}}
+                        {{#each keys}}
+                            <div class="row">
+                                <strong class="col-lg-2 col-xs-12">{{keyName this}}</strong>
+                                <div class="sampleInformation col-lg-10 col-xs-12">
+                                    {{{keyVal this}}}
+                                </div>
                             </div>
-                        </div>
-                        <hr style="margin:3px">
-                    {{/each}}
+                            <hr style="margin:3px">
+                        {{/each}}
+                    {{/if}}
                 </div>
             </div>
         </div>
