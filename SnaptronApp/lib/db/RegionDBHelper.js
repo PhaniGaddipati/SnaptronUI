@@ -51,7 +51,25 @@ SnapApp.RegionDB.findRegionsForQuery = function (queryId) {
         "_id": {
             "$in": regionIds
         }
-    })
+    });
+};
+
+SnapApp.RegionDB.findRegionsForQueryNoJunctions = function (queryId) {
+    check(queryId, String);
+    var query = SnapApp.QueryDB.getQuery(queryId);
+    if (query == null) {
+        return null;
+    }
+    var regionIds            = query[QRY_REGIONS];
+    var fields               = {};
+    fields[REGION_JUNCTIONS] = 0;
+    return Regions.find({
+        "_id": {
+            "$in": regionIds
+        }
+    }, {
+        fields: fields
+    });
 };
 
 /**

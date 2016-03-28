@@ -21,8 +21,8 @@ Router.route('/query/:queryId', {
     waitOn: function () {
         var queryId = this.params["queryId"];
         return [Meteor.subscribe('queries', queryId),
-            Meteor.subscribe('regions', queryId),
-            Meteor.subscribe('junctions', queryId),
+            Meteor.subscribe('queryRegionsNoJncts', queryId),
+            Meteor.subscribe('queryJunctionsNoSamps', queryId),
             Meteor.subscribe('userData')];
     },
     data: function () {
@@ -36,10 +36,10 @@ Router.route('/query/:queryId', {
 Router.route('/query/:queryId/dataTSV', {
     loadingTemplate: 'loadingQuery',
     waitOn: function () {
-        return Meteor.subscribe('queries', this.params["queryId"]);
+        return Meteor.subscribe('queryJunctions', this.params['queryId']);
     },
     data: function () {
-        return Queries.findOne();
+        return Junctions.findOne();
     },
     action: function () {
         this.render('rawData');
