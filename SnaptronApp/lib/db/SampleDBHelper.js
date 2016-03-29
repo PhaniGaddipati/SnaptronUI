@@ -114,7 +114,7 @@ SnapApp.SampleDB.getSamplesForJunctions = function (junctionIds) {
  * @param limit
  * @returns {any}
  */
-SnapApp.Snaptron.searchSamplesForJunctions = function (junctionIds, keysToInclude, searchQuery, limit) {
+SnapApp.SampleDB.searchSamplesForJunctions = function (junctionIds, keysToInclude, searchQuery, limit) {
     check(junctionIds, [String]);
     check(keysToInclude, [String]);
     check(limit, Match.OneOf(null, undefined, Number));
