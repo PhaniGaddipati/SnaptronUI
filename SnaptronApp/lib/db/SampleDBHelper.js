@@ -44,43 +44,22 @@ Meteor.methods({
 if (Meteor.isServer) {
     Meteor.methods({
         /**
-         * Searches the sample set for the given junctions using the text index (if a query if given)
-         * and returns the samples found.
+         * Loads missing samples and searches them using the text index.
          * @param junctionIds
          * @param keysToInclude
          * @param searchQuery
-         * @returns {any}
+         * @param limit
+         * @returns {any|*}
          */
         searchSamplesForJunctions: function (junctionIds, keysToInclude, searchQuery, limit) {
             check(junctionIds, [String]);
+            check(keysToInclude, [String]);
+            check(limit, Number);
             check(searchQuery, Match.OneOf(String, null, undefined));
 
 
             SnapApp.Snaptron.loadMissingJunctionSamples(junctionIds);
-            var junctions = SnapApp.JunctionDB.getJunctions(junctionIds);
-            var sampleIds = _.flatten(_.pluck(junctions, JNCT_SAMPLES_KEY));
-
-            var query = {
-                "_id": {
-                    "$in": sampleIds
-                }
-            };
-            var proj  = {limit: limit};
-            if (keysToInclude) {
-                var fields = {};
-                _.each(keysToInclude, function (key) {
-                    fields[key] = 1;
-                });
-                proj.fields = fields;
-            }
-
-            if (searchQuery && searchQuery.trim() !== "") {
-                query["$text"] = {$search: searchQuery};
-                proj["fields"] = {score: {$meta: "textScore"}};
-                proj["sort"]   = {score: {$meta: "textScore"}};
-            }
-
-            return Samples.find(query, proj).fetch();
+            return SnapApp.SampleDB.searchSamplesForJunctions();
         }
     })
 }
@@ -123,6 +102,52 @@ SnapApp.SampleDB.findSamplesForJunctions = function (junctionIds) {
  */
 SnapApp.SampleDB.getSamplesForJunctions = function (junctionIds) {
     return SnapApp.SampleDB.findSamplesForJunctions(junctionIds).fetch();
+};
+
+
+/**
+ * Searches the sample set for the given junctions using the text index (if a query if given)
+ * and returns the samples found.
+ * @param junctionIds
+ * @param keysToInclude
+ * @param searchQuery
+ * @param limit
+ * @returns {any}
+ */
+SnapApp.Snaptron.searchSamplesForJunctions = function (junctionIds, keysToInclude, searchQuery, limit) {
+    check(junctionIds, [String]);
+    check(keysToInclude, [String]);
+    check(limit, Match.OneOf(null, undefined, Number));
+    check(searchQuery, Match.OneOf(String, null, undefined));
+
+    var junctions = SnapApp.JunctionDB.getJunctions(junctionIds);
+    var sampleIds = _.flatten(_.pluck(junctions, JNCT_SAMPLES_KEY));
+
+    var query = {
+        "_id": {
+            "$in": sampleIds
+        }
+    };
+
+    var proj = {};
+    if (limit) {
+        proj.limit = limit;
+    }
+    if (keysToInclude) {
+        var fields = {};
+        _.each(keysToInclude, function (key) {
+            fields[key] = 1;
+        });
+        proj.fields = fields;
+    }
+
+    if (searchQuery && searchQuery.trim() !== "") {
+        query["$text"] = {$search: searchQuery};
+        proj["fields"] = {score: {$meta: "textScore"}};
+        proj["sort"]   = {score: {$meta: "textScore"}};
+    }
+
+    return Samples.find(query, proj).fetch();
 };
 
 /**
