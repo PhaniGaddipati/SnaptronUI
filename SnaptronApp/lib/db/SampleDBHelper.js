@@ -59,7 +59,7 @@ if (Meteor.isServer) {
 
 
             SnapApp.Snaptron.loadMissingJunctionSamples(junctionIds);
-            return SnapApp.SampleDB.searchSamplesForJunctions();
+            return SnapApp.SampleDB.searchSamplesForJunctions(junctionIds, keysToInclude, searchQuery, limit);
         }
     })
 }
