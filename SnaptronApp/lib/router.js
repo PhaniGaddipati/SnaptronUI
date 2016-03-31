@@ -7,6 +7,7 @@ Router.route('/', function () {
 });
 Router.route('/about');
 Router.route('/usage');
+Router.route('/admin/resetData');
 Router.route('/account', {
     waitOn: function () {
         return [Meteor.subscribe('userQueriesAndRegions'),

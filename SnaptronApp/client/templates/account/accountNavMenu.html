@@ -1,6 +1,9 @@
 <template name="accountNavMenu">
     <ul class="nav navbar-nav navbar-right">
         {{#if isSignedIn}}
+            {{#if isAdmin}}
+                <li><a href="/admin">Admin Panel</a></li>
+            {{/if}}
             <li><a href="/account">My Account</a></li>
             <li><a href="/account" id="signOutBtn">Sign Out</a></li>
         {{else}}

@@ -90,7 +90,8 @@ SnapApp.Schemas.UserSchema           = new SimpleSchema({
     },
     emails: {
         type: Array,
-        label: "Emails"
+        label: "Emails",
+        optional: true
     },
     "emails.$": {
         type: Object
@@ -115,9 +116,14 @@ SnapApp.Schemas.UserSchema           = new SimpleSchema({
         optional: true,
         blackbox: true
     },
+    // If you specify that type as Object, you must also specify the
+    // `Roles.GLOBAL_GROUP` group whenever you add a user to a role.
+    // Example:
+    // Roles.addUsersToRoles(userId, ["admin"], Roles.GLOBAL_GROUP);
     roles: {
-        type: [String],
-        optional: true
+        type: Object,
+        optional: true,
+        blackbox: true
     },
     // In order to avoid an 'Exception in setInterval callback' from Meteor
     heartbeat: {
@@ -274,6 +280,16 @@ if (Meteor.isServer) {
             cell_type_t: 5
         }
     });
+
+    // reset data method
+    Meteor.methods({
+        "resetSamplesAndJunctions": function () {
+            if (Roles.userIsInRole(Meteor.user(), ['admin'])) {
+                Samples.remove({});
+                Junctions.remove({});
+            }
+        }
+    })
 }
 
 SAMPLE_ID_FIELD = "intropolis_sample_id_i";

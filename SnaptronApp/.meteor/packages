@@ -32,4 +32,6 @@ underscore
 
 aldeed:simple-schema
 aldeed:collection2
+dburles:collection-helpers
 alanning:roles
+yogiben:admin

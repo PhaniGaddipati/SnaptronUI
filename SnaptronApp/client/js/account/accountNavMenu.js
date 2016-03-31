@@ -11,6 +11,9 @@ Template.accountNavMenu.onRendered(function () {
 Template.accountNavMenu.helpers({
     "isSignedIn": function () {
         return Meteor.userId() != null;
+    },
+    "isAdmin": function () {
+        return Roles.userIsInRole(Meteor.user(), ['admin']);
     }
 });
 
