@@ -61,6 +61,7 @@ function onRegister(template) {
             errorSignInOrRegister.set(true);
         } else {
             console.log("Registered new user " + Meteor.userId());
+            $("#accountNavModal").modal("hide");
         }
     });
 }
