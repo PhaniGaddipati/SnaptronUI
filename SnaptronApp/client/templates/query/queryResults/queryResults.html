@@ -28,6 +28,13 @@
             {{> groupsPanel}}
             {{#if isCurrentUsers}}
                 {{> processorsPanel}}
+            {{else}}
+                <div class="panel panel-default col-xs-12 col-md-4">
+                    <div class="panel-body">
+                        <h4>Analysis</h4>
+                        <i>Login to perform analysis</i>
+                    </div>
+                </div>
             {{/if}}
             {{#each processors}}
                 <div class="panel panel-success col-xs-12 col-md-6 col-lg-4">
@@ -49,7 +56,8 @@
         <br>
         <br>
         <div class="row">
-            <a class="col-xs-12 text-left" style="color:inherit;" href="#junctionTableCollapse" data-toggle="collapse">
+            <a class="col-xs-12 text-left" style="color:inherit;" href="#junctionTableCollapse"
+               data-toggle="collapse">
                 <h2>All Junction Data <span class="caret"></span>
                 </h2>
             </a>
