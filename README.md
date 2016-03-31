@@ -9,7 +9,7 @@ Additional packages will be loaded by Meteor on first run.
 
 ## Deploying SnaptronUI
   - `git clone https://github.com/PhaniGaddipati/SnaptronUI.git`
-  - `cd SnaptronUI`
+  - `cd SnaptronUI/SnaptronApp`
   - `meteor --production`
     - Windows may required `meteor.bat --production`
 
