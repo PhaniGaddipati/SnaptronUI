@@ -32,8 +32,10 @@ SnapApp.JunctionDB.hasJunction = function (junctionId) {
 SnapApp.JunctionDB.addJunctions = function (junctions) {
     var ids = [];
     for (var i = 0; i < junctions.length; i++) {
-        Junctions.upsert({"_id": junctions[i]["_id"]}, junctions[i]);
-        ids.push(junctions[i]["_id"]);
+        if (!SnapApp.JunctionDB.hasJunction(junctions[i]["_id"])) {
+            Junctions.insert(junctions[i]);
+            ids.push(junctions[i]["_id"]);
+        }
     }
     return ids;
 };
@@ -42,11 +44,12 @@ SnapApp.JunctionDB.addJunctions = function (junctions) {
  * Returns a cursor for the junctions from the given
  * query with filters applied
  * @param queryId
+ * @param fieldsProj
  */
 SnapApp.JunctionDB.findJunctionsForQuery = function (queryId, fieldsProj) {
     check(queryId, String);
 
-    var query          = SnapApp.QueryDB.getQuery(queryId);
+    var query = SnapApp.QueryDB.getQuery(queryId);
     if (query == null) {
         return null;
     }

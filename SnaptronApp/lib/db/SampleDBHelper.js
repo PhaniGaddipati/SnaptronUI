@@ -173,8 +173,10 @@ SnapApp.SampleDB.hasSample = function (sampleId) {
 SnapApp.SampleDB.addSamples = function (samples) {
     var ids = [];
     for (var i = 0; i < samples.length; i++) {
-        Samples.upsert({"_id": samples[i]["_id"]}, samples[i]);
-        ids.push(samples[i]["_id"]);
+        if (!SnapApp.SampleDB.hasSample(samples[i]["_id"])) {
+            Samples.insert(samples[i]);
+            ids.push(samples[i]["_id"]);
+        }
     }
     return ids;
 };

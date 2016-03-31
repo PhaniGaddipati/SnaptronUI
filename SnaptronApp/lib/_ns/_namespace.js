@@ -6,6 +6,7 @@
 
 SnapApp = {};
 SnapApp.Processors = {};
+SnapApp.Schemas    = {};
 
 SnapApp.ENTER_KEY_CODE = 13;
 

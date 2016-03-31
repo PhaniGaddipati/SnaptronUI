@@ -9,7 +9,7 @@
  *  email:          Users email (and sign in)
  *  password
  *  queries:        Array of queries that the user added. This may include queries that the user doesn't own
- *  starredQueries:        Array of queries that the user starred
+ *  starredQueries: Array of queries that the user starred
  *
  * Queries
  * --------
@@ -79,6 +79,180 @@ Regions   = new Mongo.Collection("regions");
 Junctions = new Mongo.Collection("junctions");
 Samples   = new Mongo.Collection("samples");
 
+SnapApp.Schemas.UserSchema           = new SimpleSchema({
+    /**
+     * This schema adapted from the collection2 github README.
+     */
+    username: {
+        type: String,
+        optional: true,
+        label: "Username"
+    },
+    emails: {
+        type: Array,
+        label: "Emails"
+    },
+    "emails.$": {
+        type: Object
+    },
+    "emails.$.address": {
+        type: String,
+        regEx: SimpleSchema.RegEx.Email
+    },
+    "emails.$.verified": {
+        type: Boolean
+    },
+    createdAt: {
+        type: Date
+    },
+    profile: {
+        type: Object,
+        optional: true
+    },
+    // Make sure this services field is in your schema if you're using any of the accounts packages
+    services: {
+        type: Object,
+        optional: true,
+        blackbox: true
+    },
+    roles: {
+        type: [String],
+        optional: true
+    },
+    // In order to avoid an 'Exception in setInterval callback' from Meteor
+    heartbeat: {
+        type: Date,
+        optional: true
+    },
+    queries: {
+        type: [String],
+        label: "User Queries",
+        defaultValue: []
+    },
+    starredQueries: {
+        type: [String],
+        label: "User Starred Queries",
+        defaultValue: []
+    }
+});
+SnapApp.Schemas.QueryFilterSchema    = new SimpleSchema({
+    filter: {
+        type: String,
+        label: "Filter Field"
+    },
+    op: {
+        type: String,
+        label: "Filter Operator",
+        allowedValues: [MONGO_OPERATOR_EQ, MONGO_OPERATOR_GT,
+            MONGO_OPERATOR_LT, MONGO_OPERATOR_GTE, MONGO_OPERATOR_LTE]
+    },
+    val: {
+        type: Number,
+        label: "Filter Value"
+    }
+});
+SnapApp.Schemas.QueryProcessorSchema = new SimpleSchema({
+    _id: {
+        type: String,
+        label: "Processor ID"
+    },
+    type: {
+        type: String,
+        label: "Processor Type"
+    },
+    inputGroups: {
+        type: Object,
+        label: "Processor Groups",
+        blackbox: true,
+        defaultValue: {}
+    },
+    results: {
+        type: Object,
+        label: "Processor Results",
+        blackbox: true,
+        optional: true
+    },
+    params: {
+        type: Object,
+        blackbox: true,
+        label: "Processor Params"
+    }
+});
+SnapApp.Schemas.QueryGroupSchema     = new SimpleSchema({
+    _id: {
+        type: String,
+        label: "Group ID"
+    },
+    name: {
+        type: String,
+        label: "Group Name"
+    },
+    junctions: {
+        type: [String],
+        label: "Group Junctions"
+    }
+});
+SnapApp.Schemas.QuerySchema          = new SimpleSchema({
+    name: {
+        type: String,
+        optional: true,
+        label: "Name"
+    },
+    regions: {
+        type: [String],
+        label: "Regions",
+        defaultValue: []
+    },
+    createdDate: {
+        type: Date,
+        label: "Created Date"
+    },
+    owner: {
+        type: String,
+        label: "Owner ID",
+        optional: true
+    },
+    filters: {
+        type: [SnapApp.Schemas.QueryFilterSchema],
+        label: "Filters",
+        defaultValue: []
+    },
+    groups: {
+        type: [SnapApp.Schemas.QueryGroupSchema],
+        label: "Groups",
+        defaultValue: []
+    },
+    processors: {
+        type: [SnapApp.Schemas.QueryProcessorSchema],
+        label: "Processors",
+        defaultValue: []
+    }
+});
+SnapApp.Schemas.RegionSchema         = new SimpleSchema({
+    loadedDate: {
+        type: Date,
+        optional: true,
+        label: "Loaded Date"
+    },
+    junctions: {
+        type: [String],
+        label: "Junctions",
+        defaultValue: []
+    },
+    metadata: {
+        type: [Object],
+        defaultValue: [],
+        blackbox: true,
+        label: "Metadata"
+    }
+});
+
+Users.attachSchema(SnapApp.Schemas.UserSchema);
+Queries.attachSchema(SnapApp.Schemas.QuerySchema);
+Regions.attachSchema(SnapApp.Schemas.RegionSchema);
+// Samples and Junctions don't have schemas as the attrs are
+// dependant on what the server returns, and may change
+
 if (Meteor.isServer) {
     // Index all text attributes for sample searching
     Samples._ensureIndex({
@@ -101,12 +275,6 @@ if (Meteor.isServer) {
         }
     });
 }
-
-MONGO_OPERATOR_EQ  = "$eq";
-MONGO_OPERATOR_GT  = "$gt";
-MONGO_OPERATOR_LT  = "$lt";
-MONGO_OPERATOR_GTE = "$gte";
-MONGO_OPERATOR_LTE = "$lte";
 
 SAMPLE_ID_FIELD = "intropolis_sample_id_i";
 

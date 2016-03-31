@@ -88,13 +88,24 @@ SnapApp.RegionDB.newRegion = function (regionId) {
 };
 
 /**
- * Inserts the given region document.
+ * Inserts or updates the given region document.
  * @param regionDoc
  * @returns {820|1027|*|any} The newly inserted region id
  */
 SnapApp.RegionDB.upsertRegion = function (regionDoc) {
-    console.log("Upserting region " + regionDoc["_id"]);
-    return Regions.upsert({"_id": regionDoc["_id"]}, regionDoc);
+    if (SnapApp.RegionDB.hasRegion(regionDoc["_id"])) {
+        console.log("Updating region " + regionDoc["_id"]);
+        var setFields = {};
+        _.each(_.keys(regionDoc), function (key) {
+            if (key !== "_id") {
+                setFields[key] = regionDoc[key];
+            }
+        });
+        return Regions.upsert({"_id": regionDoc["_id"]}, {$set: setFields});
+    } else {
+        console.log("Inserting region " + regionDoc["_id"]);
+        return Regions.insert(regionDoc);
+    }
 };
 
 /**

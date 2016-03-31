@@ -8,7 +8,8 @@ Template.groupsPanel.helpers({
     },
 
     isNoGroups: function () {
-        return SnapApp.QueryDB.getGroupsFromQuery(Queries.findOne()["_id"]).length == 0
+        var groups = SnapApp.QueryDB.getGroupsFromQuery(Queries.findOne()["_id"]);
+        return groups == null || groups.length == 0;
     },
     groups: function () {
         return SnapApp.QueryDB.getGroupsFromQuery(Queries.findOne()["_id"]);
