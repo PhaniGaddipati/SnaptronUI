@@ -38,7 +38,7 @@ AdminConfig = {
             ]
         }
     },
-    skin: 'red-light'
+    skin: 'red'
 };
 
 Meteor.startup(function () {
