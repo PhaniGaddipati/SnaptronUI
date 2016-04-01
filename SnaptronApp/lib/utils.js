@@ -31,15 +31,15 @@ filterOpToStr = function (str) {
  */
 getOpFromOptionStr = function (opStr) {
     switch (opStr) {
-        case '>':
+        case ">":
             return MONGO_OPERATOR_GT;
-        case '<':
+        case "<":
             return MONGO_OPERATOR_LT;
-        case '=':
+        case "=":
             return MONGO_OPERATOR_EQ;
-        case '≥':
+        case "≥":
             return MONGO_OPERATOR_GTE;
-        case '≤':
+        case "≤":
             return MONGO_OPERATOR_LTE;
     }
     return null;

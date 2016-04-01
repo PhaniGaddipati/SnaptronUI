@@ -25,7 +25,7 @@ AdminConfig = {
             ]
         },
         Regions: {
-            omitFields: ['junctions', "models"],
+            omitFields: ["junctions", "models"],
             tableColumns: [
                 {
                     name: "_id",
@@ -38,9 +38,9 @@ AdminConfig = {
             ]
         }
     },
-    skin: 'red'
+    skin: "red"
 };
 
 Meteor.startup(function () {
-    AdminDashboard.addSidebarItem('Clear Snaptron Data', AdminDashboard.path('/resetData'), {icon: 'trash'});
+    AdminDashboard.addSidebarItem("Clear Snaptron Data", AdminDashboard.path("/resetData"), {icon: "trash"});
 });
