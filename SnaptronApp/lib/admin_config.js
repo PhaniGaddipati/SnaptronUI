@@ -25,7 +25,7 @@ AdminConfig = {
             ]
         },
         Regions: {
-            omitFields: ['junctions'],
+            omitFields: ['junctions', "models"],
             tableColumns: [
                 {
                     name: "_id",
