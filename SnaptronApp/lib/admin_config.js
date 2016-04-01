@@ -4,9 +4,38 @@
 AdminConfig = {
     adminEmails: ['phanigaddipati@gmail.com'],
     collections: {
-        Queries: {},
+        Queries: {
+            tableColumns: [
+                {
+                    name: "_id",
+                    label: "ID"
+                },
+                {
+                    name: "name",
+                    label: "Name"
+                },
+                {
+                    name: "regions",
+                    label: "Regions"
+                },
+                {
+                    name: "createdDate",
+                    label: "Created Date"
+                }
+            ]
+        },
         Regions: {
-            omitFields: ['junctions']
+            omitFields: ['junctions'],
+            tableColumns: [
+                {
+                    name: "_id",
+                    label: "ID"
+                },
+                {
+                    name: "loadedDate",
+                    label: "Loaded Date"
+                }
+            ]
         }
     },
     skin: 'red-light'
