@@ -159,7 +159,7 @@ Regions   = new Mongo.Collection("regions");
 Junctions = new Mongo.Collection("junctions");
 Samples   = new Mongo.Collection("samples");
 
-SnapApp.Schemas.UserSchema        = new SimpleSchema({
+SnapApp.Schemas.UserSchema           = new SimpleSchema({
     /**
      * This schema adapted from the collection2 github README.
      */
@@ -278,7 +278,7 @@ SnapApp.Schemas.QueryGroupSchema     = new SimpleSchema({
         label: "Group Junctions"
     }
 });
-SnapApp.Schemas.QuerySchema       = new SimpleSchema({
+SnapApp.Schemas.QuerySchema          = new SimpleSchema({
     name: {
         type: String,
         optional: true,
@@ -314,7 +314,7 @@ SnapApp.Schemas.QuerySchema       = new SimpleSchema({
         defaultValue: []
     }
 });
-SnapApp.Schemas.RegionModelSchema = new SimpleSchema({
+SnapApp.Schemas.RegionModelSchema    = new SimpleSchema({
     sourceType: {
         type: String,
         label: "DataSource:Type"
@@ -373,7 +373,7 @@ SnapApp.Schemas.RegionModelSchema = new SimpleSchema({
         label: "Exon End"
     }
 });
-SnapApp.Schemas.RegionSchema      = new SimpleSchema({
+SnapApp.Schemas.RegionSchema         = new SimpleSchema({
     loadedDate: {
         type: Date,
         optional: true,
