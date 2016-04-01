@@ -358,8 +358,7 @@ SnapApp.Schemas.RegionModelSchema    = new SimpleSchema({
     },
     exons: {
         type: Array,
-        label: "Exons",
-        defualtValue: []
+        label: "Exons"
     },
     "exons.$": {
         type: Object

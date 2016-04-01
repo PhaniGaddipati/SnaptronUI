@@ -78,13 +78,20 @@ SnapApp.RegionDB.findRegionsForQueryNoJunctions = function (queryId) {
  * @returns {820|1027|*|any}
  */
 SnapApp.RegionDB.newRegion = function (regionId) {
-    var regionDoc                 = {};
-    regionDoc["_id"]              = regionId;
-    regionDoc[REGION_JUNCTIONS]   = [];
-    regionDoc[REGION_METADATA]    = [];
-    regionDoc[REGION_LOADED_DATE] = null;
+    var regionDoc    = SnapApp.RegionDB.newRegionDoc();
+    regionDoc["_id"] = regionId;
     console.log("Inserting new region " + regionId);
     return Regions.insert(regionDoc);
+};
+
+SnapApp.RegionDB.newRegionDoc = function () {
+    var regionDoc                 = {};
+    regionDoc["_id"]              = "";
+    regionDoc[REGION_JUNCTIONS]   = [];
+    regionDoc[REGION_METADATA]    = [];
+    regionDoc[REGION_MODELS]      = [];
+    regionDoc[REGION_LOADED_DATE] = null;
+    return regionDoc;
 };
 
 /**
@@ -144,6 +151,24 @@ SnapApp.RegionDB.setRegionLoadedDate = function (regionId, date) {
     var changed                 = Regions.update({"_id": regionId}, {$set: newInfo});
     if (changed > 0) {
         console.log("Updated region " + regionId + " loaded date to " + date);
+        return regionId;
+    }
+    return null; //Nothing changed
+};
+
+/**
+ * Sets the region's models to the given array
+ * @param regionId
+ * @param models
+ */
+SnapApp.RegionDB.setRegionModels = function (regionId, models) {
+    check(regionId, String);
+    check(models, [Object]);
+    var newInfo            = {};
+    newInfo[REGION_MODELS] = models;
+    var changed            = Regions.update({"_id": regionId}, {$set: newInfo});
+    if (changed > 0) {
+        console.log("Updated region " + regionId + " models");
         return regionId;
     }
     return null; //Nothing changed

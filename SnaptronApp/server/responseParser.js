@@ -13,9 +13,8 @@ SnapApp.Parser = {};
 SnapApp.Parser.parseRegionResponse = function (regionId, responseTSV) {
     check(responseTSV, String);
 
-    var regionDoc              = {};
-    regionDoc["_id"]           = regionId;
-    regionDoc[REGION_METADATA] = [];
+    var regionDoc    = SnapApp.RegionDB.newRegionDoc();
+    regionDoc["_id"] = regionId;
 
     var lines   = responseTSV.split("\n");
     var lineNum = 0;
@@ -64,9 +63,7 @@ SnapApp.Parser.parseRegionResponse = function (regionId, responseTSV) {
         junctionIds.push(lines[line].split("\t")[idCol]);
     }
 
-    regionDoc[REGION_JUNCTIONS]   = junctionIds;
-    regionDoc[REGION_LOADED_DATE] = new Date();
-
+    regionDoc[REGION_JUNCTIONS] = junctionIds;
     return regionDoc;
 };
 
@@ -80,8 +77,8 @@ SnapApp.Parser.parseJunctionsResponse = function (responseTSV) {
     // Get rid of commented lines
     responseTSV.replace(/[#].+/g, "");
 
-    var lines     = responseTSV.split("\n");
-    var headers   = lines[0].split("\t");
+    var lines   = responseTSV.split("\n");
+    var headers = lines[0].split("\t");
     _.each(headers, function (val, index) {
         //'.' and '$' not supported as keys in Mongo, replace with '_'
         headers[index] = val.replace(".", "_").replace("$", "_");
@@ -147,6 +144,104 @@ SnapApp.Parser.parseSampleResponse = function (responseTSV) {
 
     return samples;
 };
+
+/**
+ * Parses the response for gene models, returning an array of the gene models
+ * @param responseTSV
+ */
+SnapApp.Parser.parseModelResponse = function (responseTSV) {
+    check(responseTSV, String);
+    // Get rid of commented lines
+    responseTSV.replace(/[#].+/g, "");
+
+    var lines   = responseTSV.split("\n");
+    var headers = lines[0].split("\t");
+    _.each(headers, function (val, index) {
+        //'.' and '$' not supported as keys in Mongo, replace with '_'
+        headers[index] = val.replace(".", "_").replace("$", "_");
+    });
+    // Generate column mapping
+    var mapping = {};
+    _.each(headers, function (key, idx) {
+        mapping[key] = idx;
+    });
+
+    var models = [];
+    for (var i = 1; i < lines.length; i++) {
+        if (lines[i] && lines[i].trim() != "") {
+            models.push(parseGeneModel(mapping, lines[i].trim()));
+        }
+    }
+
+    return models;
+};
+
+/**
+ * Parses a single gene model line, with the given header:col mapping.
+ * @param colMapping
+ * @param line
+ * @returns {{}}
+ */
+function parseGeneModel(colMapping, line) {
+    var model  = {};
+    var tokens = line.split("\t");
+
+    model[REGION_MODEL_SRC_TYPE]  = tokens[colMapping["DataSource:Type"]];
+    model[REGION_MODEL_REF]       = tokens[colMapping["reference"]];
+    model[REGION_MODEL_SRC]       = tokens[colMapping["annotation_source"]];
+    model[REGION_MODEL_FEAT_TYPE] = tokens[colMapping["feature_type"]];
+    model[REGION_MODEL_START]     = tokens[colMapping["start"]];
+    model[REGION_MODEL_END]       = tokens[colMapping["end"]];
+    model[REGION_MODEL_STRAND]    = tokens[colMapping["strand"]];
+
+    var attrs     = tokens[colMapping["attributes"]];
+    var attrLines = attrs.split(";");
+    _.each(attrLines, function (attrLine) {
+        if (attrLine && attrLine.trim() != "") {
+            var attrTokens = attrLine.replace(/"/g, "").split(" ");
+            if (attrTokens.length != 2) {
+                console.log("Invalid attribute line: " + attrLine);
+                return;
+            }
+            if (attrTokens[0] == "transcript_id") {
+                model[REGION_MODEL_TRANSCRIPT] = attrTokens[1];
+            } else if (attrTokens[0] == "cds_span") {
+                var range                     = parseRange(attrTokens[1]);
+                model[REGION_MODEL_CDS_START] = range.start;
+                model[REGION_MODEL_CDS_END]   = range.end;
+            } else if (attrTokens[0] == "exons") {
+                model[REGION_MODEL_EXONS] = parseExons(attrTokens[1]);
+            } else {
+                console.log("Unrecognized model attr " + attrTokens[0]);
+            }
+        }
+    });
+
+    return model;
+}
+
+function parseExons(str) {
+    var ranges = str.split(",");
+    var exons  = [];
+    _.each(ranges, function (range) {
+        exons.push(parseRange(range));
+    });
+    return exons;
+}
+function parseRange(str) {
+    if (/[0-9]+-[0-9]+/.test(str)) {
+        var tokens = str.split("-");
+        return {
+            start: parseInt(tokens[0]),
+            end: parseInt(tokens[1])
+        };
+    } else {
+        return {
+            start: -1,
+            end: -1
+        };
+    }
+}
 
 function castMember(toCast, type) {
     check(type, String);

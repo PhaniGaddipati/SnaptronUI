@@ -43,9 +43,9 @@ Template.queryResults.helpers({
             }
         }
         if (badRegions.length > 1) {
-            return "Failed to load the regions \"" + badRegions.join("\", \"") + "\". Check that the entry is correct.";
+            return "Failed to load the regions \"" + badRegions.join("\", \"") + "\" completely. Check that the entry is correct.";
         }
-        return "Failed to load the region \"" + badRegions[0] + "\". Check that the entry is correct.";
+        return "Failed to load the region \"" + badRegions[0] + "\" completely. Check that the entry is correct.";
     },
     isCurrentUsers: function () {
         return SnapApp.QueryDB.isQueryCurrentUsers(Queries.findOne()["_id"]);
