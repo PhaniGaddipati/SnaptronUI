@@ -52,6 +52,7 @@
  *  loadedDate:     Date when this was loaded. null if never loaded (or failed to load)
  *  junctions:      Array of junctions._id
  *  metadata:       Array of {key:"someKey", value:"someValue"} metadata elements returned by Snaptron
+ *  models:         Array of gene model objects. See the schema for the format of a model object
  *
  *  Junctions
  *  ---------
@@ -73,13 +74,92 @@
  *  The rest of the fields are dependant on what is returned by Snaptron
  */
 
-Users = Meteor.users;
+//<editor-fold desc="Collection Globals">
+SAMPLE_ID_FIELD = "intropolis_sample_id_i";
+
+USER_QRYS          = "queries";
+USER_STARRED_QRYS  = "starredQueries";
+USER_USERNAME      = "username";
+USER_EMAILS        = "emails";
+USER_EMAIL_ADDRESS = "address";
+USER_PROFILE       = "profile";
+
+QRY_NAME         = "name";
+QRY_REGIONS      = "regions";
+QRY_FILTERS      = "filters";
+QRY_CREATED_DATE = "createdDate";
+QRY_OWNER        = "owner";
+QRY_GROUPS       = "groups";
+QRY_GROUP_NAME   = "name";
+QRY_GROUP_JNCTS  = "junctions";
+
+QRY_FILTER_FIELD        = "filter";
+QRY_FILTER_OP           = "op";
+QRY_FILTER_VAL          = "val";
+QRY_FILTER_SAMPLE_COUNT = "samples_count";
+QRY_FILTER_COV_SUM      = "coverage_sum";
+QRY_FILTER_COV_AVG      = "coverage_avg";
+QRY_FILTER_COV_MED      = "coverage_median";
+QRY_FILTER_LENGTH       = "length";
+
+QRY_PROCESSORS             = "processors";
+QRY_PROCESSOR_TYPE         = "type";
+QRY_PROCESSOR_INPUT_GROUPS = "inputGroups";
+QRY_PROCESSOR_RESULTS      = "results";
+QRY_PROCESSOR_PARAMS       = "params";
+
+REGION_METADATA         = "metadata";
+REGION_LOADED_DATE      = "loadedDate";
+REGION_JUNCTIONS        = "junctions";
+REGION_METADATA_KEY     = "key";
+REGION_METADATA_VAL     = "value";
+REGION_MODELS           = "models";
+REGION_MODEL_SRC_TYPE   = "sourceType";
+REGION_MODEL_REF        = "reference";
+REGION_MODEL_SRC        = "source";
+REGION_MODEL_FEAT_TYPE  = "featureType";
+REGION_MODEL_START      = "start";
+REGION_MODEL_END        = "end";
+REGION_MODEL_STRAND     = "strand";
+REGION_MODEL_TRANSCRIPT = "transcript";
+REGION_MODEL_CDS_START  = "cdsStart";
+REGION_MODEL_CDS_END    = "cdsEnd";
+REGION_MODEL_EXONS      = "exons";
+
+JNCT_ID_FIELD      = "snaptron_id";
+JNCT_ANNOTATED_KEY = "annotated?";
+JNCT_SAMPLES_KEY   = "samples";
+JNCT_COVERAGE_KEY  = "read_coverage_by_sample";
+JNCT_COL_TYPES     = {
+    "DataSource:Type": "str",
+    "snaptron_id": "str",
+    "chromosome": "str",
+    "start": "int",
+    "end": "int",
+    "length": "int",
+    "strand": "str",
+    "annotated?": "bool",
+    "left_motif": "str",
+    "right_motif": "str",
+    "left_annotated?": "str",
+    "right_annotated?": "str",
+    "samples": "str[]",
+    "read_coverage_by_sample": "float[]",
+    "samples_count": "int",
+    "coverage_sum": "float",
+    "coverage_avg": "float",
+    "coverage_median": "float",
+    "source_dataset_id": "str"
+};
+//</editor-fold>
+
+Users     = Meteor.users;
 Queries   = new Mongo.Collection("queries");
 Regions   = new Mongo.Collection("regions");
 Junctions = new Mongo.Collection("junctions");
 Samples   = new Mongo.Collection("samples");
 
-SnapApp.Schemas.UserSchema           = new SimpleSchema({
+SnapApp.Schemas.UserSchema        = new SimpleSchema({
     /**
      * This schema adapted from the collection2 github README.
      */
@@ -198,7 +278,7 @@ SnapApp.Schemas.QueryGroupSchema     = new SimpleSchema({
         label: "Group Junctions"
     }
 });
-SnapApp.Schemas.QuerySchema          = new SimpleSchema({
+SnapApp.Schemas.QuerySchema       = new SimpleSchema({
     name: {
         type: String,
         optional: true,
@@ -234,7 +314,66 @@ SnapApp.Schemas.QuerySchema          = new SimpleSchema({
         defaultValue: []
     }
 });
-SnapApp.Schemas.RegionSchema         = new SimpleSchema({
+SnapApp.Schemas.RegionModelSchema = new SimpleSchema({
+    sourceType: {
+        type: String,
+        label: "DataSource:Type"
+    },
+    reference: {
+        type: String,
+        label: "Reference"
+    },
+    source: {
+        type: String,
+        label: "Annotation Source"
+    },
+    featureType: {
+        type: String,
+        label: "Feature Type"
+    },
+    start: {
+        type: Number,
+        label: "Start"
+    },
+    end: {
+        type: Number,
+        label: "End"
+    },
+    strand: {
+        type: String,
+        label: "Strand",
+        allowedValues: ["+", "-", ""]
+    },
+    transcript: {
+        type: String,
+        label: "Transcript ID"
+    },
+    cdsStart: {
+        type: Number,
+        label: "Coding Region Start"
+    },
+    cdsEnd: {
+        type: Number,
+        label: "Coding Region End"
+    },
+    exons: {
+        type: Array,
+        label: "Exons",
+        defualtValue: []
+    },
+    "exons.$": {
+        type: Object
+    },
+    "exons.$.start": {
+        type: Number,
+        label: "Exon Start"
+    },
+    "exons.$.end": {
+        type: Number,
+        label: "Exon End"
+    }
+});
+SnapApp.Schemas.RegionSchema      = new SimpleSchema({
     loadedDate: {
         type: Date,
         optional: true,
@@ -250,14 +389,17 @@ SnapApp.Schemas.RegionSchema         = new SimpleSchema({
         defaultValue: [],
         blackbox: true,
         label: "Metadata"
+    },
+    models: {
+        type: [SnapApp.Schemas.RegionModelSchema],
+        defaultValue: [],
+        label: "Models"
     }
 });
 
 Users.attachSchema(SnapApp.Schemas.UserSchema);
 Queries.attachSchema(SnapApp.Schemas.QuerySchema);
 Regions.attachSchema(SnapApp.Schemas.RegionSchema);
-// Samples and Junctions don't have schemas as the attrs are
-// dependant on what the server returns, and may change
 
 if (Meteor.isServer) {
     // Index all text attributes for sample searching
@@ -280,79 +422,4 @@ if (Meteor.isServer) {
             cell_type_t: 5
         }
     });
-
-    // reset data method
-    Meteor.methods({
-        "resetSamplesAndJunctions": function () {
-            if (Roles.userIsInRole(Meteor.user(), ['admin'])) {
-                Samples.remove({});
-                Junctions.remove({});
-            }
-        }
-    })
 }
-
-SAMPLE_ID_FIELD = "intropolis_sample_id_i";
-
-USER_QRYS          = "queries";
-USER_STARRED_QRYS  = "starredQueries";
-USER_USERNAME      = "username";
-USER_EMAILS        = "emails";
-USER_EMAIL_ADDRESS = "address";
-USER_PROFILE       = "profile";
-
-QRY_NAME         = "name";
-QRY_REGIONS      = "regions";
-QRY_FILTERS      = "filters";
-QRY_CREATED_DATE = "createdDate";
-QRY_OWNER        = "owner";
-QRY_GROUPS       = "groups";
-QRY_GROUP_NAME   = "name";
-QRY_GROUP_JNCTS  = "junctions";
-
-QRY_FILTER_FIELD        = "filter";
-QRY_FILTER_OP           = "op";
-QRY_FILTER_VAL          = "val";
-QRY_FILTER_SAMPLE_COUNT = "samples_count";
-QRY_FILTER_COV_SUM      = "coverage_sum";
-QRY_FILTER_COV_AVG      = "coverage_avg";
-QRY_FILTER_COV_MED      = "coverage_median";
-QRY_FILTER_LENGTH       = "length";
-
-QRY_PROCESSORS             = "processors";
-QRY_PROCESSOR_TYPE         = "type";
-QRY_PROCESSOR_INPUT_GROUPS = "inputGroups";
-QRY_PROCESSOR_RESULTS      = "results";
-QRY_PROCESSOR_PARAMS       = "params";
-
-REGION_METADATA     = "metadata";
-REGION_LOADED_DATE  = "loadedDate";
-REGION_JUNCTIONS    = "junctions";
-REGION_METADATA_KEY = "key";
-REGION_METADATA_VAL = "value";
-
-JNCT_ID_FIELD      = "snaptron_id";
-JNCT_ANNOTATED_KEY = "annotated?";
-JNCT_SAMPLES_KEY   = "samples";
-JNCT_COVERAGE_KEY  = "read_coverage_by_sample";
-JNCT_COL_TYPES     = {
-    "DataSource:Type": "str",
-    "snaptron_id": "str",
-    "chromosome": "str",
-    "start": "int",
-    "end": "int",
-    "length": "int",
-    "strand": "str",
-    "annotated?": "bool",
-    "left_motif": "str",
-    "right_motif": "str",
-    "left_annotated?": "str",
-    "right_annotated?": "str",
-    "samples": "str[]",
-    "read_coverage_by_sample": "float[]",
-    "samples_count": "int",
-    "coverage_sum": "float",
-    "coverage_avg": "float",
-    "coverage_median": "float",
-    "source_dataset_id": "str"
-};
