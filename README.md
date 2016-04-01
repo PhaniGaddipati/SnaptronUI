@@ -2,7 +2,7 @@
 
 A webapp frontend to query exon-exon junction data from the [Intropolis database](https://github.com/nellore/intropolis) via [Snaptron](https://github.com/ChristopherWilks/snaptron)
 
-Development deployment available here: [stingray.cs.jhu.edu:8100](stingray.cs.jhu.edu:8100)
+Development deployment available here: [http://stingray.cs.jhu.edu:8100](http://stingray.cs.jhu.edu:8100)
 
 ## Prerequisites
 - [MeteorJS](https://www.meteor.com/)
