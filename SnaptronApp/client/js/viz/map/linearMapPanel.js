@@ -3,20 +3,28 @@
  */
 var linearMapXScale;
 var linearMapXAxis;
-var zoom              = null;
-var highlightedJnctID = new ReactiveVar(null, jnctsEqual);
+var zoomBehaviour     = null;
+var highlightedJnctID = new ReactiveVar(null);
 
 var colorByScale = new ReactiveVar();
 var colorByKey   = null;
 
 var markerX          = new ReactiveVar(-1);
 var visibleJunctions = new ReactiveVar([]);
-var jnctDomainStart;
-var jnctDomainStop;
+var initialDomain;
 
+Template.linearMap.onRendered(function () {
+    colorByKey = null;
+    initControls();
+    initMap();
+    initFrame();
+    Tracker.autorun(updateMarker);
+    Tracker.autorun(updateVisibleJunctions);
+    Tracker.autorun(updateJunctions);
+});
 Template.linearMap.events({
     "click .resetView": function () {
-        if (zoom != null) {
+        if (zoomBehaviour != null) {
             onReset();
         }
     },
@@ -39,21 +47,10 @@ Template.linearMap.events({
         updateJunctions();
     }
 });
-
 Template.linearMap.helpers({
     "currentlyVisible": function () {
         return visibleJunctions.get().length + " Junctions Currently Visible";
     }
-});
-
-Template.linearMap.onRendered(function () {
-    colorByKey = null;
-    initControls();
-    initMap();
-    updateFrame();
-    Tracker.autorun(updateMarker);
-    Tracker.autorun(updateVisibleJunctions);
-    Tracker.autorun(updateJunctions);
 });
 
 function initControls() {
@@ -82,19 +79,19 @@ function initControls() {
 
 function initMap() {
     var _limits     = getLimits();
-    jnctDomainStart = _limits.start;
-    jnctDomainStop  = _limits.stop;
-    linearMapXScale = d3.scale.linear().range([0, SnapApp.Map.VIEWBOX_W])
-        .domain([jnctDomainStart, jnctDomainStop]);
+    initialDomain   = [_limits.start, _limits.stop];
+    linearMapXScale = d3.scale.linear().range([0, SnapApp.Map.DRAW_W])
+        .domain([_limits.start, _limits.stop]);
 
-    zoom = d3.behavior.zoom()
+    zoomBehaviour = d3.behavior.zoom()
         .x(linearMapXScale)
         .scaleExtent([1, 100])
         .on("zoom", function () {
             onZoom();
         });
 
-    var svg = d3.select(".svg-container").classed("svg-container", true)
+    // Init SVG
+    var svg = d3.select(".svg-container")
         .selectAll('svg').data([0])
         .enter().append("svg")
         .attr("class", "junctionmap")
@@ -107,12 +104,47 @@ function initMap() {
         .on("mousemove", function () {
             markerX.set(d3.mouse(this)[0]);
         })
-        .call(zoom);
+        .call(zoomBehaviour);
+    svg.append("g")
+        .attr("id", "svg-content")
+        .attr("transform", "translate(" + SnapApp.Map.PADDING + ", " + SnapApp.Map.PADDING + ")")
+}
+
+
+function initFrame() {
+    var svg        = d3.select("#svg-content");
+    //Draw axis
+    linearMapXAxis = d3.svg.axis()
+        .orient("bottom")
+        .scale(linearMapXScale)
+        .ticks(10)
+        .tickFormat(function (d) {
+            if (Math.abs(d) > SnapApp.Map.AXIS_K_CUTOFF) {
+                return numberWithCommas(parseInt(d / 1000)) + "k";
+            }
+            return numberWithCommas(d);
+        });
+    svg.selectAll("#jnctG").data([0])
+        .enter().append("g")
+        .attr("id", "jnctG");
+    svg.selectAll("g.xaxis").data([0])
+        .enter().append("g")
+        .attr("class", "xaxis")
+        .attr("transform", "translate(0," + SnapApp.Map.DRAW_H + ")")
+        .call(linearMapXAxis);
+    svg.selectAll("#midAxisLine").data([0])
+        .enter().append("rect")
+        .attr("id", "midAxisLine")
+        .attr("transform", "translate(0,0)")
+        .attr("x", 0).attr("y", SnapApp.Map.DRAW_H / 2
+            - SnapApp.Map.MID_AXIS_Y_OFF / 2)
+        .attr("width", SnapApp.Map.DRAW_W)
+        .attr("height", SnapApp.Map.MID_AXIS_Y_OFF).attr("fill", "#000000");
 }
 
 function updateVisibleJunctions() {
     var leftLim   = linearMapXScale.invert(0);
-    var rightLim  = linearMapXScale.invert(SnapApp.Map.VIEWBOX_W);
+    var rightLim  = linearMapXScale.invert(SnapApp.Map.DRAW_W);
     var minLength = linearMapXScale.invert(SnapApp.Map.MIN_DISPLAY_LENGTH_PX) - leftLim;
     visibleJunctions.set(Junctions.find({
         start: {"$gte": leftLim},
@@ -145,53 +177,21 @@ function updateJunctions() {
 }
 
 function junctionPath(jnct) {
-    var endpointY    = (SnapApp.Map.VIEWBOX_H) / 2;
+    var endpointY    = (SnapApp.Map.DRAW_H) / 2;
     var startX       = parseInt(linearMapXScale(jnct.start));
     var endX         = parseInt(linearMapXScale(jnct.end));
     var range        = endX - startX;
     var cPoint1X     = parseInt(startX + 2 * range / 6);
     var cPoint2X     = parseInt(startX + 4 * range / 6);
     var annotatedMod = jnct[JNCT_ANNOTATED_KEY] ? -1 : 1;
-    var cPointY      = (SnapApp.Map.VIEWBOX_H ) / 2 -
-        annotatedMod * parseInt((SnapApp.Map.VIEWBOX_H / 2)
-            * (parseFloat(range) / (SnapApp.Map.VIEWBOX_W / 3)));
+    var cPointY      = (SnapApp.Map.DRAW_H ) / 2 -
+        annotatedMod * parseInt((SnapApp.Map.DRAW_H / 2)
+            * (parseFloat(range) / (SnapApp.Map.DRAW_W / 3)));
     endpointY -= annotatedMod * SnapApp.Map.MID_AXIS_Y_OFF / 2;
     cPointY          = Math.max(0, cPointY);
-    cPointY          = Math.min(SnapApp.Map.VIEWBOX_H, cPointY);
+    cPointY          = Math.min(SnapApp.Map.DRAW_H, cPointY);
     return "M" + startX + " " + endpointY + " C " + cPoint1X + " "
         + cPointY + " " + cPoint2X + " " + cPointY + " " + endX + " " + endpointY;
-}
-
-function updateFrame() {
-    var svg = d3.select(".junctionmap");
-    //Draw axis
-    linearMapXAxis = d3.svg.axis()
-        .orient("bottom")
-        .scale(linearMapXScale)
-        .ticks(10)
-        .tickFormat(function (d) {
-            if (Math.abs(d) > SnapApp.Map.AXIS_K_CUTOFF) {
-                return numberWithCommas(parseInt(d / 1000)) + "k";
-            }
-            return numberWithCommas(d);
-        });
-    svg.selectAll("#jnctG").data([0])
-        .enter().append("g")
-        .attr("id", "jnctG");
-    svg.selectAll("g.xaxis").data([0])
-        .enter().append("g")
-        .attr("class", "xaxis")
-        .attr("transform", "translate(0," + (SnapApp.Map.VIEWBOX_H - 25) + ")")
-        .call(linearMapXAxis);
-    svg.selectAll("#midAxisLine").data([0])
-        .enter().append("rect")
-        .attr("id", "midAxisLine")
-        .attr("transform", "translate(0,0)")
-        .attr("x", 0).attr("y", SnapApp.Map.VIEWBOX_H / 2
-            - SnapApp.Map.MID_AXIS_Y_OFF / 2)
-        .attr("width", SnapApp.Map.VIEWBOX_W)
-        .attr("height", SnapApp.Map.MID_AXIS_Y_OFF).attr("fill", "#000000");
-    updateVisibleJunctions();
 }
 
 function getLimits() {
@@ -269,7 +269,8 @@ function updateMarker() {
     var markerG = d3.select(".junctionmap")
         .selectAll("#mousemarker").data([0]);
     markerG.enter().append("g")
-        .attr("id", "mousemarker");
+        .attr("id", "mousemarker")
+        .attr("transform", "translate(0," + SnapApp.Map.PADDING + ")");
     markerG.attr("visibility", function () {
         if (markerX.get() == -1) {
             return "hidden";
@@ -277,17 +278,17 @@ function updateMarker() {
         return "visible";
     });
     // Marker line
-    var markerLine = markerG.selectAll("#markerline")
+    markerG.selectAll("#markerline")
         .data([0]).enter()
         .append("line")
         .attr("id", "markerline")
         .attr("x1", 0)
         .attr("y1", 0)
         .attr("x2", 0)
-        .attr("y2", SnapApp.Map.VIEWBOX_H)
+        .attr("y2", SnapApp.Map.DRAW_H)
         .attr("style", SnapApp.Map.MARKER_LINE_STYLE)
         .attr("pointer-events", "none");
-    var label      = markerG.selectAll("#markerlabel").data([0]);
+    var label = markerG.selectAll("#markerlabel").data([0]);
     label.enter()
         .append("g").attr("id", "markerlabel").attr("transform", "translate(0,0)");
     //Label box and text
@@ -310,7 +311,7 @@ function updateMarker() {
         .attr("x", 10)
         .attr("y", SnapApp.Map.MARKER_LABEL_HEIGHT / 2 + 5);
 
-    markerG.attr("transform", "translate(" + markerX.get() + ",0)");
+    markerG.attr("transform", "translate(" + markerX.get() + "," + SnapApp.Map.PADDING + ")");
     text.text(function () {
         return numberWithCommas(parseInt(linearMapXScale.invert(markerX.get())));
     });
@@ -319,7 +320,7 @@ function updateMarker() {
     if (markerX.get() - w - 50 <= 0) {
         //Goes offscreen, go to other side of line
         xOffset = 0;
-    } else if (markerX.get() + w + 50 >= SnapApp.Map.VIEWBOX_W) {
+    } else if (markerX.get() + w + 50 >= SnapApp.Map.DRAW_W) {
         xOffset -= w / 2 + 10;
     }
     label.attr("transform", "translate (" + xOffset + ",0)");
@@ -332,21 +333,11 @@ function onZoom() {
 }
 
 function onReset() {
-    d3.transition().duration(750).tween("zoom", function () {
-        var ix = d3.interpolate(linearMapXScale.domain(), [jnctDomainStart, jnctDomainStop]);
+    d3.transition().duration(750).tween("zoomBehaviour", function () {
+        var ix = d3.interpolate(linearMapXScale.domain(), initialDomain);
         return function (t) {
-            zoom.x(linearMapXScale.domain(ix(t)));
+            zoomBehaviour.x(linearMapXScale.domain(ix(t)));
             onZoom();
         };
     });
-}
-
-function jnctsEqual(v1, v2) {
-    if ((v1 == null && v2 != null) || (v2 == null && v1 != null)) {
-        return false;
-    }
-    if (v1 == null && v2 == null) {
-        return true;
-    }
-    return v1["_id"] == v2["_id"];
 }
