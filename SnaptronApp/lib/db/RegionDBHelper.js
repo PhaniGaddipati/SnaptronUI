@@ -108,7 +108,7 @@ SnapApp.RegionDB.upsertRegion = function (regionDoc) {
                 setFields[key] = regionDoc[key];
             }
         });
-        return Regions.upsert({"_id": regionDoc["_id"]}, {$set: setFields});
+        return Regions.update({"_id": regionDoc["_id"]}, {$set: setFields});
     } else {
         console.log("Inserting region " + regionDoc["_id"]);
         return Regions.insert(regionDoc);
