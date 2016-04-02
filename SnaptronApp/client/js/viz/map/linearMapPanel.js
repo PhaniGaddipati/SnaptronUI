@@ -81,8 +81,7 @@ function initControls() {
 }
 
 function initMap() {
-    var junctions   = Junctions.find().fetch();
-    var _limits     = getLimits(junctions);
+    var _limits     = getLimits();
     jnctDomainStart = _limits.start;
     jnctDomainStop  = _limits.stop;
     linearMapXScale = d3.scale.linear().range([0, SnapApp.Map.VIEWBOX_W])
@@ -195,21 +194,20 @@ function updateFrame() {
     updateVisibleJunctions();
 }
 
-function getLimits(junctions) {
-    var start = 9007199254740990;
-    var stop  = -1;
-    for (var i = 0; i < junctions.length; i++) {
-        if (junctions[i].start < start) {
-            start = junctions[i].start;
-        }
-        if (junctions[i].end > stop) {
-            stop = junctions[i].end;
-        }
-    }
-    if (stop == -1) {
-        start = 0;
-        stop  = 1;
-    }
+function getLimits() {
+    var start = Junctions.find({}, {
+        sort: {
+            start: 1
+        },
+        limit: 1
+    }).fetch()[0].start;
+    var stop  = Junctions.find({}, {
+        sort: {
+            stop: -1
+        },
+        limit: 1
+    }).fetch()[0].end;
+
     return {start: start, stop: stop};
 }
 
