@@ -12,12 +12,18 @@ SnapApp.Map = {};
  * @type {number}
  */
 SnapApp.Map.VIEWBOX_W = 1000;
-SnapApp.Map.VIEWBOX_H      = 350;
-SnapApp.Map.PADDING        = 20;
-SnapApp.Map.DRAW_W         = SnapApp.Map.VIEWBOX_W - SnapApp.Map.PADDING * 2;
-SnapApp.Map.DRAW_H         = SnapApp.Map.VIEWBOX_H - SnapApp.Map.PADDING * 2;
-SnapApp.Map.MID_AXIS_Y_OFF = 4;
-SnapApp.Map.AXIS_K_CUTOFF  = 10000;
+SnapApp.Map.VIEWBOX_H = 350;
+SnapApp.Map.PADDING   = 20;
+SnapApp.Map.DRAW_W    = SnapApp.Map.VIEWBOX_W - SnapApp.Map.PADDING * 2;
+SnapApp.Map.DRAW_H    = SnapApp.Map.VIEWBOX_H - SnapApp.Map.PADDING * 2;
+;
+SnapApp.Map.AXIS_K_CUTOFF = 10000;
+
+SnapApp.Map.DEFAULT_MID_AXIS_HEIGHT = 6;
+SnapApp.Map.EXON_HEIGHT             = 20;
+SnapApp.Map.EXON_STYLE              = "fill:#03A9F4;stroke:#03A9F4;stroke-width:2;fill-opacity:.25";
+SnapApp.Map.CDS_MARKER_HEIGHT       = 3;
+SnapApp.Map.CDS_MARKER_STYLE        = "fill:#8BC34A;";
 
 /**
  * Mouse marker constants.

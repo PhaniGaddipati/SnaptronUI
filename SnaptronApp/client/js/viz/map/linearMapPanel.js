@@ -13,14 +13,16 @@ var markerX          = new ReactiveVar(-1);
 var visibleJunctions = new ReactiveVar([]);
 var initialDomain;
 
+var selectedGeneModel = new ReactiveVar(null);
+
 Template.linearMap.onRendered(function () {
     colorByKey = null;
-    initControls();
     initMap();
     initFrame();
     Tracker.autorun(updateMarker);
     Tracker.autorun(updateVisibleJunctions);
     Tracker.autorun(updateJunctions);
+    Tracker.autorun(updateGeneModel);
 });
 Template.linearMap.events({
     "click .resetView": function () {
@@ -28,7 +30,7 @@ Template.linearMap.events({
             onReset();
         }
     },
-    "click #colorBySelect": function (event, template) {
+    "change #colorBySelect": function (event, template) {
         var selected = template.find("#colorBySelect").value;
         var colorLog;
         if (selected === "None") {
@@ -45,37 +47,71 @@ Template.linearMap.events({
         //Force redraw
         d3.select(".junctionmap").selectAll(".jnct").remove();
         updateJunctions();
+    },
+    "change #modelSelect": function (evt, template) {
+        var selected = template.find("#modelSelect").value;
+        if (selected == "None") {
+            selectedGeneModel.set(null);
+        } else {
+            var idxs   = selected.split(":");
+            var region = Regions.find(idxs[0]).fetch()[0];
+            var model  = region[REGION_MODELS][idxs[1]];
+            selectedGeneModel.set(model);
+        }
+
     }
 });
 Template.linearMap.helpers({
     "currentlyVisible": function () {
         return visibleJunctions.get().length + " Junctions Currently Visible";
+    },
+    "colorOptions": function () {
+        var numKeys = SnapApp.JunctionDB.getJunctionNumberKeys();
+        var options = ["None"].concat(SnapApp.JunctionDB.getJunctionBoolKeys().concat(numKeys));
+        //Add log options
+        var logKeys = [];
+        for (var i = 0; i < numKeys.length; i++) {
+            logKeys.push("log(" + numKeys[i] + ")");
+        }
+        return options.concat(logKeys);
+    },
+    "regions": function () {
+        return Regions.find().fetch();
+    },
+    "modelOptionText": function (region, model, index) {
+        var hasCDS = model[REGION_MODEL_CDS_START] > -1;
+        var text;
+        if (Regions.find().count > 1) {
+            text = (index + 1) + " - " + region.toUpperCase() + ": " + model[REGION_MODEL_SRC];
+        } else {
+            text = (index + 1) + " - " + model[REGION_MODEL_SRC];
+        }
+        if (!hasCDS) {
+            text += " (No CDS)";
+        }
+        return text;
+    },
+    "geneModelInfo": function () {
+        var model   = selectedGeneModel.get();
+        var spacing = "&nbsp;&nbsp;&nbsp;";
+        var text    = "";
+        if (model) {
+            text += "<b>Source</b>: " + model[REGION_MODEL_SRC] + spacing;
+            text += "<b>Type</b>: " + model[REGION_MODEL_FEAT_TYPE] + spacing;
+            text += "<b>Transcript</b>: " + model[REGION_MODEL_TRANSCRIPT] + spacing;
+            text += "<b>Strand</b>: " + model[REGION_MODEL_STRAND] + spacing;
+            text += "<b>Reference</b>: " + model[REGION_MODEL_REF] + spacing;
+            if (model[REGION_MODEL_CDS_START] > -1) {
+                text += "<b>CDS</b>: " + model[REGION_MODEL_CDS_START] + "-" + model[REGION_MODEL_CDS_END] + spacing;
+            }
+            text += "<br><br>";
+        }
+        return text;
+    },
+    "geneModelDisplayed": function () {
+        return selectedGeneModel.get() != null;
     }
 });
-
-function initControls() {
-    // Update color-by option
-    var numKeys = SnapApp.JunctionDB.getJunctionNumberKeys();
-    var options = ["None"].concat(SnapApp.JunctionDB.getJunctionBoolKeys().concat(numKeys));
-    //Add log options
-    var logKeys = [];
-    for (var i = 0; i < numKeys.length; i++) {
-        logKeys.push("log(" + numKeys[i] + ")");
-    }
-    options = options.concat(logKeys);
-
-    var selection = d3.select("#colorBySelect")
-        .selectAll("option")
-        .data(options, function (opt) {
-            return opt;
-        });
-    selection.exit().remove();
-    selection.enter()
-        .append("option")
-        .text(function (d) {
-            return d;
-        });
-}
 
 function initMap() {
     var _limits     = getLimits();
@@ -132,14 +168,50 @@ function initFrame() {
         .attr("class", "xaxis")
         .attr("transform", "translate(0," + SnapApp.Map.DRAW_H + ")")
         .call(linearMapXAxis);
+}
+
+function updateGeneModel() {
+    var svg   = d3.select("#svg-content");
+    var model = selectedGeneModel.get();
+
+    svg.selectAll(".exonRect").remove();
+    svg.selectAll(".cdsRect").remove();
+
+    // Default mid-axis line
     svg.selectAll("#midAxisLine").data([0])
         .enter().append("rect")
         .attr("id", "midAxisLine")
-        .attr("transform", "translate(0,0)")
         .attr("x", 0).attr("y", SnapApp.Map.DRAW_H / 2
-            - SnapApp.Map.MID_AXIS_Y_OFF / 2)
+            - SnapApp.Map.DEFAULT_MID_AXIS_HEIGHT / 2)
         .attr("width", SnapApp.Map.DRAW_W)
-        .attr("height", SnapApp.Map.MID_AXIS_Y_OFF).attr("fill", "#000000");
+        .attr("height", SnapApp.Map.DEFAULT_MID_AXIS_HEIGHT).attr("fill", "#000000");
+    if (model != null) {
+        // Draw exons
+        var exonRects = svg.selectAll(".exonRect").data(model[REGION_MODEL_EXONS]);
+        exonRects.enter().append("rect")
+            .attr("class", "exonRect")
+            .attr("height", SnapApp.Map.EXON_HEIGHT)
+            .attr("style", SnapApp.Map.EXON_STYLE);
+        exonRects.attr("y", SnapApp.Map.DRAW_H / 2 - SnapApp.Map.EXON_HEIGHT / 2)
+            .attr("x", function (exon) {
+                return linearMapXScale(exon[REGION_MODEL_START]);
+            })
+            .attr("width", function (exon) {
+                return linearMapXScale(exon[REGION_MODEL_END])
+                    - linearMapXScale(exon[REGION_MODEL_START]);
+            });
+        var cdsMarker = svg.selectAll(".cdsRect").data([0]);
+        if (model[REGION_MODEL_CDS_START] > -1 && model[REGION_MODEL_CDS_END] > -1) {
+            cdsMarker.enter().append("rect")
+                .attr("class", "cdsRect")
+                .attr("height", SnapApp.Map.CDS_MARKER_HEIGHT)
+                .attr("style", SnapApp.Map.CDS_MARKER_STYLE)
+                .attr("y", SnapApp.Map.DRAW_H / 2 - SnapApp.Map.CDS_MARKER_HEIGHT / 2);
+            cdsMarker.attr("x", linearMapXScale(model[REGION_MODEL_CDS_START]))
+                .attr("width", linearMapXScale(model[REGION_MODEL_CDS_END]) -
+                    linearMapXScale(model[REGION_MODEL_CDS_START]));
+        }
+    }
 }
 
 function updateVisibleJunctions() {
@@ -187,7 +259,6 @@ function junctionPath(jnct) {
     var cPointY      = (SnapApp.Map.DRAW_H ) / 2 -
         annotatedMod * parseInt((SnapApp.Map.DRAW_H / 2)
             * (parseFloat(range) / (SnapApp.Map.DRAW_W / 3)));
-    endpointY -= annotatedMod * SnapApp.Map.MID_AXIS_Y_OFF / 2;
     cPointY          = Math.max(0, cPointY);
     cPointY          = Math.min(SnapApp.Map.DRAW_H, cPointY);
     return "M" + startX + " " + endpointY + " C " + cPoint1X + " "
@@ -203,7 +274,7 @@ function getLimits() {
     }).fetch()[0].start;
     var stop  = Junctions.find({}, {
         sort: {
-            stop: -1
+            end: -1
         },
         limit: 1
     }).fetch()[0].end;
@@ -330,6 +401,7 @@ function updateMarker() {
 function onZoom() {
     d3.select(".xaxis").call(linearMapXAxis);
     updateVisibleJunctions();
+    updateGeneModel();
 }
 
 function onReset() {
