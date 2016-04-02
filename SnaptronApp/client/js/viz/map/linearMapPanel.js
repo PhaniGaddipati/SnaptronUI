@@ -181,9 +181,9 @@ function updateGeneModel() {
     svg.selectAll("#midAxisLine").data([0])
         .enter().append("rect")
         .attr("id", "midAxisLine")
-        .attr("x", 0).attr("y", SnapApp.Map.DRAW_H / 2
+        .attr("x", -SnapApp.Map.PADDING).attr("y", SnapApp.Map.DRAW_H / 2
             - SnapApp.Map.DEFAULT_MID_AXIS_HEIGHT / 2)
-        .attr("width", SnapApp.Map.DRAW_W)
+        .attr("width", SnapApp.Map.DRAW_W + SnapApp.Map.PADDING * 2)
         .attr("height", SnapApp.Map.DEFAULT_MID_AXIS_HEIGHT).attr("fill", "#000000");
     if (model != null) {
         // Draw exons
@@ -215,14 +215,33 @@ function updateGeneModel() {
 }
 
 function updateVisibleJunctions() {
-    var leftLim   = linearMapXScale.invert(0);
-    var rightLim  = linearMapXScale.invert(SnapApp.Map.DRAW_W);
-    var minLength = linearMapXScale.invert(SnapApp.Map.MIN_DISPLAY_LENGTH_PX) - leftLim;
+    var leftLim          = linearMapXScale.invert(0);
+    var rightLim         = linearMapXScale.invert(SnapApp.Map.DRAW_W);
+    var extendedLeftLim  = linearMapXScale.invert(-SnapApp.Map.DRAW_W / 4);
+    var extendedRightLim = linearMapXScale.invert(SnapApp.Map.DRAW_W + SnapApp.Map.DRAW_W / 4);
+    var minLength        = linearMapXScale.invert(SnapApp.Map.MIN_DISPLAY_LENGTH_PX) - leftLim;
     visibleJunctions.set(Junctions.find({
-        start: {"$gte": leftLim},
-        end: {"$lte": rightLim},
-        length: {"$gte": minLength}
-    }).fetch());
+            $or: [{
+                $and: [
+                    {start: {"$gte": leftLim}},
+                    {start: {"$lte": rightLim}},
+                    {end: {"$gte": extendedLeftLim}},
+                    {end: {"$lte": extendedRightLim}}
+                ]
+            }, {
+                $and: [
+                    {end: {"$gte": leftLim}},
+                    {end: {"$lte": rightLim}},
+                    {start: {"$gte": extendedLeftLim}},
+                    {start: {"$lte": extendedRightLim}}
+                ]
+            }],
+            length: {
+                "$gte": minLength
+            }
+        }).fetch()
+    )
+    ;
 }
 
 function updateJunctions() {
