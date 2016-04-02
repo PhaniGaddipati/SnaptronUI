@@ -191,7 +191,8 @@ function updateGeneModel() {
         exonRects.enter().append("rect")
             .attr("class", "exonRect")
             .attr("height", SnapApp.Map.EXON_HEIGHT)
-            .attr("style", SnapApp.Map.EXON_STYLE);
+            .attr("style", SnapApp.Map.EXON_STYLE)
+            .attr("pointer-events", "none");
         exonRects.attr("y", SnapApp.Map.DRAW_H / 2 - SnapApp.Map.EXON_HEIGHT / 2)
             .attr("x", function (exon) {
                 return linearMapXScale(exon[REGION_MODEL_START]);
@@ -204,6 +205,7 @@ function updateGeneModel() {
         if (model[REGION_MODEL_CDS_START] > -1 && model[REGION_MODEL_CDS_END] > -1) {
             cdsMarker.enter().append("rect")
                 .attr("class", "cdsRect")
+                .attr("pointer-events", "none")
                 .attr("height", SnapApp.Map.CDS_MARKER_HEIGHT)
                 .attr("style", SnapApp.Map.CDS_MARKER_STYLE)
                 .attr("y", SnapApp.Map.DRAW_H / 2 - SnapApp.Map.CDS_MARKER_HEIGHT / 2);
