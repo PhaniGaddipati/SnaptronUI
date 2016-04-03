@@ -81,7 +81,7 @@ Template.linearMap.helpers({
     "modelOptionText": function (region, model, index) {
         var hasCDS = model[REGION_MODEL_CDS_START] > -1;
         var text;
-        if (Regions.find().count > 1) {
+        if (Regions.find().count() > 1) {
             text = (index + 1) + " - " + region.toUpperCase() + ": " + model[REGION_MODEL_SRC];
         } else {
             text = (index + 1) + " - " + model[REGION_MODEL_SRC];
