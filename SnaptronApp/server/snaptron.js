@@ -9,6 +9,8 @@ const SAMPLE_URL     = "http://stingray.cs.jhu.edu:8443/samples";
 const ANNOTATION_URL = "http://stingray.cs.jhu.edu:8443/annotations";
 const URL_REGIONS    = "?regions=";
 
+const MAX_LOAD_BATCH = 1000;
+
 SnapApp.Snaptron = {};
 
 /**
@@ -180,13 +182,21 @@ function loadMissingRegionJunctions(regionId) {
         }
     }
     if (toLoadJunctionIDs.length > 0) {
-        console.log("Loading " + toLoadJunctionIDs.length + " junctions for region (\"" + regionId + "\")");
         try {
-            var snaptronQuery = "\"[{\"ids\":[\"" + toLoadJunctionIDs.join("\",\"") + "\"]}]\"";
-            var params        = {"fields": snaptronQuery};
-            var responseTSV   = Meteor.http.post(SNAPTRON_URL, {params: params}).content.trim();
-            var junctions     = SnapApp.Parser.parseJunctionsResponse(responseTSV);
-            SnapApp.JunctionDB.addJunctions(junctions);
+            var startI = 0;
+            var endI   = Math.min(toLoadJunctionIDs.length, MAX_LOAD_BATCH);
+            while (startI < toLoadJunctionIDs.length) {
+                console.log("Loading junctions " + startI + "-" + endI + " for region (\"" + regionId + "\")");
+
+                var snaptronQuery = "\"[{\"ids\":[\"" + toLoadJunctionIDs.slice(startI, endI).join("\",\"") + "\"]}]\"";
+                var params        = {"fields": snaptronQuery};
+                var responseTSV   = Meteor.http.post(SNAPTRON_URL, {params: params}).content.trim();
+                var junctions     = SnapApp.Parser.parseJunctionsResponse(responseTSV);
+                SnapApp.JunctionDB.addJunctions(junctions);
+
+                startI = endI;
+                endI   = Math.min(toLoadJunctionIDs.length, endI + MAX_LOAD_BATCH);
+            }
             return regionId;
         } catch (err) {
             console.error("Error in loadMissingRegionJunctions with region " + regionId);
