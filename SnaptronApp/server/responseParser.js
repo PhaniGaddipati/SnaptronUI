@@ -47,7 +47,7 @@ SnapApp.Parser.parseRegionResponse = function (regionId, responseTSV) {
         }
     }
     if (idCol == -1) {
-        console.warn("ID column now found when trying to update region " + regionId + "!");
+        console.warn("ID column not found when trying to update region " + regionId + "!");
         return null;
     }
     lineNum++;
