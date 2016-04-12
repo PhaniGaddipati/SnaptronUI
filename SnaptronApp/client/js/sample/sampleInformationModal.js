@@ -5,15 +5,12 @@
  * for the id of the sample to load and display.
  */
 
-var URL_KEYS       = ["URL_R_s", "URL_s"];
-var EXCLUDE_KEYS   = ["md5_s", "md5_R_s"];
-var ACCESSION_KEYS = {
-    run_accession_s: "run",
-    sample_accession_s: "sample",
-    experiment_accession_s: "experiment",
-    study_accession_s: "study",
-    submission_accession_s: "submission"
-};
+var SAMPLE_SEARCH_URL = "http://www.ncbi.nlm.nih.gov/sra/?term=";
+
+var MODAL_SAMPLE_EXCLUDE_KEYS = ["md5_s", "md5_R_s"];
+var SAMPLE_URL_KEYS           = ["URL_R_s", "URL_s"];
+var SAMPLE_ACCESSION_KEYS     = ["run_accession_s", "sample_accession_s",
+    "experiment_accession_s", "study_accession_s", "submission_accession_s"];
 
 Template.sampleInformationModal.onCreated(function () {
     var self           = this;
@@ -32,20 +29,20 @@ Template.sampleInformationModal.helpers({
     "keys": function () {
         var sample = Template.instance().sample;
         return _.filter(_.keys(sample), function (key) {
-            return sample[key] !== "" && sample[key] != "NA" && EXCLUDE_KEYS.indexOf(key) == -1;
+            return sample[key] !== "" && sample[key] != "NA" && MODAL_SAMPLE_EXCLUDE_KEYS.indexOf(key) == -1;
         });
     },
     "keyName": function (key) {
         return formatHeaderText(key);
     },
     "keyVal": function (key) {
-        if (URL_KEYS.indexOf(key) > -1) {
+        if (SAMPLE_URL_KEYS.indexOf(key) > -1) {
             var url = Template.instance().sample[key];
             return "<a target=\"_blank\" href=\"" + url + "\">" + url + "</a>";
         }
-        if (_.keys(ACCESSION_KEYS).indexOf(key) > -1) {
+        if (SAMPLE_ACCESSION_KEYS.indexOf(key) > -1) {
             var id  = Template.instance().sample[key];
-            var url = "https://trace.ddbj.nig.ac.jp/DRASearch/" + ACCESSION_KEYS[key] + "?acc=" + id;
+            var url = SAMPLE_SEARCH_URL + id;
             return "<a target=\"_blank\" href=\"" + url + "\">" + id + "</a>";
         }
         return Template.instance().sample[key];
