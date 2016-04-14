@@ -1,15 +1,15 @@
 /**
  * Created by Phani on 3/11/2016.
  *
- * Sample Normalized Difference
+ * Junction Inclusion Ratio
  *
- * Computes the normalized difference between 2 input groups.
+ * Computes the inclusion ratio between 2 input groups.
  * The results have two fields. The TOP_K result contains the top
  * results in the following format:
  * {    "sample" : "some sampleId",
  *      "A" : count of sample found in group A,
  *      "B" : count of sample found in group B,
- *      "D" : normalized ration (B-A)/(B+A+1)
+ *      "D" : junction inclusion ratio (B-A)/(B+A+1)
  * }
  *
  * The HIST result contains frequency data from the unabridged result set.
@@ -43,17 +43,17 @@ SnapApp.Processors.SND.RESULT_HIST_COUNT = "count";
 
 if (Meteor.isServer) {
     Meteor.methods({
-        "sampleNormalizedDifference": function (queryId, inputGroups, params) {
+        "junctionInclusionRatio": function (queryId, inputGroups, params) {
             this.unblock();
             if (!validateInput(inputGroups, params)) {
                 return null;
             }
-            return sampleNormalizedDifference(queryId, inputGroups["A"], inputGroups["B"], params["k"]);
+            return junctionInclusionRatio(queryId, inputGroups["A"], inputGroups["B"], params["k"]);
         }
     });
 }
 
-function sampleNormalizedDifference(queryId, groupIdA, groupIdB, k) {
+function junctionInclusionRatio(queryId, groupIdA, groupIdB, k) {
     var A = getSampleCoverages(queryId, groupIdA);
     var B = getSampleCoverages(queryId, groupIdB);
 

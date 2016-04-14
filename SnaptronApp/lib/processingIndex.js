@@ -46,10 +46,10 @@ SnapApp.Processors.INPUTS      = "inputs";
 SnapApp.Processors.TEMPLATE    = "template";
 
 SnapApp.Processors.Index = {
-    "Sample Normalized Difference": {
-        "function": "sampleNormalizedDifference",
+    "Junction Inclusion Ratio": {
+        "function": "junctionInclusionRatio",
         "publishFunction": SnapApp.Processors.SND.loadAndPublish,
-        "description": "Computes the normalized difference ratio (B-A)/(A+B+1) of sample expression across 2 groups," +
+        "description": "Computes the junction inclusion ratio (B-A)/(A+B+1) across samples in 2 groups," +
         " and returns a histogram along with the top K results",
         "inputGroups": ["A", "B"],
         "selects": [
@@ -63,6 +63,6 @@ SnapApp.Processors.Index = {
             "param": "notes",
             "name": "Notes"
         }],
-        "template": "sampleNormalizedDiffResults"
+        "template": "junctionInclusionRatioResults"
     }
 };

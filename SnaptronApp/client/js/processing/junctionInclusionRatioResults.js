@@ -6,16 +6,16 @@ const HIST_WIDTH  = 320;
 const HIST_HEIGHT = 280;
 const PADDING     = 25;
 
-Template.sampleNormalizedDiffResults.onCreated(function () {
+Template.junctionInclusionRatioResults.onCreated(function () {
     this.selectedBin = new ReactiveVar(null);
     this.subscribe("processorElements", Queries.findOne()._id, this.data._id);
 });
 
-Template.sampleNormalizedDiffResults.onRendered(function () {
+Template.junctionInclusionRatioResults.onRendered(function () {
     updateHistogram(this);
 });
 
-Template.sampleNormalizedDiffResults.helpers({
+Template.junctionInclusionRatioResults.helpers({
     "groupsList": function () {
         return _.map(this[QRY_PROCESSOR_INPUT_GROUPS], function (val, key) {
             var grp = SnapApp.QueryDB.getGroupFromQuery(Queries.findOne()._id, val);
@@ -89,7 +89,7 @@ Template.sampleNormalizedDiffResults.helpers({
     }
 });
 
-Template.sampleNormalizedDiffResults.events({
+Template.junctionInclusionRatioResults.events({
     "click .reactive-table tbody tr": onRowClicked
 });
 
