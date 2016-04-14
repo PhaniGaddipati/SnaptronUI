@@ -174,9 +174,6 @@ function updateGeneModel() {
     var svg   = d3.select("#svg-content");
     var model = selectedGeneModel.get();
 
-    svg.selectAll(".exonRect").remove();
-    svg.selectAll(".cdsRect").remove();
-
     // Default mid-axis line
     svg.selectAll("#midAxisLine").data([0])
         .enter().append("rect")
@@ -185,34 +182,44 @@ function updateGeneModel() {
             - SnapApp.Map.DEFAULT_MID_AXIS_HEIGHT / 2)
         .attr("width", SnapApp.Map.DRAW_W + SnapApp.Map.PADDING * 2)
         .attr("height", SnapApp.Map.DEFAULT_MID_AXIS_HEIGHT).attr("fill", "#000000");
+
     if (model != null) {
-        // Draw exons
-        var exonRects = svg.selectAll(".exonRect").data(model[REGION_MODEL_EXONS]);
-        exonRects.enter().append("rect")
-            .attr("class", "exonRect")
-            .attr("height", SnapApp.Map.EXON_HEIGHT)
-            .attr("style", SnapApp.Map.EXON_STYLE)
-            .attr("pointer-events", "none");
-        exonRects.attr("y", SnapApp.Map.DRAW_H / 2 - SnapApp.Map.EXON_HEIGHT / 2)
-            .attr("x", function (exon) {
-                return linearMapXScale(exon[REGION_MODEL_START]);
-            })
-            .attr("width", function (exon) {
-                return linearMapXScale(exon[REGION_MODEL_END])
-                    - linearMapXScale(exon[REGION_MODEL_START]);
-            });
-        var cdsMarker = svg.selectAll(".cdsRect").data([0]);
-        if (model[REGION_MODEL_CDS_START] > -1 && model[REGION_MODEL_CDS_END] > -1) {
-            cdsMarker.enter().append("rect")
-                .attr("class", "cdsRect")
-                .attr("pointer-events", "none")
-                .attr("height", SnapApp.Map.CDS_MARKER_HEIGHT)
-                .attr("style", SnapApp.Map.CDS_MARKER_STYLE)
-                .attr("y", SnapApp.Map.DRAW_H / 2 - SnapApp.Map.CDS_MARKER_HEIGHT / 2);
-            cdsMarker.attr("x", linearMapXScale(model[REGION_MODEL_CDS_START]))
-                .attr("width", linearMapXScale(model[REGION_MODEL_CDS_END]) -
-                    linearMapXScale(model[REGION_MODEL_CDS_START]));
-        }
+        drawGeneModel(svg, model, SnapApp.Map.DRAW_W, SnapApp.Map.DRAW_H);
+    }
+}
+
+function drawGeneModel(svg, model, width, height) {
+    // Clear old
+    svg.selectAll(".exonRect").remove();
+    svg.selectAll(".cdsRect").remove();
+
+    // Draw exons
+    var exonRects = svg.selectAll(".exonRect").data(model[REGION_MODEL_EXONS]);
+    exonRects.enter().append("rect")
+        .attr("class", "exonRect")
+        .attr("height", SnapApp.Map.EXON_HEIGHT)
+        .attr("style", SnapApp.Map.EXON_STYLE)
+        .attr("pointer-events", "none");
+    exonRects.attr("y", height / 2 - SnapApp.Map.EXON_HEIGHT / 2)
+        .attr("x", function (exon) {
+            return linearMapXScale(exon[REGION_MODEL_START]);
+        })
+        .attr("width", function (exon) {
+            return linearMapXScale(exon[REGION_MODEL_END])
+                - linearMapXScale(exon[REGION_MODEL_START]);
+        });
+    // CDS line
+    var cdsMarker = svg.selectAll(".cdsRect").data([0]);
+    if (model[REGION_MODEL_CDS_START] > -1 && model[REGION_MODEL_CDS_END] > -1) {
+        cdsMarker.enter().append("rect")
+            .attr("class", "cdsRect")
+            .attr("pointer-events", "none")
+            .attr("height", SnapApp.Map.CDS_MARKER_HEIGHT)
+            .attr("style", SnapApp.Map.CDS_MARKER_STYLE)
+            .attr("y", height / 2 - SnapApp.Map.CDS_MARKER_HEIGHT / 2);
+        cdsMarker.attr("x", linearMapXScale(model[REGION_MODEL_CDS_START]))
+            .attr("width", linearMapXScale(model[REGION_MODEL_CDS_END]) -
+                linearMapXScale(model[REGION_MODEL_CDS_START]));
     }
 }
 
