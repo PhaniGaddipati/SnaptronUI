@@ -2,6 +2,12 @@
     <div class="row">
         <form class="form-inline">
             <div class="form-group">
+                <a class="btn btn-default col-xs-12" href="#modelPreviewCollapse" data-toggle="collapse">
+                    Select Gene Model <span class="caret"></span>
+                </a>
+            </div>
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            <div class="form-group">
                 <label for="colorBySelect">Color By:&nbsp;</label>
                 <select class="form-control" id="colorBySelect">
                     {{#each colorOptions}}
@@ -9,22 +15,27 @@
                     {{/each}}
                 </select>
             </div>
-            &nbsp;&nbsp;&nbsp;
-            <div class="form-group">
-                <label for="modelSelect">Gene Model:&nbsp;</label>
-                <select class="form-control" id="modelSelect">
-                    <option value="None">None</option>
-                    {{#each regions}}
-                        {{#each this.models}}
-                            <option value="{{../_id}}:{{@index}}">{{modelOptionText ../_id this @index}}</option>
-                        {{/each}}
-                    {{/each}}
-                </select>
-            </div>
             <a class="btn btn-default resetView pull-right col-xs-4 col-md-2 col-lg-1">Reset View</a>
         </form>
     </div>
     <br>
+    <div class="row">
+        <div class="collapse form-group col-xs-12" id="modelPreviewCollapse">
+            <h4>Gene Models</h4>
+            <div class="list-group" id="modelList">
+                <a href="#" class="list-group-item modelListGroupItem" id="nomodel">None</a>
+                {{#each regions}}
+                    {{#each this.models}}
+                        <a href="#" class="list-group-item modelListGroupItem" id="{{../_id}}_{{@index}}">
+                            <label for="svgPreview">{{modelOptionText ../_id this @index}}</label>
+                            <div id="svgContainer{{../_id}}_{{@index}}">
+                            </div>
+                        </a>
+                    {{/each}}
+                {{/each}}
+            </div>
+        </div>
+    </div>
     <div class="row">
         <div class="panel panel-default col-xs-12">
             <div class="panel-body">

@@ -16,7 +16,7 @@ SnapApp.Map.VIEWBOX_H = 350;
 SnapApp.Map.PADDING   = 20;
 SnapApp.Map.DRAW_W    = SnapApp.Map.VIEWBOX_W - SnapApp.Map.PADDING * 2;
 SnapApp.Map.DRAW_H    = SnapApp.Map.VIEWBOX_H - SnapApp.Map.PADDING * 2;
-;
+
 SnapApp.Map.AXIS_K_CUTOFF = 10000;
 
 SnapApp.Map.DEFAULT_MID_AXIS_HEIGHT = 6;

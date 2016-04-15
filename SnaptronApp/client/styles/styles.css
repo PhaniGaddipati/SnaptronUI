@@ -13,3 +13,8 @@
     max-height: 200px;
     overflow-y: auto;
 }
+
+#modelList {
+    max-height: 300px;
+    overflow-y: auto;
+}

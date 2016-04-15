@@ -19,6 +19,7 @@ Template.linearMap.onRendered(function () {
     colorByKey = null;
     initMap();
     initFrame();
+    initGeneModelPreviews();
     Tracker.autorun(updateMarker);
     Tracker.autorun(updateVisibleJunctions);
     Tracker.autorun(updateJunctions);
@@ -48,17 +49,16 @@ Template.linearMap.events({
         d3.select(".junctionmap").selectAll(".jnct").remove();
         updateJunctions();
     },
-    "change #modelSelect": function (evt, template) {
-        var selected = template.find("#modelSelect").value;
-        if (selected == "None") {
+    "click .modelListGroupItem": function (evt) {
+        var selected = evt.currentTarget.id;
+        if (selected == "nomodel") {
             selectedGeneModel.set(null);
         } else {
-            var idxs   = selected.split(":");
+            var idxs   = selected.split("_");
             var region = Regions.find(idxs[0]).fetch()[0];
             var model  = region[REGION_MODELS][idxs[1]];
             selectedGeneModel.set(model);
         }
-
     }
 });
 Template.linearMap.helpers({
@@ -89,6 +89,7 @@ Template.linearMap.helpers({
         if (!hasCDS) {
             text += " (No CDS)";
         }
+        text += ", Transcript " + model[REGION_MODEL_TRANSCRIPT];
         return text;
     },
     "geneModelInfo": function () {
@@ -170,6 +171,29 @@ function initFrame() {
         .call(linearMapXAxis);
 }
 
+function initGeneModelPreviews() {
+    var regions = Regions.find().fetch();
+    _.each(regions, function (region) {
+        _.each(region[REGION_MODELS], function (model, idx) {
+            var svg = d3.select("#svgContainer" + region._id + "_" + idx)
+                .selectAll('svg').data([0])
+                .enter().append("svg")
+                .attr("class", "geneModelPreview")
+                .attr("preserveAspectRatio", "xMinYMin meet")
+                .attr("viewBox", "0 0 " + SnapApp.Map.DRAW_W + " " + SnapApp.Map.EXON_HEIGHT)
+                .classed("svg-content-responsive", true);
+            svg.selectAll("#midAxisLine").data([0])
+                .enter().append("rect")
+                .attr("id", "midAxisLine")
+                .attr("x", 0).attr("y", SnapApp.Map.EXON_HEIGHT / 2
+                    - SnapApp.Map.DEFAULT_MID_AXIS_HEIGHT / 2)
+                .attr("width", SnapApp.Map.DRAW_W)
+                .attr("height", SnapApp.Map.DEFAULT_MID_AXIS_HEIGHT).attr("fill", "#000000");
+            drawGeneModel(svg, model, SnapApp.Map.DRAW_W, SnapApp.Map.EXON_HEIGHT);
+        })
+    });
+}
+
 function updateGeneModel() {
     var svg   = d3.select("#svg-content");
     var model = selectedGeneModel.get();
@@ -183,7 +207,11 @@ function updateGeneModel() {
         .attr("width", SnapApp.Map.DRAW_W + SnapApp.Map.PADDING * 2)
         .attr("height", SnapApp.Map.DEFAULT_MID_AXIS_HEIGHT).attr("fill", "#000000");
 
-    if (model != null) {
+    if (model == null) {
+        svg.selectAll(".exonRect").remove();
+        svg.selectAll(".cdsRect").remove();
+    }
+    else {
         drawGeneModel(svg, model, SnapApp.Map.DRAW_W, SnapApp.Map.DRAW_H);
     }
 }
