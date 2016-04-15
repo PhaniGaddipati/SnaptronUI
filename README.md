@@ -4,6 +4,9 @@ A webapp frontend to query exon-exon junction data from the [Intropolis database
 
 Development deployment available here: [http://stingray.cs.jhu.edu:8100](http://stingray.cs.jhu.edu:8100)
 
+Example query of the FOSB gene, with a filter based on sample count:
+![preview](https://cloud.githubusercontent.com/assets/2693873/14548412/a5a2f238-0284-11e6-96cb-4f26c06be128.png)
+
 ## Prerequisites
 - [MeteorJS](https://www.meteor.com/)
 
