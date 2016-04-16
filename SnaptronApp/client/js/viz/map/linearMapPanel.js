@@ -103,7 +103,8 @@ Template.linearMap.helpers({
             text += "<b>Strand</b>: " + model[REGION_MODEL_STRAND] + spacing;
             text += "<b>Reference</b>: " + model[REGION_MODEL_REF] + spacing;
             if (model[REGION_MODEL_CDS_START] > -1) {
-                text += "<b>CDS</b>: " + model[REGION_MODEL_CDS_START] + "-" + model[REGION_MODEL_CDS_END] + spacing;
+                text += "<b>CDS</b>: " + numberWithCommas(model[REGION_MODEL_CDS_START])
+                    + "-" + numberWithCommas(model[REGION_MODEL_CDS_END]) + spacing;
             }
             text += "<br><br>";
         }
