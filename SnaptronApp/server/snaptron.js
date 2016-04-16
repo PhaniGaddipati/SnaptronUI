@@ -4,9 +4,9 @@
  * This file proves querying functions to get information from the snaptron server
  */
 
-const SNAPTRON_URL   = "http://stingray.cs.jhu.edu:8443/snaptron";
-const SAMPLE_URL     = "http://stingray.cs.jhu.edu:8443/samples";
-const ANNOTATION_URL = "http://stingray.cs.jhu.edu:8443/annotations";
+const SNAPTRON_URL   = "http://stingray.cs.jhu.edu:8090/srav1/snaptron";
+const SAMPLE_URL     = "http://stingray.cs.jhu.edu:8090/srav1/samples";
+const ANNOTATION_URL = "http://stingray.cs.jhu.edu:8090/srav1/annotations";
 const URL_REGIONS    = "?regions=";
 
 const MAX_LOAD_BATCH = 1000;
