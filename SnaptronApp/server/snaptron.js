@@ -65,13 +65,20 @@ SnapApp.Snaptron.loadMissingSamples = function (sampleIds) {
         return !SnapApp.SampleDB.hasSample(sampleId);
     });
     if (samplesToLoad.length > 0) {
-        console.log("Loading " + samplesToLoad.length + " samples");
         try {
-            var sampleQuery = "\"[{\"ids\":[\"" + samplesToLoad.join("\",\"") + "\"]}]\"";
-            var params      = {"fields": sampleQuery};
-            var responseTSV = Meteor.http.post(SAMPLE_URL, {params: params}).content.trim();
-            var samples     = SnapApp.Parser.parseSampleResponse(responseTSV);
-            SnapApp.SampleDB.addSamples(samples);
+            var startI = 0;
+            var endI   = Math.min(samplesToLoad.length, MAX_LOAD_BATCH);
+            while (startI < samplesToLoad.length) {
+                console.log("Loading samples " + startI + "-" + endI + " of " + samplesToLoad.length);
+                var sampleQuery = "\"[{\"ids\":[\"" + samplesToLoad.slice(startI, endI).join("\",\"") + "\"]}]\"";
+                var params      = {"fields": sampleQuery};
+                var responseTSV = Meteor.http.post(SAMPLE_URL, {params: params}).content.trim();
+                var samples     = SnapApp.Parser.parseSampleResponse(responseTSV);
+                SnapApp.SampleDB.addSamples(samples);
+
+                startI = endI;
+                endI   = Math.min(samplesToLoad.length, endI + MAX_LOAD_BATCH);
+            }
         } catch (err) {
             console.error("Error in loadMissingSamples");
             console.error(err);
@@ -186,7 +193,8 @@ function loadMissingRegionJunctions(regionId) {
             var startI = 0;
             var endI   = Math.min(toLoadJunctionIDs.length, MAX_LOAD_BATCH);
             while (startI < toLoadJunctionIDs.length) {
-                console.log("Loading junctions " + startI + "-" + endI + " for region (\"" + regionId + "\")");
+                console.log("Loading junctions " + startI + "-" + endI + " of "
+                    + toLoadJunctionIDs.length + " for region (\"" + regionId + "\")");
 
                 var snaptronQuery = "\"[{\"ids\":[\"" + toLoadJunctionIDs.slice(startI, endI).join("\",\"") + "\"]}]\"";
                 var params        = {"fields": snaptronQuery};
