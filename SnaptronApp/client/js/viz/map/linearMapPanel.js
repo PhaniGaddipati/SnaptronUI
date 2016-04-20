@@ -277,6 +277,11 @@ function updateVisibleJunctions() {
             length: {
                 "$gte": minLength
             }
+        }, {
+            sort: {
+                length: -1
+            },
+            limit: SnapApp.Map.MAX_JNCTS_TO_DISPLAY
         }).fetch()
     )
     ;

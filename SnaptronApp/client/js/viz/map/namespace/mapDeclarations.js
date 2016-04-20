@@ -37,7 +37,8 @@ SnapApp.Map.MARKER_LABEL_HEIGHT = 25;
  * Junction arc constants.
  * @type {number}
  */
-SnapApp.Map.MIN_DISPLAY_LENGTH_PX = 3;
+SnapApp.Map.MAX_JNCTS_TO_DISPLAY = 1000;
+SnapApp.Map.MIN_DISPLAY_LENGTH_PX  = 3;
 SnapApp.Map.JNCT_MAX_VAL_COLOR     = "#d9230f";
 SnapApp.Map.JNCT_NORMAL_COLOR      = "black";
 SnapApp.Map.JNCT_BOOL_TRUE_COLOR   = "#d9230f";
