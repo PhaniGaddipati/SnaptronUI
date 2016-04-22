@@ -6,6 +6,12 @@ var linearMapXAxis;
 var zoomBehaviour     = null;
 var highlightedJnctID = new ReactiveVar(null);
 
+var brushBehaviour       = null;
+var selectionMode        = false;
+var activeBrushSelection = [];
+var selectionStartX      = new ReactiveVar(-1);
+var selectionEndX        = new ReactiveVar(-1);
+
 var colorByScale = new ReactiveVar();
 var colorByKey   = null;
 
@@ -24,6 +30,7 @@ Template.linearMap.onRendered(function () {
     Tracker.autorun(updateVisibleJunctions);
     Tracker.autorun(updateJunctions);
     Tracker.autorun(updateGeneModel);
+    Tracker.autorun(updateSelectionHighlight);
 });
 Template.linearMap.events({
     "click .resetView": function () {
@@ -128,6 +135,50 @@ function initMap() {
             onZoom();
         });
 
+    brushBehaviour = d3.svg.brush()
+        .x(linearMapXScale)
+        .on("brushstart", function () {
+            activeBrushSelection = [];
+        })
+        .on("brush", function () {
+            var extent = d3.event.target.extent();
+            var startX = extent[0];
+            var endX   = extent[1];
+            _.each(activeBrushSelection, function (item) {
+                var idx = SnapApp.selectedJnctIDs.indexOf(item);
+                if (idx > 0) {
+                    SnapApp.selectedJnctIDs = SnapApp.selectedJnctIDs.splice(0, idx);
+                }
+            });
+            activeBrushSelection = _.filter(_.pluck(Junctions.find({
+                start: {$gte: startX},
+                end: {$lte: endX}
+            }, {
+                field: {
+                    _id: 1
+                }
+            }).fetch(), "_id"), function (id) {
+                return SnapApp.selectedJnctIDs.indexOf(id) < 0;
+            });
+            _.each(activeBrushSelection, function (item) {
+                if (SnapApp.selectedJnctIDs.indexOf(item) < 0) {
+                    SnapApp.selectedJnctIDs.push(item);
+                }
+            });
+            selectionStartX.set(startX);
+            selectionEndX.set(endX);
+            SnapApp.selectedJnctIDsDep.changed();
+        })
+        .on("brushend", function () {
+            //Add active selection to selection
+            _.each(activeBrushSelection, function (item) {
+                if (SnapApp.selectedJnctIDs.indexOf(item) < 0) {
+                    SnapApp.selectedJnctIDs.push(item);
+                }
+            });
+            SnapApp.selectedJnctIDsDep.changed();
+        });
+
     // Init SVG
     var svg = d3.select(".svg-container")
         .selectAll('svg').data([0])
@@ -137,10 +188,21 @@ function initMap() {
         .attr("viewBox", "0 0 " + SnapApp.Map.VIEWBOX_W + " " + SnapApp.Map.VIEWBOX_H)
         .classed("svg-content-responsive", true)
         .on("mouseout", function () {
-            markerX.set(-1)
+            markerX.set(-1);
         })
         .on("mousemove", function () {
+            var shiftKey = d3.event.shiftKey || d3.event.metaKey;
+            if (!selectionMode && shiftKey) {
+                setSelectionBehaviours(svg);
+            } else if (selectionMode && !shiftKey) {
+                setZoomBehaviours(svg);
+            }
             markerX.set(d3.mouse(this)[0]);
+        })
+        .on("keyup", function () {
+            if (selectionMode && !(d3.event.shiftKey || d3.event.metaKey)) {
+                setZoomBehaviours(svg);
+            }
         })
         .call(zoomBehaviour);
     svg.append("g")
@@ -148,6 +210,54 @@ function initMap() {
         .attr("transform", "translate(" + SnapApp.Map.PADDING + ", " + SnapApp.Map.PADDING + ")")
 }
 
+function setSelectionBehaviours(svg) {
+    svg.call(zoomBehaviour)
+        .on("mousedown.zoom", null)
+        .on("touchstart.zoom", null)
+        .on("touchmove.zoom", null)
+        .on("touchend.zoom", null);
+
+    svg.select('.background').style('cursor', 'crosshair');
+    svg.call(brushBehaviour);
+    selectionMode = true;
+}
+
+function setZoomBehaviours(svg) {
+    svg.call(brushBehaviour)
+        .on("mousedown.brush", null)
+        .on("touchstart.brush", null)
+        .on("touchmove.brush", null)
+        .on("touchend.brush", null);
+
+    svg.select('.background').style('cursor', 'auto');
+    svg.call(zoomBehaviour);
+    selectionMode = false;
+    selectionStartX.set(-1);
+    selectionEndX.set(-1);
+}
+
+function updateSelectionHighlight() {
+    selectionStartX.get(-1);
+    var svg = d3.select("#svg-content");
+    if (selectionMode) {
+        svg.selectAll("#selectionRect")
+            .data([0])
+            .enter()
+            .append("rect")
+            .attr("id", "selectionRect");
+        svg.selectAll("#selectionRect")
+            .attr("x", linearMapXScale(selectionStartX.get()))
+            .attr("y", 0)
+            .attr("width", (linearMapXScale(selectionEndX.get())
+            - linearMapXScale(selectionStartX.get())))
+            .attr("height", SnapApp.Map.DRAW_H)
+            .attr("style", SnapApp.Map.JNCT_SELECTION_STYLE);
+    } else {
+        svg.selectAll("#selectionRect")
+            .remove();
+    }
+
+}
 
 function initFrame() {
     var svg        = d3.select("#svg-content");

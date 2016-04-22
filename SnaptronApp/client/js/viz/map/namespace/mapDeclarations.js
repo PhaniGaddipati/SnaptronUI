@@ -47,6 +47,7 @@ SnapApp.Map.JNCT_SELECTED_COLOR    = "#33BCFF";
 SnapApp.Map.JNCT_NORMAL_WIDTH      = 4;
 SnapApp.Map.JNCT_HIGHLIGHTED_WIDTH = 5;
 SnapApp.Map.JNCT_SELECTED_WIDTH    = 6;
+SnapApp.Map.JNCT_SELECTION_STYLE   = "fill:#3a87ad;fill-opacity:0.2;";
 
 /**
  * Color scale constants.
