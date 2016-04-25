@@ -246,7 +246,7 @@ function updateSelectionHighlight() {
             .append("rect")
             .attr("id", "selectionRect");
         svg.selectAll("#selectionRect")
-            .attr("x", linearMapXScale(selectionStartX.get()))
+            .attr("x", linearMapXScale(selectionStartX.get()) - SnapApp.Map.PADDING)
             .attr("y", 0)
             .attr("width", (linearMapXScale(selectionEndX.get())
             - linearMapXScale(selectionStartX.get())))
