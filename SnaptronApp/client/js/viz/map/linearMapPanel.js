@@ -142,8 +142,9 @@ function initMap() {
         })
         .on("brush", function () {
             var extent = d3.event.target.extent();
-            var startX = extent[0];
-            var endX   = extent[1];
+            var offset = linearMapXScale.invert(SnapApp.Map.PADDING) - linearMapXScale.invert(0);
+            var startX = extent[0] - offset;
+            var endX   = extent[1] - offset;
             _.each(activeBrushSelection, function (item) {
                 var idx = SnapApp.selectedJnctIDs.indexOf(item);
                 if (idx > 0) {
@@ -246,7 +247,7 @@ function updateSelectionHighlight() {
             .append("rect")
             .attr("id", "selectionRect");
         svg.selectAll("#selectionRect")
-            .attr("x", linearMapXScale(selectionStartX.get()) - SnapApp.Map.PADDING)
+            .attr("x", linearMapXScale(selectionStartX.get()))
             .attr("y", 0)
             .attr("width", (linearMapXScale(selectionEndX.get())
             - linearMapXScale(selectionStartX.get())))
