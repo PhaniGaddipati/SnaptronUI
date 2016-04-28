@@ -28,7 +28,14 @@
                     {{#if isUsersQuery}}
                         <input type="text" class="form-control input-sm" placeholder="Name"
                                id="addGroupInputName" size="35">
-                        <button class="btn btn-primary btn-sm" id="addQryGroupBtn">Add Group</button>
+                        <button class="btn btn-primary btn-sm {{#if currentlyAddingGroup}}disabled{{/if}}"
+                                id="addQryGroupBtn">
+                            {{#if currentlyAddingGroup}}
+                                Adding Group...
+                            {{else}}
+                                Add Group
+                            {{/if}}
+                        </button>
                     {{/if}}
                     <a href="#" id="clearSelectionBtn" class="btn btn-default btn-sm pull-right">Clear
                         Selection</a>

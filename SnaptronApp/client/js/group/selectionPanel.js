@@ -1,6 +1,9 @@
 /**
  * Created by Phani on 3/12/2016.
  */
+
+var currentlyAddingGroup = new ReactiveVar(false);
+
 Template.selectionPanel.helpers({
     isUsersQuery: function () {
         return SnapApp.QueryDB.isQueryCurrentUsers(Queries.findOne()["_id"]);
@@ -17,6 +20,9 @@ Template.selectionPanel.helpers({
     anyJunctionsSelected: function () {
         SnapApp.selectedJnctIDsDep.depend();
         return SnapApp.selectedJnctIDs.length > 0;
+    },
+    currentlyAddingGroup: function () {
+        return currentlyAddingGroup.get();
     }
 });
 
@@ -44,10 +50,12 @@ function onClearSelection() {
 
 function onAddGroup(template) {
     var name = template.find("#addGroupInputName").value;
+    currentlyAddingGroup.set(true);
     Meteor.call("addGroupToQuery", Queries.findOne()["_id"], name,
         SnapApp.selectedJnctIDs, function (err) {
             if (!err) {
                 onClearSelection();
             }
+            currentlyAddingGroup(false);
         });
 }
