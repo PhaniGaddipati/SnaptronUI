@@ -168,7 +168,7 @@ function initMap() {
             });
             selectionStartX.set(startX);
             selectionEndX.set(endX);
-            SnapApp.selectedJnctIDsDep.changed();
+            updateJunctions();
         })
         .on("brushend", function () {
             //Add active selection to selection
