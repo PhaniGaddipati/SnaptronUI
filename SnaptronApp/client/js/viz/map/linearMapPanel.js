@@ -119,6 +119,15 @@ Template.linearMap.helpers({
     },
     "geneModelDisplayed": function () {
         return selectedGeneModel.get() != null;
+    },
+    "multiSelecting": function () {
+        return selectionStartX.get() > -1;
+    },
+    "multiSelectingMsg": function () {
+        // Just so it's reactive
+        selectionStartX.get();
+        selectionEndX.get();
+        return activeBrushSelection.length + " junctions highlighted";
     }
 });
 

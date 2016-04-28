@@ -39,7 +39,11 @@
     <div class="row">
         <div class="panel panel-default col-xs-12">
             <div class="panel-body">
-                Shift + Drag to multi-select junctions
+                {{#if multiSelecting}}
+                    {{multiSelectingMsg}}
+                {{else}}
+                    Shift + Drag to multi-select junctions
+                {{/if}}
                 <i class="pull-right">Unannotated</i>
                 <div class="svg-container"></div>
                 <div class="row">
