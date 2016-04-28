@@ -56,6 +56,6 @@ function onAddGroup(template) {
             if (!err) {
                 onClearSelection();
             }
-            currentlyAddingGroup(false);
+            currentlyAddingGroup.set(false);
         });
 }
