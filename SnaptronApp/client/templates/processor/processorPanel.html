@@ -4,52 +4,59 @@
             <h4>Analysis</h4>
             <div class="row">
                 <form class="col-xs-12 col-sm-6">
-                <div class="form-group">
-                    <label class="control-label" for="processorType"><strong>Method</strong></label>
-                    <select class="form-control" id="processorType">
-                        {{#each processorTypes}}
-                            <option>{{this}}</option>
-                        {{/each}}
-                    </select>
-                    <i>{{selectedTypeDescription}}</i>
-                    <br>
-                    <br>
-                </div>
-                </form>
-                <form class="col-xs-12 col-sm-6">
-                {{#each processorGroups}}
                     <div class="form-group">
-                        <label class="control-label" for="{{this}}"><strong>Group {{this}}</strong></label>
-                        <select class="form-control groupSelect" id="{{this}}">
-                            {{#each queryGroups}}
-                                <option value="{{this._id}}">{{groupOptionText this}}</option>
-                            {{/each}}
-                        </select>
-                    </div>
-                {{/each}}
-                {{#each processorSelects}}
-                    <div class="form-group">
-                        <label class="control-label" for="pSelect{{this.param}}"><strong>{{this.name}}</strong></label>
-                        <select class="form-control" id="pSelect{{this.param}}">
-                            {{#each this.opts}}
+                        <label class="control-label" for="processorType"><strong>Method</strong></label>
+                        <select class="form-control" id="processorType">
+                            {{#each processorTypes}}
                                 <option>{{this}}</option>
                             {{/each}}
                         </select>
+                        <i>{{selectedTypeDescription}}</i>
+                        <br>
+                        <br>
                     </div>
-                {{/each}}
-                {{#each processorInputs}}
+                </form>
+                <form class="col-xs-12 col-sm-6">
+                    {{#each processorGroups}}
+                        <div class="form-group">
+                            <label class="control-label" for="{{this}}"><strong>Group {{this}}</strong></label>
+                            <select class="form-control groupSelect" id="{{this}}">
+                                {{#each queryGroups}}
+                                    <option value="{{this._id}}">{{groupOptionText this}}</option>
+                                {{/each}}
+                            </select>
+                        </div>
+                    {{/each}}
+                    {{#each processorSelects}}
+                        <div class="form-group">
+                            <label class="control-label"
+                                   for="pSelect{{this.param}}"><strong>{{this.name}}</strong></label>
+                            <select class="form-control" id="pSelect{{this.param}}">
+                                {{#each this.opts}}
+                                    <option>{{this}}</option>
+                                {{/each}}
+                            </select>
+                        </div>
+                    {{/each}}
+                    {{#each processorInputs}}
+                        <div class="form-group">
+                            <label class="control-label"
+                                   for="pInput{{this.param}}"><strong>{{this.name}}</strong></label>
+                            <input class="form-control paramInputField" id="pInput{{this.param}}" type="text">
+                        </div>
+                    {{/each}}
                     <div class="form-group">
-                        <label class="control-label" for="pInput{{this.param}}"><strong>{{this.name}}</strong></label>
-                        <input class="form-control paramInputField" id="pInput{{this.param}}" type="text">
+                        <button class="btn btn-primary pull-right {{#unless valid}}disabled{{/unless}} {{#if currentlyProcessing}}disabled{{/if}}"
+                                id="analyzeBtn"
+                                type="button">
+                            {{#if currentlyProcessing}}
+                                Please wait...
+                            {{else}}
+                                Analyze
+                            {{/if}}
+                        </button>
                     </div>
-                {{/each}}
-                <div class="form-group">
-                    <button class="btn btn-primary pull-right {{#unless valid}}disabled{{/unless}}" id="analyzeBtn"
-                            type="button">
-                        Analyze
-                    </button>
-                </div>
-            </form>
+                </form>
             </div>
         </div>
     </div>

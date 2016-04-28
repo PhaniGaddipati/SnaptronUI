@@ -2,8 +2,9 @@
  * Created by Phani on 3/11/2016.
  */
 
-var selectedType = new ReactiveVar(null);
-var valid        = new ReactiveVar(false);
+var selectedType        = new ReactiveVar(null);
+var valid               = new ReactiveVar(false);
+var currentlyProcessing = new ReactiveVar(false);
 
 Template.processorsPanel.helpers({
     "processorTypes": function () {
@@ -45,6 +46,9 @@ Template.processorsPanel.helpers({
             return false;
         }
         return SnapApp.Processors.Index[selectedType.get()][SnapApp.Processors.INPUTS];
+    },
+    "currentlyProcessing": function () {
+        return currentlyProcessing.get();
     }
 });
 
@@ -67,6 +71,7 @@ Template.processorsPanel.onRendered(function () {
 });
 
 function onAnalyze(evt, template) {
+    currentlyProcessing.set(true);
     var queryId = Queries.findOne({})._id;
     var type    = template.find("#processorType").value;
     var fn      = SnapApp.Processors.Index[type][SnapApp.Processors.FUNCTION];
@@ -91,7 +96,9 @@ function onAnalyze(evt, template) {
     }
 
     Meteor.call(fn, queryId, inputGroups, params, function (err, result) {
-        Meteor.call("addProcessorToQuery", queryId, type, inputGroups, params, result);
+        Meteor.call("addProcessorToQuery", queryId, type, inputGroups, params, result, function () {
+            currentlyProcessing.set(false);
+        });
     });
 }
 
