@@ -5,6 +5,44 @@
 SnapApp.Parser = {};
 
 /**
+ * Parses a UCSC retrieval response and returns the URLs returned
+ * An array of {position:pos, url:url} objs are returned
+ * @param responseTSV
+ * @returns {*}
+ */
+SnapApp.Parser.parseUCSCResponse = function (responseTSV) {
+    check(responseTSV, String);
+
+    var lines = responseTSV.split("\n");
+
+    // Find the column where the id is
+    // First line should be header
+    var headerElems = lines[0].replace("#", "").split("\t");
+    var urlCol      = -1;
+    var posCol      = -1;
+    for (i = 0; i < headerElems.length; i++) {
+        if (headerElems[i] == "URL") {
+            urlCol = i;
+        } else if (headerElems[i] == "coordinate_string") {
+            posCol = i;
+        }
+    }
+    if (urlCol == -1 || posCol == -1) {
+        console.warn("URL/position column not found when trying to parse UCSC response");
+        return null;
+    }
+    var urls = [];
+    for (var i = 1; i < lines.length; i++) {
+        var elems = lines[i].split("\t");
+        urls.push({
+            position: elems[posCol],
+            url: elems[urlCol]
+        });
+    }
+    return urls;
+};
+
+/**
  * Parses the TSV response of a single region snaptron query
  * @param regionId
  * @param responseTSV

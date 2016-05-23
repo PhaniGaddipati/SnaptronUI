@@ -1,0 +1,29 @@
+<template name="ucscModal">
+    <div class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Region UCSC Links</h4>
+                </div>
+                <div class="modal-body">
+                    Select a position to open it in the UCSC Genome Browser with Snaptron data
+                    <br>
+                    {{#if loadingURLs}}
+                        <br>
+                        <div class="progress progress-striped active">
+                            <div class="progress-bar" style="width: 100%"></div>
+                        </div>
+                    {{else}}
+                        <ul>
+                            {{#each urls}}
+                                <li>
+                                    <a href="{{this.url}}" target="_blank">{{this.position}}</a>
+                                </li>
+                            {{/each}}
+                        </ul>
+                    {{/if}}
+                </div>
+            </div>
+        </div>
+    </div>
+</template>

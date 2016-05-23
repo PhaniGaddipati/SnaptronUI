@@ -4,14 +4,22 @@
  * This file proves querying functions to get information from the snaptron server
  */
 
-const SNAPTRON_URL   = "http://stingray.cs.jhu.edu:8090/srav1/snaptron";
-const SAMPLE_URL     = "http://stingray.cs.jhu.edu:8090/srav1/samples";
-const ANNOTATION_URL = "http://stingray.cs.jhu.edu:8090/srav1/annotations";
-const URL_REGIONS    = "?regions=";
+const SNAPTRON_URL        = "http://stingray.cs.jhu.edu:8090/srav1/snaptron";
+const SAMPLE_URL          = "http://stingray.cs.jhu.edu:8090/srav1/samples";
+const ANNOTATION_URL      = "http://stingray.cs.jhu.edu:8090/srav1/annotations";
+const URL_REGIONS         = "?regions=";
+const UCSC_BROWSER_FORMAT = "&return_format=2";
 
 const MAX_LOAD_BATCH = 1000;
 
 SnapApp.Snaptron = {};
+
+Meteor.methods({
+    "getUCSCBrowserURLs": function (region) {
+        check(region, String);
+        return SnapApp.Snaptron.getUCSCBrowserURLs(region);
+    }
+});
 
 /**
  * Updates all of the regions in the query if they have
@@ -86,6 +94,26 @@ SnapApp.Snaptron.loadMissingSamples = function (sampleIds) {
         }
     }
     return sampleIds;
+};
+
+/**
+ * Returns UCSC links for the given region.
+ * An array of {position:pos, url:url} objs are returned
+ * @param regionId
+ * @returns {*}
+ */
+SnapApp.Snaptron.getUCSCBrowserURLs = function (regionId) {
+    check(regionId, String);
+    var snaptronQuery = SNAPTRON_URL + URL_REGIONS + regionId + "&contains=1&fields=snaptron_id" + UCSC_BROWSER_FORMAT;
+    try {
+        console.log("Retrieving UCSC URLs for region " + regionId + "...");
+        var responseTSV = Meteor.http.get(snaptronQuery).content.trim();
+        return SnapApp.Parser.parseUCSCResponse(responseTSV);
+    } catch (err) {
+        console.error("Error in retrieving UCSC URLs (\"" + regionId + "\")!");
+        console.error(err);
+        return null;
+    }
 };
 
 

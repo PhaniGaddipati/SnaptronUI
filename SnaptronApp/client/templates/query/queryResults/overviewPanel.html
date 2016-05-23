@@ -46,6 +46,19 @@
                     </div>
                     <div class="row">
                         <div class="col-xs-12">
+                            <strong>UCSC Links</strong>
+                            <br>
+                            <ul>
+                                {{#each regionsArr}}
+                                    <li>
+                                        <a href="#" class="ucscLink" datavalue="{{this}}">{{this}}</a>
+                                    </li>
+                                {{/each}}
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12">
                             {{#unless isCurrentUsers}}
                                 <br>
                                 {{#if isLoggedIn}}
@@ -72,6 +85,8 @@
                     </div>
                 </div>
             </div>
+
+
         </div>
     </div>
 

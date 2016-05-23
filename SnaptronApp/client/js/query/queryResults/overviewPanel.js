@@ -44,6 +44,11 @@ Template.overviewPanel.events({
     "click #editFiltersBtn": function (evt) {
         evt.preventDefault();
         Modal.show("editFiltersModal");
+    },
+    "click .ucscLink": function (evt) {
+        evt.preventDefault();
+        var region = evt.currentTarget.getAttribute("datavalue");
+        Modal.show("ucscModal", {region: region});
     }
 });
 
@@ -55,6 +60,11 @@ Template.overviewPanel.helpers({
             return "<i>Unnamed</i>";
         }
         return name;
+    },
+    regionsArr: function () {
+        return _.map(Queries.findOne()[QRY_REGIONS], function (region) {
+            return region.toUpperCase();
+        });
     },
     regions: function () {
         var regionIds = Queries.findOne()[QRY_REGIONS];
