@@ -26,9 +26,10 @@
                 <a href="#" class="list-group-item modelListGroupItem" id="nomodel">None</a>
                 {{#each regions}}
                     {{#each this.models}}
-                        <a href="#" class="list-group-item modelListGroupItem" id="{{../_id}}_{{@index}}">
+                        <a href="#" class="list-group-item modelListGroupItem" dataid="{{../_id}}"
+                           dataindex="{{@index}}">
                             <label for="svgPreview">{{modelOptionText ../_id this @index}}</label>
-                            <div id="svgContainer{{../_id}}_{{@index}}">
+                            <div class="svgContainer" dataid="{{../_id}}" dataindex="{{@index}}">
                             </div>
                         </a>
                     {{/each}}

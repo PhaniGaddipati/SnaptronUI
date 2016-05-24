@@ -61,9 +61,10 @@ Template.linearMap.events({
         if (selected == "nomodel") {
             selectedGeneModel.set(null);
         } else {
-            var idxs   = selected.split("_");
-            var region = Regions.find(idxs[0]).fetch()[0];
-            var model  = region[REGION_MODELS][idxs[1]];
+            var regionId = evt.currentTarget.getAttribute("dataid");
+            var idx      = evt.currentTarget.getAttribute("dataindex");
+            var region   = Regions.find(regionId).fetch()[0];
+            var model    = region[REGION_MODELS][idx];
             selectedGeneModel.set(model);
         }
     }
@@ -296,7 +297,7 @@ function initGeneModelPreviews() {
     var regions = Regions.find().fetch();
     _.each(regions, function (region) {
         _.each(region[REGION_MODELS], function (model, idx) {
-            var svg = d3.select("#svgContainer" + region._id + "_" + idx)
+            var svg = d3.select("[dataid=\"" + region._id + "\"] [dataindex=\"" + idx + "\"]")
                 .selectAll('svg').data([0])
                 .enter().append("svg")
                 .attr("class", "geneModelPreview")
