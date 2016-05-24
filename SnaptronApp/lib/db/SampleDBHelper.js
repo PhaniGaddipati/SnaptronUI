@@ -171,12 +171,5 @@ SnapApp.SampleDB.hasSample = function (sampleId) {
  * @returns {Array} the ids of the inserted samples
  */
 SnapApp.SampleDB.addSamples = function (samples) {
-    var ids = [];
-    for (var i = 0; i < samples.length; i++) {
-        if (!SnapApp.SampleDB.hasSample(samples[i]["_id"])) {
-            Samples.insert(samples[i]);
-            ids.push(samples[i]["_id"]);
-        }
-    }
-    return ids;
+    return Samples.batchInsert(samples);
 };

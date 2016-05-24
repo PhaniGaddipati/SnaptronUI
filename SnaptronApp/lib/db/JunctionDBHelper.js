@@ -30,14 +30,7 @@ SnapApp.JunctionDB.hasJunction = function (junctionId) {
  * @returns {Array} the ids of the inserted junctions
  */
 SnapApp.JunctionDB.addJunctions = function (junctions) {
-    var ids = [];
-    for (var i = 0; i < junctions.length; i++) {
-        if (!SnapApp.JunctionDB.hasJunction(junctions[i]["_id"])) {
-            Junctions.insert(junctions[i]);
-            ids.push(junctions[i]["_id"]);
-        }
-    }
-    return ids;
+    return Junctions.batchInsert(junctions);
 };
 
 /**
