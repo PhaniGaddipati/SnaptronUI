@@ -34,15 +34,22 @@ SnapApp.Snaptron.updateQuery = function (queryId) {
     if (query) {
         var regionIds = query[QRY_REGIONS];
         for (var i = 0; i < regionIds.length; i++) {
-            if (!SnapApp.RegionDB.hasRegion(regionIds[i])) {
-                SnapApp.RegionDB.newRegion(regionIds[i]);
+            var needToUpdate = false;
+            if (SnapApp.RegionDB.hasRegion(regionIds[i])) {
+                var regionDoc = SnapApp.RegionDB.getRegion(regionIds[i]);
+                if (regionDoc[REGION_LOADED_DATE] == null ||
+                    (new Date().getTime() - regionDoc[REGION_LOADED_DATE]) > REGION_REFRESH_TIME) {
+                    // Region exists but is expired or was never loaded
+                    needToUpdate = true;
+                }
+            } else {
+                // Region doesn't exist
+                needToUpdate = true;
             }
-            var region = SnapApp.RegionDB.getRegion(regionIds[i]);
-            if (region[REGION_LOADED_DATE] == null ||
-                (new Date().getTime() - region[REGION_LOADED_DATE]) > REGION_REFRESH_TIME) {
-                updateRegion(region["_id"]);
+            if (needToUpdate) {
+                updateRegion(regionIds[i]);
             }
-            loadMissingRegionJunctions(region["_id"]);
+            loadMissingRegionJunctions(regionIds[i]);
         }
         return queryId;
     }
@@ -174,13 +181,6 @@ function updateRegionMetadataAndJunctions(regionId) {
     check(regionId, String);
 
     var snaptronQuery = SNAPTRON_URL + URL_REGIONS + regionId + "&contains=1&fields=snaptron_id";
-    if (!SnapApp.RegionDB.hasRegion(regionId)) {
-        console.log("Region with id " + regionId + " doesn't exist, creating it to update metadata and junctions.");
-        if (SnapApp.RegionDB.newRegion(regionId) == null) {
-            console.log("Failed to create a region document for " + regionId + "! Aborting update");
-            return null;
-        }
-    }
     try {
         console.log("Loading region " + regionId + "...");
         var responseTSV = Meteor.http.get(snaptronQuery).content.trim();
