@@ -47,7 +47,7 @@ SnapApp.Snaptron.updateQuery = function (queryId) {
                 needToUpdate = true;
             }
             if (needToUpdate) {
-                updateRegion(regionIds[i], queryId);
+                updateRegion(regionIds[i]);
             }
             loadMissingRegionJunctions(regionIds[i]);
         }
@@ -111,7 +111,8 @@ SnapApp.Snaptron.loadMissingSamples = function (sampleIds) {
  */
 SnapApp.Snaptron.getUCSCBrowserURLs = function (regionId) {
     check(regionId, String);
-    var snaptronQuery = SNAPTRON_URL + URL_REGIONS + regionId + "&contains=1&fields=snaptron_id" + UCSC_BROWSER_FORMAT;
+    var snaptronQuery = SNAPTRON_URL + URL_REGIONS + regionId.toLowerCase()
+        + "&contains=1&fields=snaptron_id" + UCSC_BROWSER_FORMAT;
     try {
         console.log("Retrieving UCSC URLs for region " + regionId + "...");
         var responseTSV = Meteor.http.get(snaptronQuery).content.trim();
@@ -129,10 +130,10 @@ SnapApp.Snaptron.getUCSCBrowserURLs = function (regionId) {
  * metadata, junctions, and models.
  * @param regionId
  */
-function updateRegion(regionId, queryId) {
+function updateRegion(regionId) {
     check(regionId, String);
 
-    if (updateRegionMetadataAndJunctions(regionId, queryId)
+    if (updateRegionMetadataAndJunctions(regionId)
         && updateRegionModels(regionId)) {
         SnapApp.RegionDB.setRegionLoadedDate(regionId, new Date());
     } else {
@@ -148,8 +149,7 @@ function updateRegion(regionId, queryId) {
 function updateRegionModels(regionId) {
     check(regionId, String);
 
-    var annotationQuery = ANNOTATION_URL + URL_REGIONS + regionId + "&limit=30";
-    console.log("updateRegionModels URL: " + annotationQuery)
+    var annotationQuery = ANNOTATION_URL + URL_REGIONS + regionId;
     if (!SnapApp.RegionDB.hasRegion(regionId)) {
         console.log("Region with id " + regionId + " doesn't exist, creating it to update models.");
         if (SnapApp.RegionDB.newRegion(regionId) == null) {
@@ -172,31 +172,16 @@ function updateRegionModels(regionId) {
     }
 }
 
-function formatQueryFiltersForSnaptronWS(queryId) {
-	var filters = SnapApp.QueryDB.getQuery(queryId)[QRY_FILTERS];
-	var sws_filter_string = "";
-	for (var i = 0; i < filters.length; i++) {
-		var ffield = filters[i][QRY_FILTER_FIELD];
-		var fval = filters[i][QRY_FILTER_VAL];
-		var fopStr = filterOpToStr(filters[i][QRY_FILTER_OP]);
-		//var fopStr = '%3E'
-		sws_filter_string += '&rfilter=' + ffield + fopStr + fval;
-	}
-	return sws_filter_string
-}
-
-
 /**
  * Loads the metadata and junctions list for a given region.
  * If the region document doesn't exist, it will be created.
  * @param regionId
  * @returns {*}
  */
-function updateRegionMetadataAndJunctions(regionId, queryId) {
+function updateRegionMetadataAndJunctions(regionId) {
     check(regionId, String);
-    var sws_filter_string = formatQueryFiltersForSnaptronWS(queryId);
-    var snaptronQuery = SNAPTRON_URL + URL_REGIONS + regionId + "&contains=1&fields=snaptron_id" + sws_filter_string;
-    console.log(snaptronQuery)
+
+    var snaptronQuery = SNAPTRON_URL + URL_REGIONS + regionId + "&contains=1&fields=snaptron_id";
     try {
         console.log("Loading region " + regionId + "...");
         var responseTSV = Meteor.http.get(snaptronQuery).content.trim();
