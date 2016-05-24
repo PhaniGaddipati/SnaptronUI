@@ -111,7 +111,8 @@ SnapApp.Snaptron.loadMissingSamples = function (sampleIds) {
  */
 SnapApp.Snaptron.getUCSCBrowserURLs = function (regionId) {
     check(regionId, String);
-    var snaptronQuery = SNAPTRON_URL + URL_REGIONS + regionId + "&contains=1&fields=snaptron_id" + UCSC_BROWSER_FORMAT;
+    var snaptronQuery = SNAPTRON_URL + URL_REGIONS + regionId.toLowerCase()
+        + "&contains=1&fields=snaptron_id" + UCSC_BROWSER_FORMAT;
     try {
         console.log("Retrieving UCSC URLs for region " + regionId + "...");
         var responseTSV = Meteor.http.get(snaptronQuery).content.trim();
