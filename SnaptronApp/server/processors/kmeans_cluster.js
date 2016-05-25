@@ -21,6 +21,7 @@ const MAX_ITERATIONS = 10;
 
 Meteor.methods({
     "clusterSamplesInGroup": function (queryId, inputGroups, params) {
+        this.unblock();
         if (!validateInput(inputGroups, params)) {
             return null;
         }
