@@ -73,10 +73,12 @@ function vecMagnitude(doc) {
 function getWords(text) {
     text             = text.replace(/\s+/g, " "); // Multiple spaces to a single space
     text             = text.toLowerCase();
-    text             = SnapApp.Processors.KCLUSTER.stopListText(text.toLowerCase());
-    var words        = text.split(" ");
+    text             = SnapApp.Processors.KCLUSTER.cleanText(text.toLowerCase());
+    var words        = SnapApp.Processors.KCLUSTER.filterWords(text.split(" "));
     var stemmedWords = _.map(words, function (word) {
         return SnapApp.Processors.KCLUSTER.stemWord(word);
     });
-    return _.uniq(stemmedWords);
+    return _.filter(_.uniq(stemmedWords), function (w) {
+        return !!w;
+    });
 }

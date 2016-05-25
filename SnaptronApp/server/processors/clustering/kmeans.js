@@ -4,6 +4,13 @@
 
 const MAX_ITERATIONS = 1000;
 
+Meteor.methods({
+    "clusterSample": function (sampleIds, k) {
+        SnapApp.Snaptron.loadMissingSamples(sampleIds);
+        return clusterSamples(SnapApp.SampleDB.getSamples(sampleIds), k);
+    }
+});
+
 function clusterSamples(samples, k) {
     check(samples, [Object]);
     check(k, Number);
@@ -15,7 +22,7 @@ function clusterSamples(samples, k) {
     }
     if (k == 1) {
         console.log("Clustering trivial case: k = 1");
-        return _.pluck(samples, "_id");
+        return [_.pluck(samples, "_id")];
     }
 
     // Generate all document vectors for the samples
@@ -79,7 +86,7 @@ function assignSamples(clusters, vecs) {
 
 function updateCentroids(clusters, vecs) {
     _.each(clusters, function (cluster) {
-        cluster["centroid"] = computeCentroid(_map(cluster["samples"], function (sampleId) {
+        cluster["centroid"] = computeCentroid(_.map(cluster["samples"], function (sampleId) {
             return vecs[sampleId];
         }))
     });
@@ -120,15 +127,18 @@ function pickInitialCentroids(vecs, k) {
         centroid: vecs[randVectorSampleId],
         samples: []
     };
+    var usedSampleIds      = [randVectorSampleId];
     while (clusters.length < k) {
         // Step 2: For each data point x, compute D(x), the distance between x
         // and the nearest center that has already been chosen.
         var D = {};
         _.each(vecs, function (vec, sampleId) {
-            var distances = _.map(clusters, function (cluster) {
-                return SnapApp.Processors.KCLUSTER.cosineSimilarity(cluster["centroid"], vec);
-            });
-            D[sampleId]   = _.min(distances);
+            if (!_.contains(usedSampleIds, sampleId)) {
+                var distances = _.map(clusters, function (cluster) {
+                    return SnapApp.Processors.KCLUSTER.cosineSimilarity(cluster["centroid"], vec);
+                });
+                D[sampleId]   = _.min(distances);
+            }
         });
 
         // Step 3: Choose one new data point at random as a new center, using
@@ -162,6 +172,7 @@ function pickInitialCentroids(vecs, k) {
             centroid: vecs[sampleIds[idx]],
             samples: []
         });
+        usedSampleIds.push(sampleIds[idx]);
 
         // Step 4: Repeat Steps 2 and 3 until k centers have been chosen.
     }
