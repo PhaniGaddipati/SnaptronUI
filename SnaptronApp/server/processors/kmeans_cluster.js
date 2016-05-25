@@ -17,7 +17,7 @@
  *
  */
 
-const MAX_ITERATIONS = 1000;
+const MAX_ITERATIONS = 10;
 
 Meteor.methods({
     "clusterSamplesInGroup": function (queryId, inputGroups, params) {
