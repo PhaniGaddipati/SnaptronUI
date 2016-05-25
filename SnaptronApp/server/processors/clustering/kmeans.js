@@ -24,6 +24,9 @@ function clusterSamples(samples, k) {
         console.log("Clustering trivial case: k = 1");
         return [_.pluck(samples, "_id")];
     }
+    if (k > samples.length) {
+        k = samples.length;
+    }
     if (k == samples.length) {
         console.log("Clustering trivial case: k = |samples|");
         return _.map(_.pluck(samples, "_id"), function (sampleId) {
