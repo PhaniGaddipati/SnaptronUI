@@ -6,6 +6,14 @@ var selectedType        = new ReactiveVar(null);
 var valid               = new ReactiveVar(false);
 var currentlyProcessing = new ReactiveVar(false);
 
+Template.processorsPanel.onRendered(function () {
+    selectedType.set(Template.instance().find("#processorType").value);
+});
+
+Template.processorsPanel.onCreated(function () {
+    this.autorun(validate);
+});
+
 Template.processorsPanel.helpers({
     "processorTypes": function () {
         return _.keys(SnapApp.Processors.Index);
@@ -67,10 +75,6 @@ Template.processorsPanel.events({
     }
 });
 
-Template.processorsPanel.onRendered(function () {
-    selectedType.set(Template.instance().find("#processorType").value);
-});
-
 function onAnalyze(evt, template) {
     currentlyProcessing.set(true);
     var queryId     = Queries.findOne({})._id;
@@ -85,18 +89,26 @@ function onAnalyze(evt, template) {
 }
 
 function validate(evt, template) {
-    var validateFn = SnapApp.Processors.Index[selectedType.get()][SnapApp.Processors.VALIDATE_FUNCTION];
-    Meteor.call(validateFn, Queries.findOne()["_id"],
-        getInputGroups(template), getParams(template), function (err, result) {
-            valid.set(result);
-        });
+    if (selectedType.get()) {
+        var validateFn = SnapApp.Processors.Index[selectedType.get()][SnapApp.Processors.VALIDATE_FUNCTION];
+        Meteor.call(validateFn, Queries.findOne()["_id"],
+            getInputGroups(Template.instance()), getParams(Template.instance()), function (err, result) {
+                valid.set(result);
+            });
+    }
+    else {
+        valid.set(false);
+    }
 }
 
 function getInputGroups(template) {
     var inputGroups = {};
     var inputs      = SnapApp.Processors.Index[selectedType.get()][SnapApp.Processors.INPUT_GROUPS];
     for (var i = 0; i < inputs.length; i++) {
-        inputGroups[inputs[i]] = template.find("#" + inputs[i]).value;
+        var input = template.find("#" + inputs[i]);
+        if (input) {
+            inputGroups[inputs[i]] = input.value;
+        }
     }
     return inputGroups;
 }
@@ -104,14 +116,20 @@ function getParams(template) {
     var params       = {};
     var selectFields = SnapApp.Processors.Index[selectedType.get()][SnapApp.Processors.SELECTS];
     for (var i = 0; i < selectFields.length; i++) {
-        var param     = selectFields[i][SnapApp.Processors.PARAM];
-        params[param] = template.find("#pSelect" + param).value;
+        var param  = selectFields[i][SnapApp.Processors.PARAM];
+        var select = template.find("#pSelect" + param);
+        if (select) {
+            params[param] = select.value;
+        }
     }
 
     var inputFields = SnapApp.Processors.Index[selectedType.get()][SnapApp.Processors.INPUTS];
     for (var i = 0; i < inputFields.length; i++) {
-        var param     = inputFields[i][SnapApp.Processors.PARAM];
-        params[param] = template.find("#pInput" + param).value;
+        var param = inputFields[i][SnapApp.Processors.PARAM];
+        var input = template.find("#pInput" + param);
+        if (input) {
+            params[param] = input.value;
+        }
     }
     return params;
 }
