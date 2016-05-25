@@ -31,26 +31,15 @@
  */
 
 const NUM_HIST_BINS    = 15;
-SnapApp.Processors.SND = {};
 
-SnapApp.Processors.SND.RESULTS_TOP_K        = "topk";
-SnapApp.Processors.SND.RESULTS_TOP_K_SAMPLE = "sample";
-
-SnapApp.Processors.SND.RESULTS_HIST      = "hist";
-SnapApp.Processors.SND.RESULT_HIST_START = "start";
-SnapApp.Processors.SND.RESULT_HIST_END   = "end";
-SnapApp.Processors.SND.RESULT_HIST_COUNT = "count";
-
-if (Meteor.isServer) {
-    Meteor.methods({
-        "junctionInclusionRatio": function (queryId, inputGroups, params) {
-            if (!validateInput(inputGroups, params)) {
-                return null;
-            }
-            return junctionInclusionRatio(queryId, inputGroups["A"], inputGroups["B"], params["k"]);
+Meteor.methods({
+    "junctionInclusionRatio": function (queryId, inputGroups, params) {
+        if (!validateInput(inputGroups, params)) {
+            return null;
         }
-    });
-}
+        return junctionInclusionRatio(queryId, inputGroups["A"], inputGroups["B"], params["k"]);
+    }
+});
 
 function junctionInclusionRatio(queryId, groupIdA, groupIdB, k) {
     var A = getSampleCoverages(queryId, groupIdA);
@@ -133,7 +122,3 @@ function validateInput(inputGroups, params) {
     }
     return true;
 }
-
-SnapApp.Processors.SND.loadAndPublish = function (processor) {
-    return [];
-};

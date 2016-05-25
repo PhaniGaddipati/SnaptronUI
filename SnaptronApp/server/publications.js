@@ -67,27 +67,6 @@ Meteor.publish("queryJunctions", function (queryId) {
 });
 
 /**
- * Publishes the elements relevant to a processor. The publishing is delegated
- * to the processor's publishFunction as defined in the index.
- */
-Meteor.publish("processorElements", function (queryId, processorId) {
-    check(queryId, String);
-    check(processorId, String);
-
-    var processor = SnapApp.QueryDB.getProcessorFromQuery(queryId, processorId);
-    if (!processor) {
-        return [];
-    }
-    var index = SnapApp.Processors.Index[processor[QRY_PROCESSOR_TYPE]];
-    if (index[SnapApp.Processors.PUBLISH_FUNCTION] == null) {
-        // Nothing to publish
-        return [];
-    }
-    console.log("Delegating publishing of processorElements for " + processorId);
-    return index[SnapApp.Processors.PUBLISH_FUNCTION](processor);
-});
-
-/**
  * Publishes additional user information.
  */
 Meteor.publish("userData", function () {
