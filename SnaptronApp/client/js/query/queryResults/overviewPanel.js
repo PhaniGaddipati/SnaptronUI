@@ -73,6 +73,9 @@ Template.overviewPanel.helpers({
     numJunctions: function () {
         return Junctions.find({}).count();
     },
+    limitedJunctions: function () {
+        return Junctions.find({}).count() == SnapApp.MAX_JNCTS_TO_PUBLISH;
+    },
     queryDate: function () {
         var date = Queries.findOne()[QRY_CREATED_DATE];
         return moment(date).format("MMMM Do, YYYY");

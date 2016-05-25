@@ -39,7 +39,7 @@ SnapApp.JunctionDB.addJunctions = function (junctions) {
  * @param queryId
  * @param fieldsProj
  */
-SnapApp.JunctionDB.findJunctionsForQuery = function (queryId, fieldsProj) {
+SnapApp.JunctionDB.findJunctionsForQuery = function (queryId, fieldsProj, limProj) {
     check(queryId, String);
 
     var query = SnapApp.QueryDB.getQuery(queryId);
@@ -81,6 +81,12 @@ SnapApp.JunctionDB.findJunctionsForQuery = function (queryId, fieldsProj) {
     var proj = {};
     if (fieldsProj) {
         proj.fields = fieldsProj;
+    }
+    if (limProj) {
+        proj.limit = limProj;
+        proj.sort  = {
+            samples_count: -1
+        }
     }
 
     return Junctions.find(selector, proj);

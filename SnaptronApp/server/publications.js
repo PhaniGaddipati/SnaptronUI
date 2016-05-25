@@ -35,7 +35,7 @@ Meteor.publish("queryRegionsNoJncts", function (queryId) {
 
 /**
  * Publishes the junctions relevant to the given query ID.
- * Sample lists are not published.
+ * Sample lists are not published. Primary pub for query results.
  */
 Meteor.publish("queryJunctionsNoSamps", function (queryId) {
     check(queryId, String);
@@ -43,11 +43,12 @@ Meteor.publish("queryJunctionsNoSamps", function (queryId) {
     var fieldProj                = {};
     fieldProj[JNCT_SAMPLES_KEY]  = 0;
     fieldProj[JNCT_COVERAGE_KEY] = 0;
-    var junctions                = SnapApp.JunctionDB.findJunctionsForQuery(queryId, fieldProj);
+    var junctions                = SnapApp.JunctionDB.findJunctionsForQuery(queryId, fieldProj, SnapApp.MAX_JNCTS_TO_PUBLISH);
     if (junctions == null) {
         return [];
     }
-    console.log("Published " + junctions.count() + " junctions (no samps) for query " + queryId);
+    console.log("Published " + junctions.count() + " limited to "
+        + SnapApp.MAX_JNCTS_TO_PUBLISH + " junctions (no samps) for query " + queryId);
     return junctions;
 });
 

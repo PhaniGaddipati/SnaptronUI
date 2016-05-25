@@ -36,6 +36,10 @@
                         <strong class="col-md-4 col-xs-12">Junctions</strong>
                         <div class="col-md-8 col-xs-12">
                             {{numJunctions}}
+                            {{#if limitedJunctions}}
+                                <br>
+                                <i class="text-warning">results limited, add a filter to narrow results</i>
+                            {{/if}}
                         </div>
                     </div>
                     <div class="row">
