@@ -16,7 +16,7 @@
 //
 // see also http://www.tartarus.org/~martin/PorterStemmer
 
-porterStemmer = function () {
+SnapApp.Processors.KCLUSTER.STEMMER = function () {
     var step2list = {
             "ational": "ate",
             "tional": "tion",
