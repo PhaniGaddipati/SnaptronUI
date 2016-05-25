@@ -10,7 +10,7 @@ SnapApp.Processors.KCLUSTER.getDocumentVector = function (doc, fieldWeights) {
     if (!fieldWeights) {
         fieldWeights = {};
     }
-    var vector    = {};
+    var vector = {};
     // Loop through all of the fields in the document
     _.each(_.keys(doc), function (docKey) {
         var words  = getWords(doc[docKey]);
@@ -37,17 +37,6 @@ SnapApp.Processors.KCLUSTER.getDocumentVector = function (doc, fieldWeights) {
  * @param doc2
  */
 SnapApp.Processors.KCLUSTER.cosineSimilarity = function (doc1, doc2) {
-    // Put 0s for missing keys so that each document has the same key set
-    var allKeys = _.union(_.keys(doc1), _.keys(doc2));
-    _.each(allKeys, function (key) {
-        if (!_.has(doc1, key)) {
-            doc1[key] = 0;
-        }
-        if (!_.has(doc2, key)) {
-            doc2[key] = 0;
-        }
-    });
-    // Compute similarity
     return vecDotProduct(doc1, doc2) / (vecMagnitude(doc1) * vecMagnitude(doc2));
 };
 
@@ -58,7 +47,7 @@ SnapApp.Processors.KCLUSTER.cosineSimilarity = function (doc1, doc2) {
  */
 function vecDotProduct(doc1, doc2) {
     var prod = 0;
-    _.each(_.keys(doc1), function (key) {
+    _.each(_.intersection(_.keys(doc1), _.keys(doc2)), function (key) {
         prod += doc1[key] * doc2[key];
     });
     return prod;
