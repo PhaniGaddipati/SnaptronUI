@@ -6,7 +6,8 @@
  *
  *      processorName: {
  *          "function": "meteorMethodName",
- *              // Function to return what should be published for the results template, given the QRY_PROCESSOR object
+ *              // function to validate inputs
+ *          "validateFunction" : "meteorMethodName",
  *          "description": "a description of this processor",
  *              // An array of N different groups required, with the given group name
  *          "inputGroups": ["group1", ...],
@@ -33,8 +34,9 @@
  */
 
 SnapApp.Processors.FUNCTION = "function";
-SnapApp.Processors.DESCRIPTION  = "description";
-SnapApp.Processors.INPUT_GROUPS = "inputGroups";
+SnapApp.Processors.VALIDATE_FUNCTION = "validateFunction";
+SnapApp.Processors.DESCRIPTION       = "description";
+SnapApp.Processors.INPUT_GROUPS      = "inputGroups";
 
 SnapApp.Processors.PARAM       = "param";
 SnapApp.Processors.NAME        = "name";
@@ -56,6 +58,7 @@ SnapApp.Processors.SND.RESULT_HIST_COUNT = "count";
 SnapApp.Processors.Index = {
     "Junction Inclusion Ratio": {
         "function": "junctionInclusionRatio",
+        "validateFunction": "junctionInclusionRatioValidation",
         "description": "Computes the junction inclusion ratio (B-A)/(A+B+1) across samples in 2 groups," +
         " and returns a histogram along with the top K results",
         "inputGroups": ["A", "B"],

@@ -72,16 +72,34 @@ Template.processorsPanel.onRendered(function () {
 
 function onAnalyze(evt, template) {
     currentlyProcessing.set(true);
-    var queryId = Queries.findOne({})._id;
-    var type    = template.find("#processorType").value;
-    var fn      = SnapApp.Processors.Index[type][SnapApp.Processors.FUNCTION];
+    var queryId     = Queries.findOne({})._id;
+    var type        = template.find("#processorType").value;
+    var fn          = SnapApp.Processors.Index[type][SnapApp.Processors.FUNCTION];
+    var inputGroups = getInputGroups(template);
+    var params      = getParams(template);
 
+    Meteor.call("startProcessor", type, queryId, inputGroups, params, function () {
+        currentlyProcessing.set(false);
+    });
+}
+
+function validate(evt, template) {
+    var validateFn = SnapApp.Processors.Index[selectedType.get()][SnapApp.Processors.VALIDATE_FUNCTION];
+    Meteor.call(validateFn, Queries.findOne()["_id"],
+        getInputGroups(template), getParams(template), function (err, result) {
+            valid.set(result);
+        });
+}
+
+function getInputGroups(template) {
     var inputGroups = {};
     var inputs      = SnapApp.Processors.Index[selectedType.get()][SnapApp.Processors.INPUT_GROUPS];
     for (var i = 0; i < inputs.length; i++) {
         inputGroups[inputs[i]] = template.find("#" + inputs[i]).value;
     }
-
+    return inputGroups;
+}
+function getParams(template) {
     var params       = {};
     var selectFields = SnapApp.Processors.Index[selectedType.get()][SnapApp.Processors.SELECTS];
     for (var i = 0; i < selectFields.length; i++) {
@@ -94,26 +112,5 @@ function onAnalyze(evt, template) {
         var param     = inputFields[i][SnapApp.Processors.PARAM];
         params[param] = template.find("#pInput" + param).value;
     }
-
-    Meteor.call("startProcessor", type, queryId, inputGroups, params, function () {
-        currentlyProcessing.set(false);
-    });
-}
-
-function validate(evt, template) {
-    var inputs         = SnapApp.Processors.Index[selectedType.get()][SnapApp.Processors.INPUT_GROUPS];
-    var selectedGroups = [];
-    for (var i = 0; i < inputs.length; i++) {
-        var val = template.find("#" + inputs[i]).value;
-        if (val == null || val == undefined) {
-            valid.set(false);
-            return;
-        }
-        if (selectedGroups.indexOf(val) > -1) {
-            valid.set(false);
-            return;
-        }
-        selectedGroups.push(val);
-    }
-    valid.set(true);
+    return params;
 }

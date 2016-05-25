@@ -30,7 +30,7 @@
  *
  */
 
-const NUM_HIST_BINS    = 15;
+const NUM_HIST_BINS = 15;
 
 Meteor.methods({
     "junctionInclusionRatio": function (queryId, inputGroups, params) {
@@ -38,6 +38,9 @@ Meteor.methods({
             return null;
         }
         return junctionInclusionRatio(queryId, inputGroups["A"], inputGroups["B"], params["k"]);
+    },
+    "junctionInclusionRatioValidation": function (queryId, inputGroups, params) {
+        return validateInput(inputGroups, params);
     }
 });
 
@@ -108,6 +111,9 @@ function getSampleCoverages(queryId, groupId) {
 function validateInput(inputGroups, params) {
     if (!_.contains(_.keys(inputGroups), "A") || !_.contains(_.keys(inputGroups), "B")) {
         // Proper input groups not present
+        return false;
+    }
+    if (inputGroups["A"] == inputGroups["B"]) {
         return false;
     }
     var k;
