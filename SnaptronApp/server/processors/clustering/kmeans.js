@@ -42,7 +42,7 @@ function clusterSamples(samples, k) {
         updateCentroids(clusters, vecs);
         itrNum++;
     }
-    return _.values(clusters);
+    return _.pluck(clusters, "samples");
 }
 
 /**
@@ -56,18 +56,18 @@ function assignSamples(clusters, vecs) {
     // Assign all of the vectors to the closest cluster
     _.each(vecs, function (vec, sampleId) {
         // Find closest cluster
-        var distances = _.map(clusters, function (cluster) {
+        var sims   = _.map(clusters, function (cluster) {
             return SnapApp.Processors.KCLUSTER.cosineSimilarity(cluster["centroid"], vec);
         });
-        var min       = Number.MAX_VALUE;
-        var minIdx    = -1;
-        _.each(distances, function (d, idx) {
-            if (d < min) {
-                min    = d;
-                minIdx = idx;
+        var max    = Number.MIN_VALUE;
+        var maxIdx = -1;
+        _.each(sims, function (s, idx) {
+            if (s > max) {
+                max    = s;
+                maxIdx = idx;
             }
         });
-        if (!_.contains(clusters[minIdx]["samples"], sampleId)) {
+        if (!_.contains(clusters[maxIdx]["samples"], sampleId)) {
             // The sample is moving clusters, first remove it from other cluster
             _.each(clusters, function (cluster) {
                 if (_.contains(cluster["samples"], sampleId)) {
@@ -77,7 +77,7 @@ function assignSamples(clusters, vecs) {
                 }
             });
             // Add it to the new cluster
-            clusters[minIdx]["samples"].push(sampleId);
+            clusters[maxIdx]["samples"].push(sampleId);
             changed++;
         }
     });
