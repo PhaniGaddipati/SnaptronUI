@@ -8,6 +8,7 @@ const SNAPTRON_URL        = "http://stingray.cs.jhu.edu:8090/srav1/snaptron";
 const SAMPLE_URL          = "http://stingray.cs.jhu.edu:8090/srav1/samples";
 const ANNOTATION_URL      = "http://stingray.cs.jhu.edu:8090/srav1/annotations";
 const URL_REGIONS         = "?regions=";
+const ANNOTATION_LIMIT    = "&limit=50";
 const UCSC_BROWSER_FORMAT = "&return_format=2";
 
 const MAX_LOAD_BATCH = 1000;
@@ -149,7 +150,7 @@ function updateRegion(regionId) {
 function updateRegionModels(regionId) {
     check(regionId, String);
 
-    var annotationQuery = ANNOTATION_URL + URL_REGIONS + regionId;
+    var annotationQuery = ANNOTATION_URL + URL_REGIONS + regionId + ANNOTATION_LIMIT;
     if (!SnapApp.RegionDB.hasRegion(regionId)) {
         console.log("Region with id " + regionId + " doesn't exist, creating it to update models.");
         if (SnapApp.RegionDB.newRegion(regionId) == null) {
