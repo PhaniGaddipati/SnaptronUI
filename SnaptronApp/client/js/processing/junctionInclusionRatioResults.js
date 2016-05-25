@@ -8,7 +8,6 @@ const PADDING     = 25;
 
 Template.junctionInclusionRatioResults.onCreated(function () {
     this.selectedBin = new ReactiveVar(null);
-    this.subscribe("processorElements", Queries.findOne()._id, this.data._id);
 });
 
 Template.junctionInclusionRatioResults.onRendered(function () {

@@ -7,7 +7,6 @@
  *      processorName: {
  *          "function": "meteorMethodName",
  *              // Function to return what should be published for the results template, given the QRY_PROCESSOR object
- *          "publishFunction": function,
  *          "description": "a description of this processor",
  *              // An array of N different groups required, with the given group name
  *          "inputGroups": ["group1", ...],
@@ -34,9 +33,8 @@
  */
 
 SnapApp.Processors.FUNCTION = "function";
-SnapApp.Processors.PUBLISH_FUNCTION = "publishFunction";
-SnapApp.Processors.DESCRIPTION      = "description";
-SnapApp.Processors.INPUT_GROUPS     = "inputGroups";
+SnapApp.Processors.DESCRIPTION  = "description";
+SnapApp.Processors.INPUT_GROUPS = "inputGroups";
 
 SnapApp.Processors.PARAM       = "param";
 SnapApp.Processors.NAME        = "name";
@@ -45,10 +43,19 @@ SnapApp.Processors.SELECT_OPTS = "opts";
 SnapApp.Processors.INPUTS      = "inputs";
 SnapApp.Processors.TEMPLATE    = "template";
 
+SnapApp.Processors.SND = {};
+
+SnapApp.Processors.SND.RESULTS_TOP_K        = "topk";
+SnapApp.Processors.SND.RESULTS_TOP_K_SAMPLE = "sample";
+
+SnapApp.Processors.SND.RESULTS_HIST      = "hist";
+SnapApp.Processors.SND.RESULT_HIST_START = "start";
+SnapApp.Processors.SND.RESULT_HIST_END   = "end";
+SnapApp.Processors.SND.RESULT_HIST_COUNT = "count";
+
 SnapApp.Processors.Index = {
     "Junction Inclusion Ratio": {
         "function": "junctionInclusionRatio",
-        "publishFunction": SnapApp.Processors.SND.loadAndPublish,
         "description": "Computes the junction inclusion ratio (B-A)/(A+B+1) across samples in 2 groups," +
         " and returns a histogram along with the top K results",
         "inputGroups": ["A", "B"],
