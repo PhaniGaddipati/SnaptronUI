@@ -45,12 +45,13 @@ function clusterSamples(samples, k) {
     var clusters = pickInitialCentroids(vecs, k);
     var itrNum   = 0;
     var changed  = 1;
+    console.log("Starting k-means iterations (max: " + MAX_ITERATIONS + ")");
     while (changed > 0 && itrNum < MAX_ITERATIONS) {
         changed = assignSamples(clusters, vecs);
-        console.log(changed + " samples moved clusters");
         updateCentroids(clusters, vecs);
         itrNum++;
     }
+    console.log("Done clustering after " + itrNum + " iterations");
     return _.pluck(clusters, "samples");
 }
 
