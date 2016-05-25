@@ -67,8 +67,10 @@ Template.processorsPanel.events({
     },
     "change .groupSelect": validate,
     "click #analyzeBtn": onAnalyze,
-    "keypress .paramInputField": function (evt, template) {
-        evt.preventDefault();
+    "keyup .paramInputField": function (evt, template) {
+        if (evt.which === SnapApp.ENTER_KEY_CODE) {
+            evt.preventDefault();
+        }
         validate(evt, template);
     }
 });
