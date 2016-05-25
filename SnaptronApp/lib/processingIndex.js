@@ -71,5 +71,16 @@ SnapApp.Processors.Index = {
             "name": "Notes"
         }],
         "template": "junctionInclusionRatioResults"
+    },
+    "K-Means Clustering": {
+        "function": "clusterSamplesInGroup",
+        "description": "Clusters all of the samples in the group into k clusters, using the sample meta-data",
+        "inputGroups": ["A"],
+        "selects": [],
+        "inputs": [{
+            "param": "k",
+            "name": "K Clusters"
+        }],
+        "template": ""
     }
 };

@@ -1,13 +1,35 @@
 /**
  * Created by Phani on 5/25/2016.
+ *
+ * KMeans Clustering
+ *
+ * Clusters all of the samples present in the junction group "A"
+ * into k groups using the sample meta-data
+ *
+ * The results in the following format:
+ * [[sampleIds...],[sampleIds...],..]
+ * An array of k arrays with the sampleIds of the samples in the respective groups
+ * Expected parameters:
+ *      k: The number of groups to cluster into
+ *
+ * Optional parameters:
+ *      None
+ *
  */
 
 const MAX_ITERATIONS = 1000;
 
 Meteor.methods({
-    "clusterSample": function (sampleIds, k) {
+    "clusterSamplesInGroup": function (queryId, inputGroups, params) {
+        if (!validateInput(inputGroups, params)) {
+            return null;
+        }
+        var grp       = SnapApp.QueryDB.getGroupFromQuery(queryId, inputGroups["A"]);
+        var jncts     = SnapApp.JunctionDB.getJunctions(grp[QRY_GROUP_JNCTS]);
+        var sampleIds = _.uniq(_.flatten(_.pluck(jncts, JNCT_SAMPLES_KEY)));
+        console.log("Loading missing samples before clustering...");
         SnapApp.Snaptron.loadMissingSamples(sampleIds);
-        return clusterSamples(SnapApp.SampleDB.getSamples(sampleIds), k);
+        return clusterSamples(SnapApp.SampleDB.getSamples(sampleIds), parseInt(params["k"]));
     }
 });
 
@@ -41,7 +63,7 @@ function clusterSamples(samples, k) {
     _.each(samples, function (sample) {
         vecs[sample["_id"]] = SnapApp.Processors.KCLUSTER.getDocumentVector(sample);
     });
-
+    console.log("Initializing centroids...");
     var clusters = pickInitialCentroids(vecs, k);
     var itrNum   = 0;
     var changed  = 1;
@@ -129,8 +151,7 @@ function computeCentroid(vectors) {
  *      samples: samples currently in the cluster
  */
 function pickInitialCentroids(vecs, k) {
-    var clusters = [];
-    console.log("Initializing centroids...");
+    var clusters           = [];
     // Step 1: Choose one center uniformly at random from among the data points.
     var randVectorSampleId = _.sample(_.keys(vecs));
     clusters[0]            = {
@@ -187,4 +208,28 @@ function pickInitialCentroids(vecs, k) {
         // Step 4: Repeat Steps 2 and 3 until k centers have been chosen.
     }
     return clusters;
+}
+
+/**
+ * Ensures that the given params are valid
+ * @param inputGroups
+ * @param params
+ * @returns {boolean}
+ */
+function validateInput(inputGroups, params) {
+    if (!_.contains(_.keys(inputGroups), "A")) {
+        // Proper input group not present
+        return false;
+    }
+    var k;
+    if (!_.contains(_.keys(params), "k")) {
+        return false;
+    } else {
+        k = parseInt(params["k"]);
+        if (!_.isFinite(k) || k <= 0) {
+            // Invalid k value
+            return false;
+        }
+    }
+    return true;
 }
