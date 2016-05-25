@@ -10,19 +10,18 @@ SnapApp.Processors.KCLUSTER.getDocumentVector = function (doc, fieldWeights) {
     if (!fieldWeights) {
         fieldWeights = {};
     }
-    var fieldKeys = _.keys(fieldWeights);
     var vector    = {};
     // Loop through all of the fields in the document
     _.each(_.keys(doc), function (docKey) {
         var words  = getWords(doc[docKey]);
         // Set the weight of all of these words
         var weight = 1;
-        if (fieldKeys.contains(docKey)) {
+        if (_.has(fieldWeights, docKey)) {
             weight = fieldWeights[docKey];
         }
         // Make the changes to the doc vector
         _.each(words, function (word) {
-            if (_.keys(vector).contains(word)) {
+            if (_.has(vector, word)) {
                 vector[word] += weight;
             } else {
                 vector[word] = weight;
@@ -31,6 +30,51 @@ SnapApp.Processors.KCLUSTER.getDocumentVector = function (doc, fieldWeights) {
     });
     return vector;
 };
+
+/**
+ * Computes the cosine similarity between the given documents.
+ * @param doc1
+ * @param doc2
+ */
+SnapApp.Processors.KCLUSTER.cosineSimilarity = function (doc1, doc2) {
+    // Put 0s for missing keys so that each document has the same key set
+    var allKeys = _.union(_.keys(doc1), _.keys(doc2));
+    _.each(allKeys, function (key) {
+        if (!_.has(doc1, key)) {
+            doc1[key] = 0;
+        }
+        if (!_.has(doc2, key)) {
+            doc2[key] = 0;
+        }
+    });
+    // Compute similarity
+    return vecDotProduct(doc1, doc2) / (vecMagnitude(doc1) * vecMagnitude(doc2));
+};
+
+/**
+ * Computes the dot product of 2 vectors
+ * @param doc1
+ * @param doc2
+ */
+function vecDotProduct(doc1, doc2) {
+    var prod = 0;
+    _.each(_.keys(doc1), function (key) {
+        prod += doc1[key] * doc2[key];
+    });
+    return prod;
+}
+
+/**
+ * Computes the magnitude of a vector.
+ * @param doc
+ */
+function vecMagnitude(doc) {
+    var mag = 0;
+    _.each(_.keys(doc), function (key) {
+        mag += doc[key] * doc[key];
+    });
+    return Math.sqrt(mag);
+}
 
 /**
  * Sanitizes, splits, removes stop words, and stems
