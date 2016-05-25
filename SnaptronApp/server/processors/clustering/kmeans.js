@@ -24,6 +24,12 @@ function clusterSamples(samples, k) {
         console.log("Clustering trivial case: k = 1");
         return [_.pluck(samples, "_id")];
     }
+    if (k == samples.length) {
+        console.log("Clustering trivial case: k = |samples|");
+        return _.map(_.pluck(samples, "_id"), function (sampleId) {
+            return [sampleId];
+        });
+    }
 
     // Generate all document vectors for the samples
     // sampleID maps to the vector
