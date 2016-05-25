@@ -30,6 +30,9 @@ Meteor.methods({
         console.log("Loading missing samples before clustering...");
         SnapApp.Snaptron.loadMissingSamples(sampleIds);
         return clusterSamples(SnapApp.SampleDB.getSamples(sampleIds), parseInt(params["k"]));
+    },
+    "clusterSamplesInGroupValidation": function (queryId, inputGroups, params) {
+        return validateInput(inputGroups, params);
     }
 });
 

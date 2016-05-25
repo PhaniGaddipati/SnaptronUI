@@ -77,6 +77,7 @@ SnapApp.Processors.Index = {
     },
     "K-Means Clustering": {
         "function": "clusterSamplesInGroup",
+        "validateFunction": "clusterSamplesInGroupValidation",
         "description": "Clusters all of the samples in the group into k clusters, using the sample meta-data",
         "inputGroups": ["A"],
         "selects": [],
