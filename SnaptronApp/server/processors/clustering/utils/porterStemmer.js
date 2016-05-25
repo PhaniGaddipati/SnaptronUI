@@ -16,7 +16,7 @@
 //
 // see also http://www.tartarus.org/~martin/PorterStemmer
 
-SnapApp.Processors.KCLUSTER.STEMMER = function () {
+SnapApp.Processors.KCLUSTER.stemWord = function () {
     var step2list = {
             "ational": "ate",
             "tional": "tion",
@@ -233,4 +233,4 @@ SnapApp.Processors.KCLUSTER.STEMMER = function () {
 
         return w;
     }
-};
+}();
