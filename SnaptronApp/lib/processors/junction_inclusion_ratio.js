@@ -44,7 +44,6 @@ SnapApp.Processors.SND.RESULT_HIST_COUNT = "count";
 if (Meteor.isServer) {
     Meteor.methods({
         "junctionInclusionRatio": function (queryId, inputGroups, params) {
-            this.unblock();
             if (!validateInput(inputGroups, params)) {
                 return null;
             }
