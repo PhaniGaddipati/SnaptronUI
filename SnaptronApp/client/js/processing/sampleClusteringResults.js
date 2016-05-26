@@ -8,7 +8,7 @@ const PADDING            = 25;
 
 Template.sampleClusteringResults.onRendered(function () {
     var root           = {};
-    var clusterResults = this.data[QRY_PROCESSOR_RESULTS];
+    var clusterResults = this.data[QRY_PROCESSOR_RESULTS][SnapApp.Processors.KMEANS.RESULTS_CLUSTERS];
     root["name"]       = "";
     root["children"]   = [];
     _.each(clusterResults, function (cluster) {

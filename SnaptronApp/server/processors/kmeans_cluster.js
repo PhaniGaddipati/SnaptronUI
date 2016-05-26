@@ -7,7 +7,11 @@
  * into k groups using the sample meta-data
  *
  * The results in the following format:
- * [[sampleIds...],[sampleIds...],..]
+ *      {
+ *          clusters: [[sampleIds...],[sampleIds...],..],
+    *       group: groupId,
+    *       k: k
+ *       }
  * An array of k arrays with the sampleIds of the samples in the respective groups
  * Expected parameters:
  *      k: The number of groups to cluster into
@@ -30,7 +34,11 @@ Meteor.methods({
         var sampleIds = _.uniq(_.flatten(_.pluck(jncts, JNCT_SAMPLES_KEY)));
         console.log("Loading missing samples before clustering...");
         SnapApp.Snaptron.loadMissingSamples(sampleIds);
-        return clusterSamples(SnapApp.SampleDB.getSamples(sampleIds), parseInt(params["k"]));
+        return {
+            "clusters": clusterSamples(SnapApp.SampleDB.getSamples(sampleIds), parseInt(params["k"])),
+            "group": inputGroups["A"],
+            "k": params["k"]
+        };
     },
     "clusterSamplesInGroupValidation": function (queryId, inputGroups, params) {
         return validateInput(inputGroups, params);

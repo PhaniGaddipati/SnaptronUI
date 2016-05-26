@@ -55,6 +55,12 @@ SnapApp.Processors.SND.RESULT_HIST_START = "start";
 SnapApp.Processors.SND.RESULT_HIST_END   = "end";
 SnapApp.Processors.SND.RESULT_HIST_COUNT = "count";
 
+SnapApp.Processors.KMEANS = {};
+
+SnapApp.Processors.KMEANS.RESULTS_CLUSTERS = "clusters";
+SnapApp.Processors.KMEANS.RESULTS_GROUP    = "group";
+SnapApp.Processors.KMEANS.RESULTS_K        = "k";
+
 SnapApp.Processors.Index = {
     "Junction Inclusion Ratio": {
         "function": "junctionInclusionRatio",
