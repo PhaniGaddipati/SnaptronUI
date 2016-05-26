@@ -139,6 +139,7 @@ function updateRegion(regionId) {
         SnapApp.RegionDB.setRegionLoadedDate(regionId, new Date());
     } else {
         console.log("Failed to update region " + regionId);
+        SnapApp.RegionDB.setRegionLoadedDate(regionId, null);
     }
 }
 
@@ -190,7 +191,6 @@ function updateRegionMetadataAndJunctions(regionId) {
         SnapApp.RegionDB.upsertRegion(regionDoc);
         return regionId;
     } catch (err) {
-        SnapApp.RegionDB.setRegionLoadedDate(regionId, null);
         console.error("Error in updateRegionMetadataAndJunctions (\"" + regionId + "\")!");
         console.error(err);
         return null;
