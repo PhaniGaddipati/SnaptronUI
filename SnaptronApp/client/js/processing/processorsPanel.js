@@ -103,32 +103,36 @@ function validate(evt, template) {
 
 function getInputGroups(template) {
     var inputGroups = {};
-    var inputs      = SnapApp.Processors.Index[selectedType.get()][SnapApp.Processors.INPUT_GROUPS];
-    for (var i = 0; i < inputs.length; i++) {
-        var input = template.find("#" + inputs[i]);
-        if (input) {
-            inputGroups[inputs[i]] = input.value;
+    if (template) {
+        var inputs = SnapApp.Processors.Index[selectedType.get()][SnapApp.Processors.INPUT_GROUPS];
+        for (var i = 0; i < inputs.length; i++) {
+            var input = template.find("#" + inputs[i]);
+            if (input) {
+                inputGroups[inputs[i]] = input.value;
+            }
         }
+        return inputGroups;
     }
-    return inputGroups;
 }
 function getParams(template) {
-    var params       = {};
-    var selectFields = SnapApp.Processors.Index[selectedType.get()][SnapApp.Processors.SELECTS];
-    for (var i = 0; i < selectFields.length; i++) {
-        var param  = selectFields[i][SnapApp.Processors.PARAM];
-        var select = template.find("#pSelect" + param);
-        if (select) {
-            params[param] = select.value;
+    var params = {};
+    if (template) {
+        var selectFields = SnapApp.Processors.Index[selectedType.get()][SnapApp.Processors.SELECTS];
+        for (var i = 0; i < selectFields.length; i++) {
+            var param  = selectFields[i][SnapApp.Processors.PARAM];
+            var select = template.find("#pSelect" + param);
+            if (select) {
+                params[param] = select.value;
+            }
         }
-    }
 
-    var inputFields = SnapApp.Processors.Index[selectedType.get()][SnapApp.Processors.INPUTS];
-    for (var i = 0; i < inputFields.length; i++) {
-        var param = inputFields[i][SnapApp.Processors.PARAM];
-        var input = template.find("#pInput" + param);
-        if (input) {
-            params[param] = input.value;
+        var inputFields = SnapApp.Processors.Index[selectedType.get()][SnapApp.Processors.INPUTS];
+        for (var i = 0; i < inputFields.length; i++) {
+            var param = inputFields[i][SnapApp.Processors.PARAM];
+            var input = template.find("#pInput" + param);
+            if (input) {
+                params[param] = input.value;
+            }
         }
     }
     return params;
