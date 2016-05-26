@@ -140,7 +140,7 @@ function initMap() {
 
     zoomBehaviour = d3.behavior.zoom()
         .x(linearMapXScale)
-        .scaleExtent([1, 100])
+        .scaleExtent([1, 2000])
         .on("zoom", function () {
             onZoom();
         });
