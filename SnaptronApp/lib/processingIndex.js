@@ -85,6 +85,6 @@ SnapApp.Processors.Index = {
             "param": "k",
             "name": "K Clusters"
         }],
-        "template": ""
+        "template": "sampleClusteringResults"
     }
 };
