@@ -1,4 +1,18 @@
 <template name="sampleClusteringResults">
     <h4>Sample Clustering</h4>
+    <ul>
+        <li>
+            <strong>Group: </strong>{{paramGroup}}
+        </li>
+        <li>
+            <strong>K: </strong>{{paramK}}
+        </li>
+        <li>
+            <strong>Junctions: </strong>{{numJunctions}}
+        </li>
+        <li>
+            <strong>Samples: </strong>{{numSamples}}
+        </li>
+    </ul>
     <svg id="sampleClusterSVG{{this._id}}"></svg>
 </template>

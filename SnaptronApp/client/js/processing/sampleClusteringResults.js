@@ -6,6 +6,23 @@ const CLUSTER_SVG_WIDTH  = 320;
 const CLUSTER_SVG_HEIGHT = 320;
 const PADDING            = 25;
 
+Template.sampleClusteringResults.helpers({
+    "paramGroup": function () {
+        return SnapApp.QueryDB.getGroupFromQuery(Queries.findOne()["_id"],
+            this[QRY_PROCESSOR_RESULTS][SnapApp.Processors.KMEANS.RESULTS_GROUP])[QRY_GROUP_NAME];
+    },
+    "paramK": function () {
+        return this[QRY_PROCESSOR_RESULTS][SnapApp.Processors.KMEANS.RESULTS_K];
+    },
+    "numSamples": function () {
+        return _.flatten(this[QRY_PROCESSOR_RESULTS][SnapApp.Processors.KMEANS.RESULTS_CLUSTERS]).length;
+    },
+    "numJunctions": function () {
+        return SnapApp.QueryDB.getGroupFromQuery(Queries.findOne()["_id"],
+            this[QRY_PROCESSOR_RESULTS][SnapApp.Processors.KMEANS.RESULTS_GROUP])[QRY_GROUP_JNCTS].length;
+    }
+});
+
 Template.sampleClusteringResults.onRendered(function () {
     var root           = {};
     var clusterResults = this.data[QRY_PROCESSOR_RESULTS][SnapApp.Processors.KMEANS.RESULTS_CLUSTERS];
