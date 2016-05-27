@@ -178,7 +178,9 @@ function pickInitialCentroids(vecs, k) {
         _.each(vecs, function (vec, sampleId) {
             if (!_.contains(usedSampleIds, sampleId)) {
                 var distances = _.map(clusters, function (cluster) {
-                    return SnapApp.Processors.KCLUSTER.cosineSimilarity(cluster["centroid"], vec);
+                    // Want a distance metric. Angular distance isn't a proper
+                    // distance metric, but we just care about the minimum
+                    return 1 - SnapApp.Processors.KCLUSTER.cosineSimilarity(cluster["centroid"], vec);
                 });
                 D[sampleId]   = _.min(distances);
             }
