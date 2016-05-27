@@ -75,10 +75,12 @@ function clusterSamples(samples, k) {
     _.each(samples, function (sample) {
         vecs[sample["_id"]] = SnapApp.Processors.KCLUSTER.getDocumentVector(sample);
     });
+    // Pick the initial samples to use as centroids
     console.log("Initializing centroids...");
     var clusters = pickInitialCentroids(vecs, k);
     var itrNum   = 0;
     var changed  = 1;
+    // Cluster the samples
     console.log("Starting k-means iterations (max: " + MAX_ITERATIONS + ")");
     while (changed > 0 && itrNum < MAX_ITERATIONS) {
         changed = assignSamples(clusters, vecs);
@@ -128,6 +130,12 @@ function assignSamples(clusters, vecs) {
     return changed;
 }
 
+/**
+ * Updates the centroids of all of the clusters,
+ * based on the members of each cluster.
+ * @param clusters
+ * @param vecs
+ */
 function updateCentroids(clusters, vecs) {
     _.each(clusters, function (cluster) {
         cluster["centroid"] = computeCentroid(_.map(cluster["samples"], function (sampleId) {
@@ -136,6 +144,12 @@ function updateCentroids(clusters, vecs) {
     });
 }
 
+/**
+ * Computes the centroid of the given vectors.
+ * The keyset of the vectors can be different.
+ * @param vectors
+ * @returns {{}}
+ */
 function computeCentroid(vectors) {
     var centroid = {};
     _.each(vectors, function (vector) {
