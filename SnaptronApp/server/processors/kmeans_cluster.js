@@ -22,6 +22,19 @@
  */
 
 const MAX_ITERATIONS = 10;
+const FIELD_WEIGHTS  = {
+    experiment_title_t: 5,
+    study_title_t: 5,
+    tissue_t: 3,
+    study_description_t: 2,
+    study_abstract_t: 2,
+    strain_t: 2,
+    sample_name_t: 5,
+    sample_attribute_t: 3,
+    center_project_name_t: 3,
+    cell_line_t: 5,
+    cell_type_t: 5
+};
 
 Meteor.methods({
     "clusterSamplesInGroup": function (queryId, inputGroups, params) {
@@ -73,7 +86,7 @@ function clusterSamples(samples, k) {
     console.log("Generating document vectors...");
     var vecs = {};
     _.each(samples, function (sample) {
-        vecs[sample["_id"]] = SnapApp.Processors.KCLUSTER.getDocumentVector(sample);
+        vecs[sample["_id"]] = SnapApp.Processors.KCLUSTER.getDocumentVector(sample, FIELD_WEIGHTS);
     });
     // Pick the initial samples to use as centroids
     console.log("Initializing centroids...");
