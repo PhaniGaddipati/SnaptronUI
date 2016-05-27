@@ -8,7 +8,7 @@ Meteor.methods({
         var result = Meteor.call(SnapApp.Processors.Index[type][SnapApp.Processors.FUNCTION],
             queryId, inputGroups, params);
         if (result) {
-            Meteor.call("addProcessorToQuery", queryId, type, inputGroups, params, result);
+            return Meteor.call("addProcessorToQuery", queryId, type, inputGroups, params, result);
         }
     }
 });
