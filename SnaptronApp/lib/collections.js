@@ -127,7 +127,7 @@ REGION_MODEL_CDS_END    = "cdsEnd";
 REGION_MODEL_EXONS      = "exons";
 
 JNCT_ID_FIELD      = "snaptron_id";
-JNCT_ANNOTATED_KEY = "annotated?";
+JNCT_ANNOTATED_KEY = "annotated";
 JNCT_SAMPLES_KEY   = "samples";
 JNCT_COVERAGE_KEY  = "read_coverage_by_sample";
 JNCT_COL_TYPES     = {
@@ -138,11 +138,11 @@ JNCT_COL_TYPES     = {
     "end": "int",
     "length": "int",
     "strand": "str",
-    "annotated?": "bool",
+    "annotated": "bool",
     "left_motif": "str",
     "right_motif": "str",
-    "left_annotated?": "str",
-    "right_annotated?": "str",
+    "left_annotated": "str",
+    "right_annotated": "str",
     "samples": "str[]",
     "read_coverage_by_sample": "float[]",
     "samples_count": "int",
