@@ -85,7 +85,7 @@ SnapApp.Snaptron.loadMissingSamples = function (sampleIds) {
             var endI   = Math.min(samplesToLoad.length, MAX_LOAD_BATCH);
             while (startI < samplesToLoad.length) {
                 console.log("Loading samples " + startI + "-" + endI + " of " + samplesToLoad.length);
-                var sampleQuery = "\"[{\"ids\":[\"" + samplesToLoad.slice(startI, endI).join("\",\"") + "\"]}]\"";
+                var sampleQuery = "[{\"ids\":[\"" + samplesToLoad.slice(startI, endI).join("\",\"") + "\"]}]";
                 var params      = {"fields": sampleQuery};
                 var responseTSV = Meteor.http.post(SAMPLE_URL, {params: params}).content.trim();
                 var samples     = SnapApp.Parser.parseSampleResponse(responseTSV);
@@ -224,11 +224,12 @@ function loadMissingRegionJunctions(regionId) {
             while (startI < toLoadJunctionIDs.length) {
                 console.log("Loading junctions " + startI + "-" + endI + " of "
                     + toLoadJunctionIDs.length + " for region (\"" + regionId + "\")");
-
-                var snaptronQuery = "\"[{\"ids\":[\"" + toLoadJunctionIDs.slice(startI, endI).join("\",\"") + "\"]}]\"";
+                var snaptronQuery = "[{\"ids\":[\"" + toLoadJunctionIDs.slice(startI, endI).join("\",\"") + "\"]}]";
+		//console.log("URL: " + SNAPTRON_URL + "/" + snaptronQuery)
                 var params        = {"fields": snaptronQuery};
                 var responseTSV   = Meteor.http.post(SNAPTRON_URL, {params: params}).content.trim();
                 var junctions     = SnapApp.Parser.parseJunctionsResponse(responseTSV);
+		//console.log("junctions " + junctions)
                 SnapApp.JunctionDB.addJunctions(junctions);
 
                 startI = endI;
