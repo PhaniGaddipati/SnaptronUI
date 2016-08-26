@@ -127,7 +127,7 @@ REGION_MODEL_CDS_END    = "cdsEnd";
 REGION_MODEL_EXONS      = "exons";
 
 JNCT_ID_FIELD      = "snaptron_id";
-JNCT_ANNOTATED_KEY = "annotated?";
+JNCT_ANNOTATED_KEY = "annotated";
 JNCT_SAMPLES_KEY   = "samples";
 JNCT_COVERAGE_KEY  = "read_coverage_by_sample";
 JNCT_COL_TYPES     = {
