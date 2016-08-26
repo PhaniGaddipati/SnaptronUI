@@ -130,7 +130,9 @@ SnapApp.Parser.parseJunctionsResponse = function (responseTSV) {
             var elems       = lines[i].split("\t");
             var junctionDoc = {};
 
+	    //console.log("LINE: " + lines[i])
             for (var col = 0; col < elems.length; col++) {
+		//console.log("col: " + col + " " + headers[col] + " field:" +JNCT_ID_FIELD + " " + elems[col] + " " + JNCT_COL_TYPES[headers[col]])
                 if (headers[col] == JNCT_ID_FIELD) {
                     junctionDoc["_id"] = elems[col];
                 } else {
