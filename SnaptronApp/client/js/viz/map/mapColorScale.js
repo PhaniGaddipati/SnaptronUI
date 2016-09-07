@@ -8,7 +8,8 @@ updateColorScale = function (colorByKey, colorLog, junctions) {
     d3.select(".scale-container").selectAll("svg").remove();
     if (colorByKey != null && JNCT_COL_TYPES[colorByKey] !== "bool") {
         var vals       = _.pluck(junctions, colorByKey);
-        var colorByMin = colorLog ? 1 : 0;
+        //var colorByMin = colorLog ? 1 : 0;
+        var colorByMin = _.min(vals);
         var colorByMax = _.max(vals);
 
         if (colorLog) {
