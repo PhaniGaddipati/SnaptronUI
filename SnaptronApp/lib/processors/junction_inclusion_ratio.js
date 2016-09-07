@@ -48,16 +48,29 @@ if (Meteor.isServer) {
             if (!validateInput(inputGroups, params)) {
                 return null;
             }
-            return junctionInclusionRatio(queryId, inputGroups["A"], inputGroups["B"], params["k"]);
+            return junctionInclusionRatio(queryId, inputGroups["A"], inputGroups["B"], params["k"], params["sfilter"] );
         }
     });
 }
 
-function junctionInclusionRatio(queryId, groupIdA, groupIdB, k) {
-    var A = getSampleCoverages(queryId, groupIdA);
-    var B = getSampleCoverages(queryId, groupIdB);
-
+function junctionInclusionRatio(queryId, groupIdA, groupIdB, k, sfilter) {
+    var juncIDs = [];
+    var A = getSampleCoverages(queryId, groupIdA, juncIDs);
+    var B = getSampleCoverages(queryId, groupIdB, juncIDs);
+    console.log("junctionInclusionRatio: " + juncIDs+ " " + sfilter)
+    
     var allSamps   = _.union(_.keys(A), _.keys(B));
+
+    //get list of sample IDs via search critera
+    if (sfilter.length > 0) {
+	filtered_samps = _.flatten(_.pluck(SnapApp.SampleDB.searchSamplesForJunctionsCW(juncIDs, ["_id"], sfilter, null, false), "_id"));
+	console.log("allSamps: " + allSamps.length + " " + allSamps[1] + " filtered_samps: " + filtered_samps.length + " " + filtered_samps[1]);
+	allSamps_ = _.intersection(filtered_samps, allSamps);
+	console.log("allSamps: " + allSamps_.length + " filtered_samps: " + filtered_samps.length);
+	allSamps = allSamps_;
+	console.log("allSamps: " + allSamps.length + " filtered_samps: " + filtered_samps.length);
+    }
+
     var allResults = _.map(allSamps, function (sample) {
         var aVal = A[sample] || 0;
         var bVal = B[sample] || 0;
@@ -95,19 +108,19 @@ function getHistogram(results) {
     return hist;
 }
 
-function getSampleCoverages(queryId, groupId) {
+function getSampleCoverages(queryId, groupId, juncIDs) {
     var group  = SnapApp.QueryDB.getGroupFromQuery(queryId, groupId);
     var jncts  = SnapApp.JunctionDB.getJunctions(group[QRY_GROUP_JNCTS]);
     var result = {};
 
     _.each(jncts, function (jnct) {
+	juncIDs.push(jnct["_id"]);
         var samples   = jnct[JNCT_SAMPLES_KEY];
         var coverages = jnct[JNCT_COVERAGE_KEY];
         for (var i = 0; i < samples.length; i++) {
             result[samples[i]] = (result[samples[i]] || 0) + coverages[i];
         }
     });
-
     return result;
 }
 

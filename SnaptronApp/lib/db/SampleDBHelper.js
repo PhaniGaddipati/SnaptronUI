@@ -115,6 +115,10 @@ SnapApp.SampleDB.getSamplesForJunctions = function (junctionIds) {
  * @returns {any}
  */
 SnapApp.SampleDB.searchSamplesForJunctions = function (junctionIds, keysToInclude, searchQuery, limit) {
+	return SnapApp.SampleDB.searchSamplesForJunctionsCW(junctionIds, keysToInclude, searchQuery, limit, true);
+}
+	
+SnapApp.SampleDB.searchSamplesForJunctionsCW = function (junctionIds, keysToInclude, searchQuery, limit, sort) {
     check(junctionIds, [String]);
     check(keysToInclude, [String]);
     check(limit, Match.OneOf(null, undefined, Number));
@@ -144,7 +148,9 @@ SnapApp.SampleDB.searchSamplesForJunctions = function (junctionIds, keysToInclud
     if (searchQuery && searchQuery.trim() !== "") {
         query["$text"] = {$search: searchQuery};
         proj["fields"] = {score: {$meta: "textScore"}};
-        proj["sort"]   = {score: {$meta: "textScore"}};
+	if (sort) {
+        	proj["sort"]   = {score: {$meta: "textScore"}};
+	}
     }
 
     return Samples.find(query, proj).fetch();

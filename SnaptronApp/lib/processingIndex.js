@@ -57,12 +57,16 @@ SnapApp.Processors.Index = {
                 "param": "k",
                 "name": "Top K Results",
                 "opts": [250, 100, 50, 25, 10]
-            }
+            },
         ],
         "inputs": [{
             "param": "notes",
             "name": "Notes"
-        }],
+        },
+            {
+                "param": "sfilter",
+                "name": "Sample Metadata Keyword Filter"
+	    }],
         "template": "junctionInclusionRatioResults"
     }
 };
