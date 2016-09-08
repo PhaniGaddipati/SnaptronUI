@@ -86,6 +86,13 @@ Template.junctionInclusionRatioResults.helpers({
             return "<i>None</i>";
         }
         return notes;
+    },
+    "sfilter": function () {
+        var sfilter = this[QRY_PROCESSOR_PARAMS]["sfilter"];
+        if (sfilter == undefined || sfilter == null || sfilter.trim() === "") {
+            return "<i>None</i>";
+        }
+        return sfilter;
     }
 });
 
