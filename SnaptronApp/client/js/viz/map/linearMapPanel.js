@@ -89,10 +89,14 @@ Template.linearMap.helpers({
     "modelOptionText": function (region, model, index) {
         var hasCDS = model[REGION_MODEL_CDS_START] > -1;
         var text;
+	var num_exons = model[REGION_MODEL_SCORE] + " Exons";
+	if(parseInt(model[REGION_MODEL_SCORE]) > REGION_MODEL_BOOST) {
+		num_exons = (parseInt(model[REGION_MODEL_SCORE]) - REGION_MODEL_BOOST) + " Exons";
+	}
         if (Regions.find().count() > 1) {
-            text = (index + 1) + " - " + region.toUpperCase() + ": " + model[REGION_MODEL_SRC];
+            text = (index + 1) + " - " + num_exons + ", " + region.toUpperCase() + ": " + model[REGION_MODEL_SRC];
         } else {
-            text = (index + 1) + " - " + model[REGION_MODEL_SRC];
+            text = (index + 1) + " - " + num_exons + ", " + model[REGION_MODEL_SRC];
         }
         if (!hasCDS) {
             text += " (No CDS)";
@@ -106,10 +110,14 @@ Template.linearMap.helpers({
         var text    = "";
         if (model) {
             text += "<b>Source</b>: " + model[REGION_MODEL_SRC] + spacing;
-            text += "<b>Type</b>: " + model[REGION_MODEL_FEAT_TYPE] + spacing;
             text += "<b>Transcript</b>: " + model[REGION_MODEL_TRANSCRIPT] + spacing;
             text += "<b>Strand</b>: " + model[REGION_MODEL_STRAND] + spacing;
             text += "<b>Reference</b>: " + model[REGION_MODEL_REF] + spacing;
+	    num_exons = model[REGION_MODEL_SCORE] + spacing;
+	    if(parseInt(model[REGION_MODEL_SCORE]) > REGION_MODEL_BOOST) {
+		    num_exons = (parseInt(model[REGION_MODEL_SCORE]) - REGION_MODEL_BOOST) + spacing;
+	    }
+            text += "<b># of Exons</b>: " + num_exons;
             if (model[REGION_MODEL_CDS_START] > -1) {
                 text += "<b>CDS</b>: " + numberWithCommas(model[REGION_MODEL_CDS_START])
                     + "-" + numberWithCommas(model[REGION_MODEL_CDS_END]) + spacing;

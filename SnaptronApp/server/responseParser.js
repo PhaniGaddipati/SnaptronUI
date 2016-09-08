@@ -212,7 +212,7 @@ SnapApp.Parser.parseModelResponse = function (responseTSV) {
             models.push(parseGeneModel(mapping, lines[i].trim()));
         }
     }
-
+    models.sort(function(x, z){return parseInt(z[REGION_MODEL_SCORE])-parseInt(x[REGION_MODEL_SCORE])});
     return models;
 };
 
@@ -229,6 +229,7 @@ function parseGeneModel(colMapping, line) {
     model[REGION_MODEL_SRC_TYPE]  = tokens[colMapping["DataSource:Type"]];
     model[REGION_MODEL_REF]       = tokens[colMapping["reference"]];
     model[REGION_MODEL_SRC]       = tokens[colMapping["annotation_source"]];
+    model[REGION_MODEL_SCORE]       = tokens[colMapping["score"]];
     model[REGION_MODEL_FEAT_TYPE] = tokens[colMapping["feature_type"]];
     model[REGION_MODEL_START]     = tokens[colMapping["start"]];
     model[REGION_MODEL_END]       = tokens[colMapping["end"]];
