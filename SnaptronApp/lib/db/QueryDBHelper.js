@@ -32,7 +32,7 @@ Meteor.methods({
         var filters = [];
         for (var i = 0; i < filterFields.length; i++) {
             var filter = getFilterFromFields(filterFields[i], filterOpStrs[i], filterVals[i]);
-            if (filter != null) {
+            if (filter) {
                 filters.push(filter);
             }
         }
@@ -51,8 +51,7 @@ Meteor.methods({
         var newQuery = SnapApp.QueryDB.getQuery(queryId);
         delete newQuery["_id"];
         delete newQuery[QRY_OWNER];
-        var id = SnapApp.QueryDB.insertQuery(newQuery);
-        return id;
+        return SnapApp.QueryDB.insertQuery(newQuery);
     },
 
     /**
@@ -143,6 +142,7 @@ Meteor.methods({
      * @param queryId
      * @param type
      * @param inputGroups
+     * @param params
      * @param results
      * @returns {*}
      */
@@ -186,8 +186,8 @@ SnapApp.QueryDB.getQuery = function (queryId) {
 
 /**
  * Returns the querys of the given array of IDs
- * @param queryId
  * @returns {any}
+ * @param queryIds
  */
 SnapApp.QueryDB.getQueries = function (queryIds) {
     check(queryIds, [String]);

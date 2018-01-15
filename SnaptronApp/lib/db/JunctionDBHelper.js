@@ -38,6 +38,7 @@ SnapApp.JunctionDB.addJunctions = function (junctions) {
  * query with filters applied
  * @param queryId
  * @param fieldsProj
+ * @param limProj
  */
 SnapApp.JunctionDB.findJunctionsForQuery = function (queryId, fieldsProj, limProj) {
     check(queryId, String);
